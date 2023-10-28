@@ -10,7 +10,7 @@ const HomePage = () => {
         <div className='bg-white flex rounded-2xl shadow-2xl w-2/3 max-w-4xl'>
           <div className='w-3/5 p-5'>
             <div className='text-left font-bold font-montserrat'>
-              <span className='text-blue-900'>Student Assistant</span> Scholar Organization
+              <span className='text-blue-900'>HCDC -</span> SASO
             </div>
             <div className='py-10'>
               <h2 className='text-3xl font-bold text-blue-900 mb-2'>
