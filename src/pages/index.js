@@ -34,7 +34,7 @@ const HomePage = () => {
                   <MdLockOutline className='m-2'/>
                   <input type='password' name='password' placeholder='Password' className='bg-gray-100 outline-none text-sm flex-1'/>
                 </div>
-                <a href='#' className='border-2 border-blue-900 text-blue-900 rounded-full px-12 py-2 inline-block font-semibold hover:bg-blue-950 hover:text-blue-950'>
+                <a href='#' className='border-2 border-blue-900 text-blue-900 rounded-full px-12 py-2 inline-block font-semibold hover:bg-blue-950 hover:text-white'>
                   Sign In
                 </a>
               </div>
