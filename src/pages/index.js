@@ -40,11 +40,11 @@ const HomePage = () => {
                 <div className='flex flex-col items-center'>
                   <div className='bg-gray-100 w-64 p-2 mb-3 text-blue-900 flex items-center'>
                     <FaRegEnvelope className='m-2'/>
-                    <input type='email' name='signin.email' placeholder='HCDC Email' className='bg-gray-100 outline-none text-sm flex-1'/>
+                    <input type='email' name='signin.email' required placeholder='HCDC Email' className='bg-gray-100 outline-none text-sm flex-1'/>
                   </div>
                   <div className='bg-gray-100 w-64 mb-3 p-2 text-blue-900 flex items-center'>
                     <MdLockOutline className='m-2'/>
-                    <input type='password' name='signin.password' placeholder='Password' className='bg-gray-100 outline-none text-sm flex-1'/>
+                    <input type='password' name='signin.password' required placeholder='Password' className='bg-gray-100 outline-none text-sm flex-1'/>
                   </div>
                   <a href='#signIn' className='border-2 border-blue-900 text-blue-900 rounded-full px-12 py-2 inline-block font-semibold hover:bg-blue-950 hover:text-white'>
                     Sign In
@@ -65,11 +65,11 @@ const HomePage = () => {
                   <div className='flex flex-col items-center'>
                     <div className='bg-gray-100 w-64 p-2 mb-3 text-blue-900 flex items-center'>
                       <FaRegEnvelope className='m-2'/>
-                      <input type='email' name='signup.email' placeholder='HCDC Email' className='bg-gray-100 outline-none text-sm flex-1'/>
+                      <input type='email' name='signup.email' required placeholder='HCDC Email' className='bg-gray-100 outline-none text-sm flex-1'/>
                     </div>
                     <div className='bg-gray-100 w-64 mb-3 p-2 text-blue-900 flex items-center'>
                       <MdLockOutline className='m-2'/>
-                      <input type='password' name='signup.password' placeholder='Password' className='bg-gray-100 outline-none text-sm flex-1'/>
+                      <input type='password' name='signup.password' required placeholder='Password' className='bg-gray-100 outline-none text-sm flex-1'/>
                     </div>
                     <a href='#signup' className='border-2 border-blue-900 text-blue-900 rounded-full px-12 py-2 inline-block font-semibold hover:bg-blue-950 hover:text-white'>
                       Sign Up
