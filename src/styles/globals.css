@@ -8,3 +8,89 @@ body {
   min-width: 1024px;
   min-height: 576px;
 }
+
+/* Define the transition for the slide effect */
+.signUp-slide-out {
+  transform: translateX(0); /* Initial position */
+  transition: transform 0.5s ease-in-out;
+  opacity: 1;
+  z-index: 5;
+}
+
+.signUp-slide-in {
+  transform: translateX(-150%); /* Shift left by 100% of the element's width */
+  transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out, border-radius 0.5s ease-in-out;
+  border-top-left-radius: 10px; /* Adjust the radius value as needed */
+  border-bottom-left-radius: 10px; /* Adjust the radius value as needed */
+  border-top-right-radius: 0; /* No rounded corner on the top-right */
+  border-bottom-right-radius: 0; /* No rounded corner on the bottom-right */
+  z-index: 5;
+}
+
+/* Define the transition for the slide effect */
+.signIn-slide-out {
+  transform: translateX(0); /* Initial position */
+  transition: transform 0.5s ease-in-out;
+  opacity: 1;
+  z-index: 5;
+  
+}
+
+.signIn-slide-in {
+  transform: translateX(70%); /* Shift left by 100% of the element's width */
+  transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+  z-index: 1;
+}
+
+.text-container-invi {
+  opacity: 0; /* Initial opacity for full visibility */
+  transition: opacity 0.5s ease-in-out; /* Add opacity transition */
+  z-index: 1;
+  pointer-events: none;
+}
+
+.text-container-full {
+  opacity: 1; /* Initial opacity for full visibility */
+  transition: opacity 0.5s ease-in-out; /* Add opacity transition */
+  z-index: 5;
+  
+}
+.signIn-text-container-invi {
+  opacity: 0; /* Initial opacity for full visibility */
+  transition: opacity 0.5s ease-in-out; /* Add opacity transition */
+  z-index: 1;
+  pointer-events: none;
+}
+
+.sign-in-text-container-full {
+  opacity: 1; /* Initial opacity for full visibility */
+  transition: opacity 0.5s ease-in-out; /* Add opacity transition */
+  z-index: 4;
+  
+}
+.text-container-sign-in {
+  opacity: 0; /* Initial opacity for full visibility */
+  transition: opacity 0.5s ease-in-out; /* Add opacity transition */
+  z-index: 4;
+  position: absolute; /* Position it as needed */
+  /* Additional styling as needed */
+}
+.text-container-sign-up {
+  opacity: 0; /* Initial opacity for full visibility */
+  transition: opacity 0.5s ease-in-out; /* Add opacity transition */
+  z-index: 0;
+ 
+ /* Position it as needed */
+  /* Additional styling as needed */
+}
+.text-container-sign-up-invi {
+  opacity: 0; /* Initial opacity for full visibility */
+  transition: opacity 0.5s ease-in-out; /* Add opacity transition */
+  z-index: 0;
+  pointer-events: none;
+ /* Position it as needed */
+  /* Additional styling as needed */
+}
+
+
+

@@ -13,6 +13,9 @@ module.exports = {
         'montserrat': ['Montserrat'],
         'lato': ['Lato'],
         'garamond': ['Garamond']
+      },
+      margin: {
+        '435px': '435px',
       }
     },
   },
