@@ -12,45 +12,47 @@ import { AiOutlineProfile} from "react-icons/ai";
 import { BiLogOut} from "react-icons/bi";
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&family=Roboto&display=swap" rel="stylesheet"></link>
 import SplashScreen from '../components/SplashScreen';
+import Swal from 'sweetalert2';
 
 function Home () {
     const [user,loading] = useAuthState(auth);
     const [admin, setAdmin] = useState([]);
     const router = useRouter();
     const [open, setOpen] = useState(true)
-    // Check admin user status
-    // useEffect(() => {
-    //     if (loading) {
-    //     // Auth state is still loading, wait for it to be ready
-    //     return;
-    //     }
-    
-    //     if (!user || !user.uid) {
-    //     router.push('/Unauthorized');
-    //     return; // Stop further execution if user or uid is null
-    // }
 
-    // const unsubscribe = onSnapshot(
-    //     query(
-    //       collection(db, "admin_users"),
-    //       where("uid", "==", user.uid),
-    //       where('access', '==', true)
-    //     ),
-    //     (querySnapshot) => {
-    //       if (querySnapshot.size === 1) {
-    //         querySnapshot.forEach((doc) => {
-    //           const adminData = doc.data();
-    //           setAdmin(adminData);
-    //         });
-    //       } else {
-    //         setAdmin([]);
-    //         router.push('/Unauthorized');
-    //       }
-    //     }
-    //   );
+    // Check admin user status
+    useEffect(() => {
+        if (loading) {
+        // Auth state is still loading, wait for it to be ready
+        return;
+        }
     
-    //   return () => unsubscribe(); // Unsubscribe when component unmounts or when dependencies change
-    // }, [user,loading]);
+        if (!user || !user.uid) {
+        router.push('/Unauthorized');
+        return; // Stop further execution if user or uid is null
+    }
+
+    const unsubscribe = onSnapshot(
+        query(
+          collection(db, "admin_users"),
+          where("uid", "==", user.uid),
+          where('access', '==', true)
+        ),
+        (querySnapshot) => {
+          if (querySnapshot.size === 1) {
+            querySnapshot.forEach((doc) => {
+              const adminData = doc.data();
+              setAdmin(adminData);
+            });
+          } else {
+            setAdmin([]);
+            router.push('/Unauthorized');
+          }
+        }
+      );
+    
+      return () => unsubscribe(); // Unsubscribe when component unmounts or when dependencies change
+    }, [user,loading]);
 
     const Menus = [
       { title: 'Dashboard' },
@@ -59,6 +61,37 @@ function Home () {
       { title: 'Profile', icon: <BsFillPersonFill/> },
     ];
     
+    function Sign_Out(){
+      Swal.fire({
+        title: 'Are you sure you want to Logout?',
+        showCancelButton: true,
+        icon: 'question',
+        iconColor: '#000080',
+        confirmButtonText: 'Confirm',
+        confirmButtonColor: '#000080', 
+        cancelButtonText: `Cancel`,
+        buttonsStyling: true,
+      }).then((result) => {
+        /* Read more about isConfirmed, isDenied below */
+        if (result.isConfirmed) {
+          sessionStorage.setItem('Signout', true);
+          sessionStorage.setItem('isFirstRun', 'false');
+          sessionStorage.removeItem('Menu');
+          router.push('/').then(() => {
+            auth.signOut()
+              .then(() => {
+                console.log('Sign out successful');
+              })
+              .catch((error) => {
+                console.error('Sign out error:', error);
+              });
+          });
+          
+        }
+      }) 
+    }
+
+
     return(
       <div className='main'>
         <div className='flex'>
@@ -110,7 +143,8 @@ function Home () {
             ${
               !open ? "w-11":"w-64"
               } 
-              gap-x-4 cursor-pointer p-2 hover:bg-light-white rounded-md `}>
+              gap-x-4 cursor-pointer p-2 hover:bg-light-white rounded-md `}
+              onClick={Sign_Out}>
               <span className='text-2xl block float-left mr-3'> 
                 <BiLogOut/>
               </span>

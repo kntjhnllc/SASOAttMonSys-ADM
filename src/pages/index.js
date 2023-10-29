@@ -8,7 +8,7 @@ import { FaGoogle, FaRegEnvelope } from 'react-icons/fa';
 import {MdLockOutline} from 'react-icons/md';
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&family=Roboto&display=swap" rel="stylesheet"></link>
 import SplashScreen from '../components/SplashScreen';
-
+import Swal from 'sweetalert2';
 const HomePage = () => {
 
 
@@ -25,7 +25,6 @@ const HomePage = () => {
   // State variables for error message and animation class
   const [errorMessage, setErrorMessage] = useState('');
   const [isShaking, setIsShaking] = useState(false);
-
   const [loading, setLoading] = useState(true);
 
 
@@ -46,6 +45,13 @@ const HomePage = () => {
       sessionStorage.setItem('isFirstRun', 'false');
     } else {
       // It's not the first run, handle accordingly
+      Swal.fire({
+       title: 'Success!',
+       text: 'Logged out successfully!',
+       icon: 'success',        
+       confirmButtonColor:'#000080',
+       iconColor:'#000080'
+      })
       console.log('Not the first run');
       setLoading(false)
     }
@@ -139,6 +145,14 @@ const HomePage = () => {
         const auth = getAuth();
         signInWithEmailAndPassword(auth, signInEmail, signInPassword)
         .then((userCredential) => {
+          Swal.fire({
+            position: 'top-end',
+            timerProgressBar:true,
+            title: 'Logging in...',
+            color: '#000080',
+            showConfirmButton: false,
+            timer: 1000
+          })
           // Signed in 
           const user = userCredential.user;
           console.log(user);
@@ -149,7 +163,7 @@ const HomePage = () => {
           // Display error message and apply shake animation to the form
         setErrorMessage("Invalid User");
         setIsShaking(true);
-console.log(error);
+        console.log(error);
         // Clear the error message and reset the shake animation after a short delay
         setTimeout(() => {
           setErrorMessage('');
@@ -212,7 +226,7 @@ console.log(error);
                       value={signInEmail}
                       onChange={handleSignInEmailChange}/>
                     </div>
-                    {isShaking?(<p className='text-red-500 text-sm -mt-3'>*Invalid User Account</p>):null}
+                    {isShaking?(<p className='text-red-500 text-sm -mt-3'>{errorMessage}</p>):null}
                     <div className='bg-gray-100 w-64 mb-3 p-2  flex items-center'>
                       <MdLockOutline className='m-2'/>
                       <input 
