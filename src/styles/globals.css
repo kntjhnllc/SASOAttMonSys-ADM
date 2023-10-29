@@ -9,6 +9,7 @@
 body {
   min-width: 1024px;
   min-height: 576px;
+  background-color: #f5f5f5;
 }
 
 /* Define the transition for the slide effect */
