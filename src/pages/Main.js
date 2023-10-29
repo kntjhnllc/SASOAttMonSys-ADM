@@ -11,8 +11,10 @@ import SplashScreen from '../components/SplashScreen';
 
 function Home () {
     const [user,loading] = useAuthState(auth);
+
+    
     return(
-        <div className='bg-gray-100'>hi {user.email}</div>
+        <div className='bg-gray-100'>hi {user.email[0]}</div>
                
     )
 }
