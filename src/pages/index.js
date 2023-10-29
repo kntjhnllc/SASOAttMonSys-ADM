@@ -1,15 +1,18 @@
 import React from 'react';
 import { useRouter } from 'next/router'
+import { useAuthState } from 'react-firebase-hooks/auth'
 import { auth,db } from '@/config/firebase';
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { getAuth, createUserWithEmailAndPassword,signInWithEmailAndPassword,sendPasswordResetEmail, signOut } from "firebase/auth";
 import { FaGoogle, FaRegEnvelope } from 'react-icons/fa';
 import {MdLockOutline} from 'react-icons/md';
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&family=Roboto&display=swap" rel="stylesheet"></link>
-
+import SplashScreen from '../components/SplashScreen';
 
 const HomePage = () => {
 
+
+  const router = useRouter();
   const [isSignUpVisible, setIsSignUpVisible] = useState(false);
   const [signUpEmail, setSignUpEmail] = useState('');
   const [signUpPassword, setSignUpPassword] = useState('');
@@ -17,9 +20,64 @@ const HomePage = () => {
   const [signInEmail, setSignInEmail] = useState('');
   const [signInPassword, setSignInPassword] = useState('');
   const [hcdcEmail, setHcdcEmail] = useState(true);
+  const [user] = useAuthState(auth);
+  const [sign_up, setSignUp] = useState(false);
   // State variables for error message and animation class
   const [errorMessage, setErrorMessage] = useState('');
   const [isShaking, setIsShaking] = useState(false);
+
+  const [loading, setLoading] = useState(true);
+
+
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      // Clear the isFirstRun flag when the page is reloaded
+      sessionStorage.removeItem('isFirstRun');
+    };
+
+    // Check if it's the first run
+    const isFirstRun = sessionStorage.getItem('isFirstRun');
+
+    if (isFirstRun === null) {
+      // It's the first run, perform any first-run actions
+      console.log('First run!');
+      setLoading(true)
+      // Set a flag to indicate it's not the first run for future visits in this session
+      sessionStorage.setItem('isFirstRun', 'false');
+    } else {
+      // It's not the first run, handle accordingly
+      console.log('Not the first run');
+      setLoading(false)
+    }
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, []);
+
+
+  useEffect(() => {
+    if(loading){
+    setTimeout(() => {
+      setLoading(false);
+    }, 5000);
+  }
+  }, []);
+
+  useEffect(() => { 
+    const handleBeforeUnload = () => {
+      sessionStorage.setItem('Signout', false);
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, []);
+
 
   const handleSignUpClick = () => {
     setIsSignUpVisible(!isSignUpVisible);
@@ -84,6 +142,7 @@ const HomePage = () => {
           // Signed in 
           const user = userCredential.user;
           console.log(user);
+          router.push('/Authentication');
           // ...
         })
         .catch((error) => {
@@ -100,8 +159,11 @@ const HomePage = () => {
     });
   };
 
+
   return (
-    
+    <>
+    {loading?
+      <><SplashScreen/></>:
     <div className='flex flex-col items-center justify-center min-h-screen py-2 bg-gray-100'>
       <main className='flex flex-col flex-1 text-center px-20 items-center justify-center w-full h-screen'>
         <div className='bg-white flex rounded-2xl shadow-2xl w-2/3 max-w-4xl'>
@@ -239,7 +301,7 @@ const HomePage = () => {
         </div>      
       </main>
     </div>
-  );
+ }</>);
 };
 
 export default HomePage;
