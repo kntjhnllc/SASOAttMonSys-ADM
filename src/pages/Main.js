@@ -14,7 +14,7 @@ function Home () {
 
     
     return(
-        <div className='bg-gray-100'>hi {user.email[0]}</div>
+        <div className='bg-gray-100'>hi {user?.email}</div>
                
     )
 }
