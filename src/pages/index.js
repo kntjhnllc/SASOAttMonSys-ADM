@@ -13,6 +13,7 @@ const HomePage = () => {
   const [isSignUpVisible, setIsSignUpVisible] = useState(false);
   const [signUpEmail, setSignUpEmail] = useState('');
   const [signUpPassword, setSignUpPassword] = useState('');
+  const [signUpPasswordConfirm, setSignUpPasswordConfirm] = useState('');
   const [signInEmail, setSignInEmail] = useState('');
   const [signInPassword, setSignInPassword] = useState('');
   const [hcdcEmail, setHcdcEmail] = useState(true);
@@ -32,6 +33,9 @@ const HomePage = () => {
   const handleSignUpPasswordChange = (e) => {
     setSignUpPassword(e.target.value);
   };
+  const handleSignUpPasswordConfirmChange = (e) => {
+    setSignUpPasswordConfirm(e.target.value);
+  };
   
   const handleSignInEmailChange = (e) => {
     setSignInEmail(e.target.value);
@@ -41,6 +45,35 @@ const HomePage = () => {
     setSignInPassword(e.target.value);
   };
   
+  function signUp_Attempt(event){
+    event.preventDefault();
+    try{
+      if (signUpPassword==signUpPasswordConfirm){
+
+      }
+      else{
+        setErrorMessage("Password do not match!");
+      setIsShaking(true);
+
+      // Clear the error message and reset the shake animation after a short delay
+      setTimeout(() => {
+        setErrorMessage('');
+        setIsShaking(false);
+      }, 2000); // Adjust the duration as needed
+      }
+    }
+    catch{
+      setErrorMessage("Password do not match!");
+      setIsShaking(true);
+
+      // Clear the error message and reset the shake animation after a short delay
+      setTimeout(() => {
+        setErrorMessage('');
+        setIsShaking(false);
+      }, 2000); // Adjust the duration as needed
+    }
+  }
+
   function Login_Attempt(event){
     
       event.preventDefault();
@@ -125,15 +158,15 @@ const HomePage = () => {
                 <div className='text-left font-bold font-montserrat '>
                   HCDC - <span className='text-blue-900'>SASO</span>
                 </div>
-                <div className='py-16'>
+                <div className='mt-8'>
                   <h2 className='text-3xl font-bold text-blue-900 mb-2'>
                     Sign up your Account
                   </h2>
                   <div className='border-2 w-10 border-blue-900 inline-block mb-2'></div>
                   <p className='text-gray-400 my-3'>Using your HCDC premium email</p>
                   <div className='flex flex-col items-center'>
-                    <form method='POST'>
-                      <div className='bg-gray-100 w-64 p-2 mb-3 text-blue-900 flex items-center'>
+                    <form className={`text-blue-900 ${isShaking ? 'shake text-red-500' : ''}`} method='POST'>
+                      <div className='bg-gray-100 w-64 p-2 mb-3  flex items-center'>
                         <FaRegEnvelope className='m-2'/>
                         <input 
                         type='email' 
@@ -147,7 +180,7 @@ const HomePage = () => {
                       {!hcdcEmail ? (
                         <p className='text-red-600'>*Your HCDC Email is required.</p>
                       ) : null}
-                      <div className='bg-gray-100 w-64 mb-3 p-2 text-blue-900 flex items-center'>
+                      <div className='bg-gray-100 w-64 mb-3 p-2  flex items-center'>
                         <MdLockOutline className='m-2'/>
                         <input 
                         type='password' 
@@ -158,8 +191,20 @@ const HomePage = () => {
                         onChange={handleSignUpPasswordChange}
                         />
                       </div>
+                      {isShaking?(<p className='text-red-500 text-sm -mt-3'>{errorMessage}</p>):null}
+                      <div className='bg-gray-100 w-64 mb-3 p-2  flex items-center'>
+                        <MdLockOutline className='m-2'/>
+                        <input 
+                        type='password' 
+                        name='signup.password' 
+                        required placeholder='Confirm Password' 
+                        className='bg-gray-100 outline-none text-sm flex-1'
+                        value={signUpPasswordConfirm}
+                        onChange={handleSignUpPasswordConfirmChange}
+                        />
+                      </div>
                       <button className='border-2 border-blue-900 text-blue-900 rounded-full px-12 py-2 inline-block font-semibold hover:bg-blue-950 hover:text-white'
-                      >
+                      onClick={signUp_Attempt}>
                         Sign Up
                       </button>
                     </form>

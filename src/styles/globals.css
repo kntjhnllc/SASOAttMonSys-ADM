@@ -94,7 +94,6 @@ body {
 
 .shake {
   animation: shake 0.5s;
-  color:red;
 }
 
 @keyframes shake {
