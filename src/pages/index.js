@@ -16,7 +16,9 @@ const HomePage = () => {
   const [signInEmail, setSignInEmail] = useState('');
   const [signInPassword, setSignInPassword] = useState('');
   const [hcdcEmail, setHcdcEmail] = useState(true);
-
+  // State variables for error message and animation class
+  const [errorMessage, setErrorMessage] = useState('');
+  const [isShaking, setIsShaking] = useState(false);
 
   const handleSignUpClick = () => {
     setIsSignUpVisible(!isSignUpVisible);
@@ -52,18 +54,16 @@ const HomePage = () => {
           // ...
         })
         .catch((error) => {
-          Swal.fire({
-            title: 'Unregistered',
-            text: 'Credentials do not match any registered user.',
-            icon: 'warning',
-            confirmButtonText: 'Close',
-            customClass: {
-              confirmButton: 'ok-button',
-            },
-            buttonsStyling: false, // Disable default button styling
-          });
-          const errorCode = error.code;
-          const errorMessage = error.message;
+          // Display error message and apply shake animation to the form
+        setErrorMessage("Invalid User");
+        setIsShaking(true);
+
+        // Clear the error message and reset the shake animation after a short delay
+        setTimeout(() => {
+          setErrorMessage('');
+          setIsShaking(false);
+        }, 2000); // Adjust the duration as needed
+          
     });
   };
 
@@ -91,8 +91,8 @@ const HomePage = () => {
                 </div>
                 <p className='text-gray-400 my-3'>or use your HCDC premium email</p>
                 <div className='flex flex-col items-center'>
-                  <form method='POST'>
-                    <div className='bg-gray-100 w-64 p-2 mb-3 text-blue-900 flex items-center'>
+                  <form className={`text-blue-900 ${isShaking ? 'shake text-red-500' : ''}`} method='POST'>
+                    <div className='bg-gray-100 w-64 p-2 mb-3 flex items-center'>
                       <FaRegEnvelope className='m-2'/>
                       <input 
                       type='email' 
@@ -102,7 +102,8 @@ const HomePage = () => {
                       value={signInEmail}
                       onChange={handleSignInEmailChange}/>
                     </div>
-                    <div className='bg-gray-100 w-64 mb-3 p-2 text-blue-900 flex items-center'>
+                    {isShaking?(<p className='text-red-500 text-sm -mt-3'>*Invalid User Account</p>):null}
+                    <div className='bg-gray-100 w-64 mb-3 p-2  flex items-center'>
                       <MdLockOutline className='m-2'/>
                       <input 
                       type='password' 
@@ -131,35 +132,37 @@ const HomePage = () => {
                   <div className='border-2 w-10 border-blue-900 inline-block mb-2'></div>
                   <p className='text-gray-400 my-3'>Using your HCDC premium email</p>
                   <div className='flex flex-col items-center'>
-                    <div className='bg-gray-100 w-64 p-2 mb-3 text-blue-900 flex items-center'>
-                      <FaRegEnvelope className='m-2'/>
-                      <input 
-                      type='email' 
-                      name='signup.email' 
-                      required placeholder='HCDC Email' 
-                      className='bg-gray-100 outline-none text-sm flex-1'
-                      value={signUpEmail}
-                      onChange={handleSignUpEmailChange}
-                      />
-                    </div>
-                    {!hcdcEmail ? (
-                       <p className='text-red-600'>*Your HCDC Email is required.</p>
-                    ) : null}
-                    <div className='bg-gray-100 w-64 mb-3 p-2 text-blue-900 flex items-center'>
-                      <MdLockOutline className='m-2'/>
-                      <input 
-                      type='password' 
-                      name='signup.password' 
-                      required placeholder='Password' 
-                      className='bg-gray-100 outline-none text-sm flex-1'
-                      value={signUpPassword}
-                      onChange={handleSignUpPasswordChange}
-                      />
-                    </div>
-                    <button className='border-2 border-blue-900 text-blue-900 rounded-full px-12 py-2 inline-block font-semibold hover:bg-blue-950 hover:text-white'
-                    >
-                      Sign Up
-                    </button>
+                    <form method='POST'>
+                      <div className='bg-gray-100 w-64 p-2 mb-3 text-blue-900 flex items-center'>
+                        <FaRegEnvelope className='m-2'/>
+                        <input 
+                        type='email' 
+                        name='signup.email' 
+                        required placeholder='HCDC Email' 
+                        className='bg-gray-100 outline-none text-sm flex-1'
+                        value={signUpEmail}
+                        onChange={handleSignUpEmailChange}
+                        />
+                      </div>
+                      {!hcdcEmail ? (
+                        <p className='text-red-600'>*Your HCDC Email is required.</p>
+                      ) : null}
+                      <div className='bg-gray-100 w-64 mb-3 p-2 text-blue-900 flex items-center'>
+                        <MdLockOutline className='m-2'/>
+                        <input 
+                        type='password' 
+                        name='signup.password' 
+                        required placeholder='Password' 
+                        className='bg-gray-100 outline-none text-sm flex-1'
+                        value={signUpPassword}
+                        onChange={handleSignUpPasswordChange}
+                        />
+                      </div>
+                      <button className='border-2 border-blue-900 text-blue-900 rounded-full px-12 py-2 inline-block font-semibold hover:bg-blue-950 hover:text-white'
+                      >
+                        Sign Up
+                      </button>
+                    </form>
                   </div>
                 </div>
             </div>
@@ -171,10 +174,10 @@ const HomePage = () => {
               <p className='mb-10'>
                 Fill up personal information and start journey with us.
               </p>
-              <a href='#' className='border-2 border-white rounded-full px-12 py-2 inline-block font-semibold hover:bg-white hover:text-blue-950'
+              <button className='border-2 border-white rounded-full px-12 py-2 inline-block font-semibold hover:bg-white hover:text-blue-950'
               onClick={handleSignUpClick}>
                 Sign Up
-              </a>
+              </button>
             </div>
             <div className={`-mt-48  ${isSignUpVisible ? 'text-container-sign-up' : 'text-container-sign-up-invi'}`} style={{ opacity: isSignUpVisible ? 1 : 0 }}>
               <h2 className='text-3xl font-bold mb-2 font-montserrat'>Hello, Scholar!</h2>
@@ -182,10 +185,10 @@ const HomePage = () => {
               <p className='mb-10'>
                 Already have your account?
               </p>
-              <a href='#' className='border-2 border-white rounded-full px-12 py-2 inline-block font-semibold hover:bg-white hover:text-blue-950'
+              <button className='border-2 border-white rounded-full px-12 py-2 inline-block font-semibold hover:bg-white hover:text-blue-950'
               onClick={handleSignUpClick}>
                 Sign In
-              </a>
+              </button>
             </div>
           </div>
         </div>      
