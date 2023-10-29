@@ -142,7 +142,6 @@ const HomePage = () => {
       const q = query(collection(db, 'admin_users'), where('uid', '==', uid));
       const querySnapshot = await getDocs(q);
       querySnapshot.forEach((doc) => {
-        console.log(doc.data());
       });
       if (!querySnapshot.empty){
         router.push('/Authentication');
@@ -259,7 +258,6 @@ const HomePage = () => {
           })
           // Signed in 
           const user = userCredential.user;
-          console.log(user);
           router.push('/Authentication');
           // ...
         })
