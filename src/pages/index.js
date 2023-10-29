@@ -136,8 +136,8 @@ const HomePage = () => {
     
       event.preventDefault();
       // Check credentials
-      const auth = getAuth();
-    signInWithEmailAndPassword(auth, signInEmail, signInPassword)
+        const auth = getAuth();
+        signInWithEmailAndPassword(auth, signInEmail, signInPassword)
         .then((userCredential) => {
           // Signed in 
           const user = userCredential.user;
@@ -149,7 +149,7 @@ const HomePage = () => {
           // Display error message and apply shake animation to the form
         setErrorMessage("Invalid User");
         setIsShaking(true);
-
+console.log(error);
         // Clear the error message and reset the shake animation after a short delay
         setTimeout(() => {
           setErrorMessage('');
@@ -159,7 +159,22 @@ const HomePage = () => {
     });
   };
 
-
+  useEffect(() => {
+    const Sign_Out = sessionStorage.getItem('Signout');
+    const redirectIfUserIsNotNull = () => {
+      // Check if Sign_Out is null or false
+      if (Sign_Out === null || Sign_Out === 'false') {
+        if (user !== null && sign_up === false) {
+          if (loading) {
+            setTimeout(() => {
+              router.push('/Authentication');
+            }, 2000);
+          }
+        }
+      }
+    };
+    redirectIfUserIsNotNull(); // Initial check
+  }, [user]);
   return (
     <>
     {loading?
@@ -186,7 +201,7 @@ const HomePage = () => {
                 </div>
                 <p className='text-gray-400 my-3'>or use your HCDC premium email</p>
                 <div className='flex flex-col items-center'>
-                  <form className={`text-blue-900 ${isShaking ? 'shake text-red-500' : ''}`} method='POST'>
+                  <form className={`text-blue-900 ${isShaking ? 'shake text-red-500' : ''}`} onSubmit={Login_Attempt} method='POST'>
                     <div className='bg-gray-100 w-64 p-2 mb-3 flex items-center'>
                       <FaRegEnvelope className='m-2'/>
                       <input 
@@ -208,8 +223,8 @@ const HomePage = () => {
                       value={signInPassword}
                       onChange={handleSignInPasswordChange}/>
                     </div>
-                    <button className='border-2 border-blue-900 text-blue-900 rounded-full px-12 py-2 inline-block font-semibold hover:bg-blue-950 hover:text-white'
-                    onClick={Login_Attempt}>
+                    <button type='submit' className='border-2 border-blue-900 text-blue-900 rounded-full px-12 py-2 inline-block font-semibold hover:bg-blue-950 hover:text-white'
+                   >
                       Sign In
                     </button>
                   </form>
