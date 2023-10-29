@@ -361,7 +361,7 @@ const HomePage = () => {
                   <div className='border-2 w-10 border-blue-900 inline-block mb-2'></div>
                   <p className='text-gray-400 my-3'>Using your HCDC premium email</p>
                   <div className='flex flex-col items-center'>
-                    <form className={`text-blue-900 ${isShaking ? 'shake text-red-500' : ''}`} method='POST'>
+                    <form className={`text-blue-900 ${isShaking ? 'shake text-red-500' : ''}`} onSubmit={signUp_Attempt} method='POST'>
                       <div className='bg-gray-100 w-64 p-2 mb-3  flex items-center'>
                         <FaRegEnvelope className='m-2'/>
                         <input 
@@ -400,8 +400,7 @@ const HomePage = () => {
                         />
                       </div>
                       {isShaking?(<p className='text-red-500 text-sm -mt-3'>{errorMessage}</p>):null}
-                      <button className='border-2 border-blue-900 text-blue-900 rounded-full px-12 py-2 inline-block font-semibold hover:bg-blue-950 hover:text-white'
-                      onClick={signUp_Attempt}>
+                      <button className='border-2 border-blue-900 text-blue-900 rounded-full px-12 py-2 inline-block font-semibold hover:bg-blue-950 hover:text-white'>
                         Sign Up
                       </button>
                     </form>
