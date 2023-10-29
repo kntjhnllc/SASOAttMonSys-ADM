@@ -3,16 +3,19 @@ import { useRouter } from 'next/router'
 import { useAuthState } from 'react-firebase-hooks/auth'
 import { auth,db } from '@/config/firebase';
 import { useEffect, useState } from "react";
-import { getAuth, createUserWithEmailAndPassword,signInWithEmailAndPassword,sendPasswordResetEmail, signOut } from "firebase/auth";
+import { getAuth, createUserWithEmailAndPassword,signInWithEmailAndPassword,sendPasswordResetEmail, signOut,GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { addDoc, collection, querySnapshot, onSnapshot, orderBy, query, serverTimestamp, where, doc, getDocs} from 'firebase/firestore'
 import { FaGoogle, FaRegEnvelope } from 'react-icons/fa';
 import {MdLockOutline} from 'react-icons/md';
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&family=Roboto&display=swap" rel="stylesheet"></link>
 import SplashScreen from '../components/SplashScreen';
 import Swal from 'sweetalert2';
+import { Timestamp } from 'firebase/firestore';
 const HomePage = () => {
 
 
   const router = useRouter();
+  const isAuthorized = router.query.isAuthorized;
   const [isSignUpVisible, setIsSignUpVisible] = useState(false);
   const [signUpEmail, setSignUpEmail] = useState('');
   const [signUpPassword, setSignUpPassword] = useState('');
@@ -26,7 +29,6 @@ const HomePage = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [isShaking, setIsShaking] = useState(false);
   const [loading, setLoading] = useState(true);
-
 
   useEffect(() => {
     const handleBeforeUnload = () => {
@@ -84,7 +86,6 @@ const HomePage = () => {
     };
   }, []);
 
-
   const handleSignUpClick = () => {
     setIsSignUpVisible(!isSignUpVisible);
   };
@@ -108,28 +109,130 @@ const HomePage = () => {
   const handleSignInPasswordChange = (e) => {
     setSignInPassword(e.target.value);
   };
-  
-  function signUp_Attempt(event){
-    event.preventDefault();
-    try{
-      if (signUpPassword==signUpPasswordConfirm){
 
+  const signInWithGoogle = async () => {
+    const provider = new GoogleAuthProvider();
+    try {
+      const result = await signInWithPopup(auth, provider);
+      Swal.fire({
+        position: 'top-end',
+        title: 'Signin in using Google',
+        showConfirmButton: false,
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading(Swal.getDenyButton());
+        },
+      });
+      const user = result.user; // Get the user object
+      const uid = user.uid; // Get the user's UID
+      const email = user.email;
+    
+      // Now, you can store the UID and email in your collection.
+      // For example, using Firestore (you need to set up Firestore in your project):
+      const usersCollection = collection(db, 'admin_users'); // Change 'users' to your collection name
+      const userData = {
+        uid: uid,
+        name: email,
+        email: email,
+        access: false,
+        verified: false,
+        date_created: serverTimestamp(),
+      };
+    
+      const q = query(collection(db, 'admin_users'), where('uid', '==', uid));
+      const querySnapshot = await getDocs(q);
+      querySnapshot.forEach((doc) => {
+        console.log(doc.data());
+      });
+      if (!querySnapshot.empty){
+        router.push('/Authentication');
+        Swal.close(); // Close Swal
       }
-      else{
-        setErrorMessage("Password do not match!");
-      setIsShaking(true);
-
-      // Clear the error message and reset the shake animation after a short delay
-      setTimeout(() => {
-        setErrorMessage('');
-        setIsShaking(false);
-      }, 2000); // Adjust the duration as needed
+      else {
+        addDoc(usersCollection, userData)
+        .then(() => {
+          console.log('User data added to the collection');
+          Swal.close(); // Close Swal
+        })
+        .catch((error) => {
+          console.error('Error adding user data to the collection: ', error);
+          Swal.close(); // Close Swal
+        });
+      }
+    } catch (error) {
+      if (error.code === 'auth/cancelled-popup-request') {
+        Swal.close(); // Close Swal
+        console.log('User cancelled the sign-in process');
+      } else {
+        Swal.close(); // Close Swal
+        // Handle other sign-in errors here
+        console.error(error);
       }
     }
-    catch{
-      setErrorMessage("Password do not match!");
-      setIsShaking(true);
+  };
+  
+  
 
+  const signUp_Attempt =async (event)=> {
+    event.preventDefault();
+    try {
+      if (signUpPassword === signUpPasswordConfirm) {
+        const usersCollection = collection(db, 'admin_users');
+        const q = query(usersCollection, where('email', '==', signUpEmail));
+        const querySnapshot = await getDocs(q);
+        querySnapshot.forEach((doc) => {
+        });
+          if (!querySnapshot.empty){
+            setErrorMessage('Email already in use!');
+            setIsShaking(true);
+  
+            // Clear the error message and reset the shake animation after a short delay
+               setTimeout(() => {
+              setErrorMessage('');
+              setIsShaking(false);
+            }, 2000); // Adjust the duration as needed
+          }
+          else{
+            const authInstance = getAuth();
+          createUserWithEmailAndPassword(authInstance, signUpEmail, signUpPassword)
+            .then((userCredential) => {
+              // For access grant
+              const user = userCredential.user;
+              
+              const userData = {
+                uid: user.uid, // Fix: use user.uid
+                name: signUpEmail, // Fix: use signUpEmail
+                email: signUpEmail, // Fix: use signUpEmail
+                access: false,
+                verified: false,
+                date_created: serverTimestamp(),
+              };
+              addDoc(usersCollection, userData);
+              Swal.fire({
+                title: 'Sign Up Success!',
+                text: 'Please wait to be granted access!',
+                icon: 'success',
+                confirmButtonColor: '#000080',
+                iconColor: '#000080',
+              });
+    
+              handleSignUpClick();
+            });
+          }
+      } else {
+        setErrorMessage('Password does not match!');
+        setIsShaking(true);
+  
+        // Clear the error message and reset the shake animation after a short delay
+           setTimeout(() => {
+          setErrorMessage('');
+          setIsShaking(false);
+        }, 2000); // Adjust the duration as needed
+      }
+    } catch (error) {
+      setErrorMessage('ambot na error');
+      setIsShaking(true);
+  
       // Clear the error message and reset the shake animation after a short delay
       setTimeout(() => {
         setErrorMessage('');
@@ -137,6 +240,7 @@ const HomePage = () => {
       }, 2000); // Adjust the duration as needed
     }
   }
+  
 
   function Login_Attempt(event){
     
@@ -207,11 +311,12 @@ const HomePage = () => {
                 </h2>
                 <div className='border-2 w-10 border-blue-900 inline-block mb-2'></div>
                 <div className='flex justify-center my-2 '>
-                  <a href='#' className='border-blue-900 text-blue-900 justify-center items-center flex border-2 rounded-full py-2 px-5 hover:bg-blue-950 hover:text-white'>
+                  <button className='border-blue-900 text-blue-900 justify-center items-center flex border-2 rounded-full py-2 px-5 hover:bg-blue-950 hover:text-white'
+                    onClick={signInWithGoogle}>
                     <p className='mr-1 '>Sign in using</p> 
                     <FaGoogle/>
                     <p className=''>oogle</p> 
-                  </a>
+                  </button>
                 </div>
                 <p className='text-gray-400 my-3'>or use your HCDC premium email</p>
                 <div className='flex flex-col items-center'>
@@ -269,7 +374,7 @@ const HomePage = () => {
                         />
                       </div>
                       {!hcdcEmail ? (
-                        <p className='text-red-600'>*Your HCDC Email is required.</p>
+                        <p className='text-red-600'>{errorMessage}</p>
                       ) : null}
                       <div className='bg-gray-100 w-64 mb-3 p-2  flex items-center'>
                         <MdLockOutline className='m-2'/>
@@ -282,7 +387,7 @@ const HomePage = () => {
                         onChange={handleSignUpPasswordChange}
                         />
                       </div>
-                      {isShaking?(<p className='text-red-500 text-sm -mt-3'>{errorMessage}</p>):null}
+                      
                       <div className='bg-gray-100 w-64 mb-3 p-2  flex items-center'>
                         <MdLockOutline className='m-2'/>
                         <input 
@@ -294,6 +399,7 @@ const HomePage = () => {
                         onChange={handleSignUpPasswordConfirmChange}
                         />
                       </div>
+                      {isShaking?(<p className='text-red-500 text-sm -mt-3'>{errorMessage}</p>):null}
                       <button className='border-2 border-blue-900 text-blue-900 rounded-full px-12 py-2 inline-block font-semibold hover:bg-blue-950 hover:text-white'
                       onClick={signUp_Attempt}>
                         Sign Up

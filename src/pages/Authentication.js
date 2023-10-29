@@ -20,7 +20,8 @@ function Authentication() {
             console.log("user id: ");
       
             if (querySnapshot.size === 0) {
-              router.push('/Unauthorized');
+
+              router.push('/Main',{isAuthorized:false});
             }else{ router.push('/Main')}
           }
         };

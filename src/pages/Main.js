@@ -19,6 +19,7 @@ function Home () {
     const [admin, setAdmin] = useState([]);
     const router = useRouter();
     const [open, setOpen] = useState(true)
+    const [accessDenied , setAccessDenied] =useState(false)
 
     // Check admin user status
     useEffect(() => {
@@ -26,12 +27,12 @@ function Home () {
         // Auth state is still loading, wait for it to be ready
         return;
         }
-    
+        
         if (!user || !user.uid) {
         router.push('/Unauthorized');
         return; // Stop further execution if user or uid is null
     }
-
+    
     const unsubscribe = onSnapshot(
         query(
           collection(db, "admin_users"),
@@ -46,7 +47,7 @@ function Home () {
             });
           } else {
             setAdmin([]);
-            router.push('/Unauthorized');
+            setAccessDenied(true);
           }
         }
       );
@@ -54,13 +55,6 @@ function Home () {
       return () => unsubscribe(); // Unsubscribe when component unmounts or when dependencies change
     }, [user,loading]);
 
-    const Menus = [
-      { title: 'Dashboard' },
-      { title: 'Scholars', icon:<SiGooglescholar/> },
-      { title: 'Attendance', icon: <BsCardChecklist/> },
-      { title: 'Profile', icon: <BsFillPersonFill/> },
-    ];
-    
     function Sign_Out(){
       Swal.fire({
         title: 'Are you sure you want to Logout?',
@@ -91,9 +85,54 @@ function Home () {
       }) 
     }
 
+    useEffect(() => {
+      if (accessDenied) {
+        let timerInterval
+        Swal.fire({
+          title: 'Access has been denied!',
+          html: 'Automatic logout in <b></b> milliseconds.',
+          timer: 5000,
+          allowOutsideClick:false,
+          timerProgressBar: true,
+          didOpen: () => {
+            Swal.showLoading()
+            const b = Swal.getHtmlContainer().querySelector('b')
+            timerInterval = setInterval(() => {
+              b.textContent = Swal.getTimerLeft()
+            }, 100)
+          },
+          willClose: () => {
+            clearInterval(timerInterval)
+          }
+        }).then((result) => {
+          setAccessDenied(false);
+          sessionStorage.setItem('Signout', true);
+          sessionStorage.setItem('isFirstRun', 'false');
+          sessionStorage.removeItem('Menu');
+          router.push('/').then(() => {
+            auth.signOut()
+              .then(() => {
+                console.log('Sign out successful');
+              })
+              .catch((error) => {
+                console.error('Sign out error:', error);
+              });
+          });
+        })
+      return;
+      }
+    },[accessDenied]);
+
+    const Menus = [
+      { title: 'Dashboard' },
+      { title: 'Scholars', icon:<SiGooglescholar/> },
+      { title: 'Attendance', icon: <BsCardChecklist/> },
+      { title: 'Profile', icon: <BsFillPersonFill/> },
+    ];
 
     return(
-      <div className='main'>
+      <div className="main">
+        <div className={`${accessDenied? "absolute inset-0 opacity-90 bg-gray-100 z-50 w-full h-full":""}`}></div>
         <div className='flex'>
           <div className={` bg-blue-950 h-screen ${open ? "w-72":"w-20"} duration-300 p-5 pt-8 relative`}>
             <BsArrowLeftShort className={`bg-white text-blue-950 text-3xl rounded-full absolute -right-3 top-9 border border-blue-950 cursor-pointer ${
