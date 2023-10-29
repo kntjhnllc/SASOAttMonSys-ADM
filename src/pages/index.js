@@ -1,5 +1,8 @@
 import React from 'react';
+import { useRouter } from 'next/router'
+import { auth,db } from '@/config/firebase';
 import { useState } from "react";
+import { getAuth, createUserWithEmailAndPassword,signInWithEmailAndPassword,sendPasswordResetEmail, signOut } from "firebase/auth";
 import { FaGoogle, FaRegEnvelope } from 'react-icons/fa';
 import {MdLockOutline} from 'react-icons/md';
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&family=Roboto&display=swap" rel="stylesheet"></link>
@@ -8,14 +11,64 @@ import {MdLockOutline} from 'react-icons/md';
 const HomePage = () => {
 
   const [isSignUpVisible, setIsSignUpVisible] = useState(false);
+  const [signUpEmail, setSignUpEmail] = useState('');
+  const [signUpPassword, setSignUpPassword] = useState('');
+  const [signInEmail, setSignInEmail] = useState('');
+  const [signInPassword, setSignInPassword] = useState('');
+  const [hcdcEmail, setHcdcEmail] = useState(true);
+
 
   const handleSignUpClick = () => {
     setIsSignUpVisible(!isSignUpVisible);
   };
 
-
   
+  const handleSignUpEmailChange = (e) => {
+    setSignUpEmail(e.target.value);
+  };
+
+  const handleSignUpPasswordChange = (e) => {
+    setSignUpPassword(e.target.value);
+  };
+  
+  const handleSignInEmailChange = (e) => {
+    setSignInEmail(e.target.value);
+  };
+
+  const handleSignInPasswordChange = (e) => {
+    setSignInPassword(e.target.value);
+  };
+  
+  function Login_Attempt(event){
+    
+      event.preventDefault();
+      // Check credentials
+      const auth = getAuth();
+    signInWithEmailAndPassword(auth, signInEmail, signInPassword)
+        .then((userCredential) => {
+          // Signed in 
+          const user = userCredential.user;
+          console.log(user);
+          // ...
+        })
+        .catch((error) => {
+          Swal.fire({
+            title: 'Unregistered',
+            text: 'Credentials do not match any registered user.',
+            icon: 'warning',
+            confirmButtonText: 'Close',
+            customClass: {
+              confirmButton: 'ok-button',
+            },
+            buttonsStyling: false, // Disable default button styling
+          });
+          const errorCode = error.code;
+          const errorMessage = error.message;
+    });
+  };
+
   return (
+    
     <div className='flex flex-col items-center justify-center min-h-screen py-2 bg-gray-100'>
       <main className='flex flex-col flex-1 text-center px-20 items-center justify-center w-full h-screen'>
         <div className='bg-white flex rounded-2xl shadow-2xl w-2/3 max-w-4xl'>
@@ -26,7 +79,7 @@ const HomePage = () => {
               </div>
               <div className='py-10'>
                 <h2 className='text-3xl font-bold text-blue-900 mb-2'>
-                  Sign in to Account
+                  Sign in to your Account
                 </h2>
                 <div className='border-2 w-10 border-blue-900 inline-block mb-2'></div>
                 <div className='flex justify-center my-2 '>
@@ -38,17 +91,32 @@ const HomePage = () => {
                 </div>
                 <p className='text-gray-400 my-3'>or use your HCDC premium email</p>
                 <div className='flex flex-col items-center'>
-                  <div className='bg-gray-100 w-64 p-2 mb-3 text-blue-900 flex items-center'>
-                    <FaRegEnvelope className='m-2'/>
-                    <input type='email' name='signin.email' required placeholder='HCDC Email' className='bg-gray-100 outline-none text-sm flex-1'/>
-                  </div>
-                  <div className='bg-gray-100 w-64 mb-3 p-2 text-blue-900 flex items-center'>
-                    <MdLockOutline className='m-2'/>
-                    <input type='password' name='signin.password' required placeholder='Password' className='bg-gray-100 outline-none text-sm flex-1'/>
-                  </div>
-                  <a href='#signIn' className='border-2 border-blue-900 text-blue-900 rounded-full px-12 py-2 inline-block font-semibold hover:bg-blue-950 hover:text-white'>
-                    Sign In
-                  </a>
+                  <form method='POST'>
+                    <div className='bg-gray-100 w-64 p-2 mb-3 text-blue-900 flex items-center'>
+                      <FaRegEnvelope className='m-2'/>
+                      <input 
+                      type='email' 
+                      name='signin.email' 
+                      required placeholder='HCDC Email' 
+                      className='bg-gray-100 outline-none text-sm flex-1'
+                      value={signInEmail}
+                      onChange={handleSignInEmailChange}/>
+                    </div>
+                    <div className='bg-gray-100 w-64 mb-3 p-2 text-blue-900 flex items-center'>
+                      <MdLockOutline className='m-2'/>
+                      <input 
+                      type='password' 
+                      name='signin.password' 
+                      required placeholder='Password' 
+                      className='bg-gray-100 outline-none text-sm flex-1'
+                      value={signInPassword}
+                      onChange={handleSignInPasswordChange}/>
+                    </div>
+                    <button className='border-2 border-blue-900 text-blue-900 rounded-full px-12 py-2 inline-block font-semibold hover:bg-blue-950 hover:text-white'
+                    onClick={Login_Attempt}>
+                      Sign In
+                    </button>
+                  </form>
                 </div>
               </div>
             </div>
@@ -65,15 +133,33 @@ const HomePage = () => {
                   <div className='flex flex-col items-center'>
                     <div className='bg-gray-100 w-64 p-2 mb-3 text-blue-900 flex items-center'>
                       <FaRegEnvelope className='m-2'/>
-                      <input type='email' name='signup.email' required placeholder='HCDC Email' className='bg-gray-100 outline-none text-sm flex-1'/>
+                      <input 
+                      type='email' 
+                      name='signup.email' 
+                      required placeholder='HCDC Email' 
+                      className='bg-gray-100 outline-none text-sm flex-1'
+                      value={signUpEmail}
+                      onChange={handleSignUpEmailChange}
+                      />
                     </div>
+                    {!hcdcEmail ? (
+                       <p className='text-red-600'>*Your HCDC Email is required.</p>
+                    ) : null}
                     <div className='bg-gray-100 w-64 mb-3 p-2 text-blue-900 flex items-center'>
                       <MdLockOutline className='m-2'/>
-                      <input type='password' name='signup.password' required placeholder='Password' className='bg-gray-100 outline-none text-sm flex-1'/>
+                      <input 
+                      type='password' 
+                      name='signup.password' 
+                      required placeholder='Password' 
+                      className='bg-gray-100 outline-none text-sm flex-1'
+                      value={signUpPassword}
+                      onChange={handleSignUpPasswordChange}
+                      />
                     </div>
-                    <a href='#signup' className='border-2 border-blue-900 text-blue-900 rounded-full px-12 py-2 inline-block font-semibold hover:bg-blue-950 hover:text-white'>
+                    <button className='border-2 border-blue-900 text-blue-900 rounded-full px-12 py-2 inline-block font-semibold hover:bg-blue-950 hover:text-white'
+                    >
                       Sign Up
-                    </a>
+                    </button>
                   </div>
                 </div>
             </div>
@@ -90,7 +176,7 @@ const HomePage = () => {
                 Sign Up
               </a>
             </div>
-            <div className="text-container-sign-in -mt-48 " style={{ opacity: isSignUpVisible ? 1 : 0 }}>
+            <div className={`-mt-48  ${isSignUpVisible ? 'text-container-sign-up' : 'text-container-sign-up-invi'}`} style={{ opacity: isSignUpVisible ? 1 : 0 }}>
               <h2 className='text-3xl font-bold mb-2 font-montserrat'>Hello, Scholar!</h2>
               <div className='border-2 w-10 border-white inline-block mb-2'></div>
               <p className='mb-10'>
