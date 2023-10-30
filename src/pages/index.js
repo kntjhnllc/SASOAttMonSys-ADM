@@ -181,7 +181,18 @@ const HomePage = () => {
     event.preventDefault();
     try {
       if (signUpPassword === signUpPasswordConfirm) {
-        const usersCollection = collection(db, 'admin_users');
+        if (signUpPassword.length <6){
+          setErrorMessage('Password should be at least 6 characters!');
+          setIsShaking(true);
+    
+          // Clear the error message and reset the shake animation after a short delay
+             setTimeout(() => {
+            setErrorMessage('');
+            setIsShaking(false);
+          }, 2000); // Adjust the duration as needed
+        }
+        else {
+          const usersCollection = collection(db, 'admin_users');
         const q = query(usersCollection, where('email', '==', signUpEmail));
         const querySnapshot = await getDocs(q);
         querySnapshot.forEach((doc) => {
@@ -223,6 +234,8 @@ const HomePage = () => {
               handleSignUpClick();
             });
           }
+        }
+        
       } else {
         setErrorMessage('Password does not match!');
         setIsShaking(true);
