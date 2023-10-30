@@ -20,7 +20,11 @@ function Home () {
     const router = useRouter();
     const [open, setOpen] = useState(true)
     const [accessDenied , setAccessDenied] =useState(false)
-
+    
+    useEffect(() => {
+      // Set the title of the web page
+      document.title = "HCDC Scholar"; // Replace "Your Page Title" with your desired title
+    }, []);
     // Check admin user status
     useEffect(() => {
         if (loading) {

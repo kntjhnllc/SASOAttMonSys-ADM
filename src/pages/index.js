@@ -31,6 +31,11 @@ const HomePage = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Set the title of the web page
+    document.title = "HCDC Scholar"; // Replace "Your Page Title" with your desired title
+  }, []);
+
+  useEffect(() => {
     const handleBeforeUnload = () => {
       // Clear the isFirstRun flag when the page is reloaded
       sessionStorage.removeItem('isFirstRun');

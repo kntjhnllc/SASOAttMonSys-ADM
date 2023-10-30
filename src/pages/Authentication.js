@@ -9,7 +9,10 @@ function Authentication() {
 
     const router = useRouter();
     const [user] = useAuthState(auth);
-
+    useEffect(() => {
+      // Set the title of the web page
+      document.title = "HCDC Scholar"; // Replace "Your Page Title" with your desired title
+    }, []);
     useEffect(() => {
         const checkAdminUserStatus = async () => {
         console.log(user.uid);
