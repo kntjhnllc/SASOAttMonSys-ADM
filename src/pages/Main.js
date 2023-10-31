@@ -5,22 +5,45 @@ import { auth,db } from '@/config/firebase';
 import { useEffect, useState } from "react";
 import { getAuth, createUserWithEmailAndPassword,signInWithEmailAndPassword,sendPasswordResetEmail, signOut } from "firebase/auth";
 import { addDoc, collection, onSnapshot, orderBy, query, serverTimestamp, where, doc, getDocs} from 'firebase/firestore'
+import Swal from 'sweetalert2';
+
 import { BsArrowLeftShort,BsSearch, BsCardChecklist, BsFillPersonFill} from "react-icons/bs";
 import { RiDashboardFill} from "react-icons/ri";
 import { SiGooglescholar} from "react-icons/si";
-import { AiOutlineProfile} from "react-icons/ai";
+import { FaUsersCog, FaList} from "react-icons/fa";
 import { BiLogOut} from "react-icons/bi";
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&family=Roboto&display=swap" rel="stylesheet"></link>
 import SplashScreen from '../components/SplashScreen';
-import Swal from 'sweetalert2';
+
+
+import Dashboard from '../components/Dashboard';
+import Profile from '../components/Profile';
+import Attendance from '../components/Attendance';
+import Scholars from '../components/Scholars';
+import Users from '../components/Users';
+import Not_Found from '../components/404';
+
 
 function Home () {
     const [user,loading] = useAuthState(auth);
+    const [users,setUsers] = useState([]);
     const [admin, setAdmin] = useState([]);
     const router = useRouter();
     const [open, setOpen] = useState(true)
     const [accessDenied , setAccessDenied] =useState(false)
+    const [Menu, setMenu] = useState('Dashboard');
+    const [MenuOptions, setMenuOptions] = useState([]);
+
+    useEffect(() => {
+      // Ensure admin.Access is initialized to an empty string when admin is null or undefined
+      const adminSuper = admin ? admin.super : undefined;
     
+      // Update the adminAuthorityLevel state
+      setAdminSuper(adminSuper);
+    }, [admin]);
+    
+    const [adminSuper, setAdminSuper] = useState(false);
+
     useEffect(() => {
       // Set the title of the web page
       document.title = "HCDC Scholar"; // Replace "Your Page Title" with your desired title
@@ -33,7 +56,7 @@ function Home () {
         }
         
         if (!user || !user.uid) {
-        router.push('/Unauthorized');
+        setAccessDenied(true);
         return; // Stop further execution if user or uid is null
     }
     
@@ -58,6 +81,43 @@ function Home () {
     
       return () => unsubscribe(); // Unsubscribe when component unmounts or when dependencies change
     }, [user,loading]);
+
+    // admin_users collection
+
+    useEffect(() => {
+      const que = query(collection(db, "admin_users"), orderBy('name', 'asc'));
+      const unsubscribe = onSnapshot(que, (querySnapshot) => {
+        let rawUsers = [];
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          rawUsers.push({ ...data, id: doc.id});
+        });
+        setUsers(rawUsers);
+        console.log("admin_users collection")
+      });
+      return () => unsubscribe();
+    }, []);
+
+    useEffect(() => {
+      if (adminSuper) {
+        setMenuOptions([
+          { title: 'Dashboard' },
+          { title: 'Scholars', icon:<SiGooglescholar/> },
+          { title: 'Attendance', icon: <FaList/> },
+          { title: 'Profile', icon: <BsFillPersonFill/> },
+          { title: 'Users', icon: <FaUsersCog/> },
+        ]);
+      } else if(adminSuper==undefined) {
+        setMenuOptions([
+          { title: 'Dashboard' },
+          { title: 'Scholars', icon:<SiGooglescholar/> },
+          { title: 'Attendance', icon: <FaList/> },
+          { title: 'Profile', icon: <BsFillPersonFill/> },
+        ]);
+      }
+    }, [adminSuper,setMenuOptions]);
+
+    
 
     function Sign_Out(){
       Swal.fire({
@@ -93,8 +153,8 @@ function Home () {
       if (accessDenied) {
         let timerInterval
         Swal.fire({
-          title: 'Access has been denied!',
-          html: 'Automatic logout in <b></b> milliseconds.',
+          title: 'Access Denied!',
+          html: 'Please wait to be given access by ADMIN <br> <p> Automatic logout in <b></b> milliseconds. </p> ', 
           timer: 5000,
           allowOutsideClick:false,
           timerProgressBar: true,
@@ -127,13 +187,41 @@ function Home () {
       }
     },[accessDenied]);
 
-    const Menus = [
-      { title: 'Dashboard' },
-      { title: 'Scholars', icon:<SiGooglescholar/> },
-      { title: 'Attendance', icon: <BsCardChecklist/> },
-      { title: 'Profile', icon: <BsFillPersonFill/> },
-    ];
+    useEffect(() => {
+      const storedMenu = sessionStorage.getItem('Menu');
+      if (storedMenu) {
+        setMenu(storedMenu);
+      }
+    }, [user]);
+    
 
+    const [load, setLoading] = useState(true);
+
+
+    const changeMenu = (selectedOption) => {setMenu(selectedOption);}
+
+    function getMenu() {
+      switch (Menu) {
+        // eslint-disable-next-line
+        case 'Dashboard': return <Dashboard />;break;
+        // eslint-disable-next-line
+        case 'Scholars': return <Scholars/>;break;
+        // eslint-disable-next-line
+        case 'Attendance': return <Attendance/>;break;
+        // eslint-disable-next-line
+        case 'Profile': return <Profile/>;break;
+        // eslint-disable-next-line
+        case 'Users': return <Users users={users}/>;break;
+        default: return <Not_Found/>;break;
+      }
+    }
+
+    useEffect(() => {
+      sessionStorage.setItem('Menu', Menu);
+      const menu = sessionStorage.getItem('Menu')
+      console.log(menu)
+    }, [Menu]);
+    
     return(
       <div className="main">
         <div className={`${accessDenied? "absolute inset-0 opacity-90 bg-gray-100 z-50 w-full h-full":""}`}></div>
@@ -153,8 +241,8 @@ function Home () {
                   HCDC-SCHOLAR
                   </h1>
             </div>
-            
-            <div className={`flex item-center rounded-md bg-light-white mt-6 ${
+            {/* SEARCH BAR */}
+            {/* <div className={`flex item-center  rounded-md bg-light-white mt-6 ${
               !open ? "px-2.5 mt-4":"px-4"
               } py-2`}> 
               <BsSearch className={`text-white text-lg block float-left cursor-pointer ${
@@ -167,12 +255,15 @@ function Home () {
                   !open && "hidden"
                 }`}
               />
-            </div>
+            </div> */}
             <div className=''>
-              <ul className='pt-2'>
-                  {Menus.map((menu, index) => (
+              <ul className='pt-7'>
+                  {MenuOptions.map((menu, index) => (
                     <>
-                      <li key={index} className={`text-gray-300 text-sm flex items-center gap-x-4 cursor-pointer p-2 hover:bg-light-white rounded-md mt-2`}>
+                      <li key={index} onClick={() => changeMenu(menu.title)}
+                    type="button"
+                    role='button' className={`${Menu === menu.title ? 'font-medium text-white bg-light-white scale-105 opacity-100' : 'font-normal text-white opacity-80'
+                  }text-gray-300 text-sm flex items-center gap-x-4 cursor-pointer p-2 hover:bg-light-white rounded-md mt-2  `}>
                         <span className='text-2xl block float-left'> 
                           {menu.icon? menu.icon : <RiDashboardFill/>}
                         </span>
@@ -184,7 +275,7 @@ function Home () {
             </div> 
             <div className={`text-gray-300 text-sm absolute bottom-5 left-5 
             ${
-              !open ? "w-11":"w-64"
+              !open ? "w-11":"w-56"
               } 
               gap-x-4 cursor-pointer p-2 hover:bg-light-white rounded-md `}
               onClick={Sign_Out}>
@@ -196,8 +287,8 @@ function Home () {
             </div> 
           </div> 
 
-          <div className='p-7'>
-            <h1 className='text-2xl font-semibold font-montserrat'>Homepage</h1>
+          <div className='p-7 w-full'>
+            <h1 className='text-2xl font-semibold font-montserrat'>{getMenu()}</h1>
           </div>  
         </div>  
       </div>         

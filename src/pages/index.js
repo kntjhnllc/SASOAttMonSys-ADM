@@ -119,19 +119,21 @@ const HomePage = () => {
     const provider = new GoogleAuthProvider();
     try {
       const result = await signInWithPopup(auth, provider);
+      const user = result.user; // Get the user object
+      const uid = user.uid; // Get the user's UID
+      const email = user.email;
       Swal.fire({
         position: 'top-end',
         title: 'Signin in using Google',
+        text:"Authenticated as " + email,
         showConfirmButton: false,
         allowOutsideClick: false,
         didOpen: () => {
           Swal.showLoading(Swal.getDenyButton());
         },
       });
-      const user = result.user; // Get the user object
-      const uid = user.uid; // Get the user's UID
-      const email = user.email;
-    
+      
+   
       // Now, you can store the UID and email in your collection.
       // For example, using Firestore (you need to set up Firestore in your project):
       const usersCollection = collection(db, 'admin_users'); // Change 'users' to your collection name
@@ -148,6 +150,7 @@ const HomePage = () => {
       const querySnapshot = await getDocs(q);
       querySnapshot.forEach((doc) => {
       });
+      setTimeout(() => {
       if (!querySnapshot.empty){
         router.push('/Authentication');
         Swal.close(); // Close Swal
@@ -163,6 +166,8 @@ const HomePage = () => {
           Swal.close(); // Close Swal
         });
       }
+    }, 3000);
+      
     } catch (error) {
       if (error.code === 'auth/cancelled-popup-request') {
         Swal.close(); // Close Swal

@@ -15,7 +15,7 @@ function Authentication() {
     }, []);
     useEffect(() => {
         const checkAdminUserStatus = async () => {
-        console.log(user.uid);
+        console.log(user?.uid);
           if (user) {
             const querySnapshot = await getDocs(
               query(collection(db, "admin_users"), where("uid", "==", user.uid), where('access', '==', true))
