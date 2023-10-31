@@ -2,6 +2,7 @@ import { auth,db } from '../config/firebase'
 import { useRouter } from 'next/router'
 import { useAuthState } from 'react-firebase-hooks/auth'
 import { useEffect, useState } from "react";
+<link rel="icon" type="image/png" href="hcdclogo.png"></link>
 import { addDoc, collection, onSnapshot, orderBy, query, serverTimestamp, where, doc, getDocs} from 'firebase/firestore'
 
 

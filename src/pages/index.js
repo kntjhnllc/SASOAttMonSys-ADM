@@ -3,6 +3,7 @@ import { useRouter } from 'next/router'
 import { useAuthState } from 'react-firebase-hooks/auth'
 import { auth,db } from '@/config/firebase';
 import { useEffect, useState } from "react";
+<link rel="icon" type="image/png" href="hcdclogo.png"></link>
 import { getAuth, createUserWithEmailAndPassword,signInWithEmailAndPassword,sendPasswordResetEmail, signOut,GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { addDoc, collection, querySnapshot, onSnapshot, orderBy, query, serverTimestamp, where, doc, getDocs} from 'firebase/firestore'
 import { FaGoogle, FaRegEnvelope } from 'react-icons/fa';

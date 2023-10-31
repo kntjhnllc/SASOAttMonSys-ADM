@@ -6,13 +6,16 @@ import { useEffect, useState } from "react";
 import { getAuth, createUserWithEmailAndPassword,signInWithEmailAndPassword,sendPasswordResetEmail, signOut } from "firebase/auth";
 import { addDoc, collection, onSnapshot, orderBy, query, serverTimestamp, where, doc, getDocs} from 'firebase/firestore'
 import Swal from 'sweetalert2';
-
+<link rel="icon" type="image/png" href="hcdclogo.png"></link>
 import { BsArrowLeftShort,BsSearch, BsCardChecklist, BsFillPersonFill} from "react-icons/bs";
 import { RiDashboardFill} from "react-icons/ri";
 import { SiGooglescholar} from "react-icons/si";
 import { FaUsersCog, FaList} from "react-icons/fa";
 import { BiLogOut} from "react-icons/bi";
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&family=Roboto&display=swap" rel="stylesheet"></link>
+import { Helmet } from "react-helmet";
+
+
 import SplashScreen from '../components/SplashScreen';
 
 
