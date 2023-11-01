@@ -13,7 +13,7 @@ import { SiGooglescholar} from "react-icons/si";
 import { FaUsersCog, FaList} from "react-icons/fa";
 import { BiLogOut} from "react-icons/bi";
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&family=Roboto&display=swap" rel="stylesheet"></link>
-import { Helmet } from "react-helmet";
+
 
 
 import SplashScreen from '../components/SplashScreen';
@@ -30,6 +30,7 @@ import Not_Found from '../components/404';
 function Home () {
     const [user,loading] = useAuthState(auth);
     const [users,setUsers] = useState([]);
+    const [scholars,setScholars] = useState([]);
     const [admin, setAdmin] = useState([]);
     const router = useRouter();
     const [open, setOpen] = useState(true)
@@ -88,18 +89,65 @@ function Home () {
     // admin_users collection
 
     useEffect(() => {
-      const que = query(collection(db, "admin_users"), orderBy('name', 'asc'));
+      const que = query(
+        collection(db, "admin_users"), 
+        orderBy('name', 'asc'));
+        
       const unsubscribe = onSnapshot(que, (querySnapshot) => {
-        let rawUsers = [];
-        querySnapshot.forEach((doc) => {
-          const data = doc.data();
-          rawUsers.push({ ...data, id: doc.id});
+
+        querySnapshot.docChanges().forEach((change) => {
+          const data = change.doc.data();
+          const id =change.doc.id;
+
+          console.log('Admin Test read onchange')
+          
+          if (change.type === "added"){
+            setUsers((prevUsers) => [...prevUsers, {...data, id}]);
+            console.log("added");
+          } else if (change.type === "modified"){
+            setUsers((prevUsers) => prevUsers.map((user) => user.id===id? {...data, id} :user));
+            console.log("modified");
+          }
+          else if (change.type === "removed"){
+            setUsers((prevUsers) => prevUsers.filter((user) => user.id !==id));
+            console.log("removed");
+          }
         });
-        setUsers(rawUsers);
-        console.log("admin_users collection")
       });
       return () => unsubscribe();
     }, []);
+
+    //users (scholars) collection
+    // admin_users collection
+
+    useEffect(() => {
+      const que = query(
+        collection(db, "users"), 
+        orderBy('name', 'asc'));
+        
+      const unsubscribe = onSnapshot(que, (querySnapshot) => {
+
+        querySnapshot.docChanges().forEach((change) => {
+          const data = change.doc.data();
+          const id =change.doc.id;
+
+          console.log('users/scholars Test read onchange')
+          
+          if (change.type === "added"){
+            setScholars((prevUsers) => [...prevUsers, {...data, id}]);
+            console.log("added");
+          } else if (change.type === "modified"){
+            setScholars((prevUsers) => prevUsers.map((user) => user.id===id? {...data, id} :user));
+            console.log("modified");
+          }
+          else if (change.type === "removed"){
+            setScholars((prevUsers) => prevUsers.filter((user) => user.id !==id));
+            console.log("removed");
+          }
+        });
+      });
+      return () => unsubscribe();
+    }, []);  
 
     useEffect(() => {
       if (adminSuper) {
@@ -208,7 +256,7 @@ function Home () {
         // eslint-disable-next-line
         case 'Dashboard': return <Dashboard />;break;
         // eslint-disable-next-line
-        case 'Scholars': return <Scholars/>;break;
+        case 'Scholars': return <Scholars scholars={scholars}/>;break;
         // eslint-disable-next-line
         case 'Attendance': return <Attendance/>;break;
         // eslint-disable-next-line
@@ -225,9 +273,23 @@ function Home () {
       console.log(menu)
     }, [Menu]);
     
+    useEffect(() => {
+      if(load){
+      setTimeout(() => {
+        setLoading(false);
+      }, 3000);
+    }
+    }, []);
+
     return(
       <div className="main">
-        <div className={`${accessDenied? "absolute inset-0 opacity-90 bg-gray-100 z-50 w-full h-full":""}`}></div>
+        
+        {load ? (
+          <div className="absolute inset-0 opacity-90 bg-gray-100 z-50 w-full h-full">
+            {/* Content to be displayed when load is true */}
+            <SplashScreen />
+          </div>
+        ) : <div className={`${accessDenied? "absolute inset-0 opacity-90 bg-gray-100 z-50 w-full h-full":""}`}></div>}
         <div className='flex'>
           <div className={` bg-blue-950 h-screen ${open ? "w-72":"w-20"} duration-300 p-5 pt-8 relative`}>
             <BsArrowLeftShort className={`bg-white text-blue-950 text-3xl rounded-full absolute -right-3 top-9 border border-blue-950 cursor-pointer ${

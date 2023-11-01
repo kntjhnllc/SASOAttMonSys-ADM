@@ -12,6 +12,7 @@ import {MdLockOutline} from 'react-icons/md';
 import SplashScreen from '../components/SplashScreen';
 import Swal from 'sweetalert2';
 import { Timestamp } from 'firebase/firestore';
+import { Helmet } from "react-helmet";
 const HomePage = () => {
 
 
@@ -316,9 +317,14 @@ const HomePage = () => {
     redirectIfUserIsNotNull(); // Initial check
   }, [user]);
   return (
+  
     <>
     {loading?
-      <><SplashScreen/></>:
+      <><SplashScreen/> 
+        <Helmet>
+          <link rel="icon" type="image/png" href="hcdclogo.png" />
+        </Helmet>
+      </>:
     <div className='flex flex-col items-center justify-center min-h-screen py-2 bg-gray-100'>
       <main className='flex flex-col flex-1 text-center px-20 items-center justify-center w-full h-screen'>
         <div className='bg-white flex rounded-2xl shadow-2xl w-2/3 max-w-4xl'>
