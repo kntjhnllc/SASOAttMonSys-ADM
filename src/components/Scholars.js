@@ -24,11 +24,11 @@ function Scholars ({scholars}) {
     const [isShaking, setIsShaking] = useState(false);
 
     const [id_no , setId_no] = useState ("");
-    const [cluster , setCluster] = useState ("");
+    const [cluster , setCluster] = useState ("1");
     const [name , setName] = useState ("");
     const [office , setOffice] = useState ("");
-    const [organization , setOrganization] = useState ("");
-    const [year , setYear] = useState ("");
+    const [organization , setOrganization] = useState ("saso");
+    const [year , setYear] = useState ("1");
 
     const handleId_noChange = (e) => {
       setId_no(e.target.value);
@@ -79,41 +79,49 @@ function Scholars ({scholars}) {
                 }, 2000); // Adjust the duration as needed
               }
               else{
-                Swal.fire({
-                  title: 'Confirm Add Scholar?',
-                  text: "Confirm adding " +id_no+" - " +name+"?",
-                  icon: 'warning',
-                  iconColor: '#d33',
-                  showCancelButton: true,
-                  confirmButtonColor: '#000080',
-                  cancelButtonColor: '#d33',
-                  confirmButtonText: 'Confirm!'
-                }).then((result) => {
-                  if (result.isConfirmed) {
-                    const userData = {
-                    id_no: id_no, // Fix: use user.uid
-                    name: name, // Fix: use signUpEmail
-                    cluster: cluster, // Fix: use signUpEmail
-                    office: office,
-                    organization: organization,
-                    year: year,
-                    };
-                    addDoc(usersCollection, userData);
-                    Swal.fire({
-                      title: 'Adding Scholar Success!',
-                      icon: 'success',
-                      confirmButtonColor: '#000080',
-                      iconColor: '#000080',
-                    });
-                    setShowAddScholar(false)
-                    setId_no('');
-                    setCluster('1');
-                    setName('');
-                    setOffice('');
-                    setOrganization('saso');
-                    setYear('1');
-                  }
-                })
+                if (cluster!=''&&year!=''&&organization!=''){
+                  Swal.fire({
+                    title: 'Confirm Add Scholar?',
+                    text: "Confirm adding " +id_no+" - " +name+"?",
+                    icon: 'warning',
+                    iconColor: '#d33',
+                    showCancelButton: true,
+                    confirmButtonColor: '#000080',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Confirm!'
+                  }).then((result) => {
+                    if (result.isConfirmed) {
+                      const userData = {
+                      id_no: id_no,
+                      name: name, 
+                      cluster: cluster, 
+                      office: office,
+                      organization: organization,
+                      year: year,
+                      };
+                      addDoc(usersCollection, userData);
+                      Swal.fire({
+                        title: 'Adding Scholar Success!',
+                        icon: 'success',
+                        confirmButtonColor: '#000080',
+                        iconColor: '#000080',
+                      });
+                      setShowAddScholar(false)
+                      setId_no('');
+                      setCluster('1');
+                      setName('');
+                      setOffice('');
+                      setOrganization('saso');
+                      setYear('1');
+                    }
+                  })
+                }
+                else{
+                  setErrorMessage('Empty values');
+                  setTimeout(() => {
+                    setErrorMessage('');  
+                  }, 2000); // Adjust the duration as needed
+                }
               }
         } catch (error) {
           console.log(error);
