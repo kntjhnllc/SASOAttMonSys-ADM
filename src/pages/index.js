@@ -184,7 +184,7 @@ const HomePage = () => {
   
   
 
-  const signUp_Attempt =async (event)=> {
+  const signUp_Attempt = async (event)=> {
     event.preventDefault();
     try {
       if (signUpPassword === signUpPasswordConfirm) {

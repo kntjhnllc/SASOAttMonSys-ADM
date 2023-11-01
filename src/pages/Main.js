@@ -287,11 +287,11 @@ function Home () {
           <link rel="icon" type="image/png" href="hcdclogo.png" />
         </Helmet>
         {load ? (
-          <div className="absolute inset-0 opacity-90 bg-gray-100 z-50 w-full h-full">
+          <div className="absolute inset-0 bg-opacity-90 bg-gray-100 backdrop-blur-sm z-50 w-full h-full">
             {/* Content to be displayed when load is true */}
             <SplashScreen />
           </div>
-        ) : <div className={`${accessDenied? "absolute inset-0 opacity-90 bg-gray-100 z-50 w-full h-full":""}`}></div>}
+        ) : <div className={`${accessDenied? "absolute inset-0 bg-opacity-90 bg-gray-100  backdrop-blur-sm z-50 w-full h-full":""}`}></div>}
         <div className='flex'>
           <div className={` bg-blue-950 h-screen ${open ? "w-72":"w-20"} duration-300 p-5 pt-8 relative`}>
             <BsArrowLeftShort className={`bg-white text-blue-950 text-3xl rounded-full absolute -right-3 top-9 border border-blue-950 cursor-pointer ${

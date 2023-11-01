@@ -7,15 +7,47 @@ import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import { db } from '@/config/firebase';
 import { useEffect, useState } from "react";
 import { addDoc, collection, onSnapshot, orderBy, query, serverTimestamp, where, doc,updateDoc, getDocs} from 'firebase/firestore';
-import { exportPathMap } from '../../next.config';
+
 import Swal from 'sweetalert2';
+
+import AddScholarModal from '../components/AddScholarModal';
 
 function Scholars ({scholars}) {
 
     const [selectedFilter, setSelectedFilter] = useState('All Scholars');
     const [saso , setSaso] = useState();
     const [others , setOthers] = useState();
+    const [showAddScholar,setShowAddScholar] = useState(false);
     const scholarCount = scholars.length;
+
+    const [errorMessage, setErrorMessage] = useState('');
+    const [isShaking, setIsShaking] = useState(false);
+
+    const [id_no , setId_no] = useState ("");
+    const [cluster , setCluster] = useState ("");
+    const [name , setName] = useState ("");
+    const [office , setOffice] = useState ("");
+    const [organization , setOrganization] = useState ("");
+    const [year , setYear] = useState ("");
+
+    const handleId_noChange = (e) => {
+      setId_no(e.target.value);
+    };
+    const handleClusterChange = (e) => {
+      setCluster(e.target.value);
+    };
+    const handleNameChange = (e) => {
+      setName(e.target.value);
+    };
+    const handleOfficeChange = (e) => {
+      setOffice(e.target.value);
+    };
+    const handleOrganizationChange = (e) => {
+      setOrganization(e.target.value);
+    };
+    const handleYearChange = (e) => {
+      setYear(e.target.value);
+    };
 
     useEffect(() => {
         let filteredUsersSASO,filteredUsersOthers;
@@ -28,7 +60,76 @@ function Scholars ({scholars}) {
 
       }, [scholars]);
 
+    const addScholar_Attempt = async (event)=> {
+        event.preventDefault();
+        try {
+              const usersCollection = collection(db, 'users');
+              const q = query(usersCollection, where('id_no', '==', id_no));
+              const querySnapshot = await getDocs(q);
+              querySnapshot.forEach((doc) => {
+              });
+              if (!querySnapshot.empty){
+                setErrorMessage('*ID number of scholar already registered!');
+                setIsShaking(true);
+      
+                // Clear the error message and reset the shake animation after a short delay
+                   setTimeout(() => {
+                  setErrorMessage('');
+                  setIsShaking(false);
+                }, 2000); // Adjust the duration as needed
+              }
+              else{
+                Swal.fire({
+                  title: 'Confirm Add Scholar?',
+                  text: "Confirm adding " +id_no+" - " +name+"?",
+                  icon: 'warning',
+                  iconColor: '#d33',
+                  showCancelButton: true,
+                  confirmButtonColor: '#000080',
+                  cancelButtonColor: '#d33',
+                  confirmButtonText: 'Confirm!'
+                }).then((result) => {
+                  if (result.isConfirmed) {
+                    const userData = {
+                    id_no: id_no, // Fix: use user.uid
+                    name: name, // Fix: use signUpEmail
+                    cluster: cluster, // Fix: use signUpEmail
+                    office: office,
+                    organization: organization,
+                    year: year,
+                    };
+                    addDoc(usersCollection, userData);
+                    Swal.fire({
+                      title: 'Adding Scholar Success!',
+                      icon: 'success',
+                      confirmButtonColor: '#000080',
+                      iconColor: '#000080',
+                    });
+                    setShowAddScholar(false)
+                    setId_no('');
+                    setCluster('1');
+                    setName('');
+                    setOffice('');
+                    setOrganization('saso');
+                    setYear('1');
+                  }
+                })
+              }
+        } catch (error) {
+          console.log(error);
+          setErrorMessage('ambot na error');
+          setIsShaking(true);
+      
+          // Clear the error message and reset the shake animation after a short delay
+          setTimeout(() => {
+            setErrorMessage('');
+            setIsShaking(false);
+          }, 2000); // Adjust the duration as needed
+        }
+      }
+
     return (
+      <Fragment>
         <div className="">
         <h1 className='text-2xl font-semibold font-montserrat text-blue-900'>Scholars</h1>
         <hr className="h-1 my-4 bg-gray-200 border-0 dark:bg-gray-700"/>
@@ -70,7 +171,11 @@ function Scholars ({scholars}) {
             </div>
             {/* ADD SCHOLAR */}
             <div className='w-1/6 ps-5 '>
-            <button type="button" data-modal-target="authentication-modal" data-modal-toggle="authentication-modal" class=" text-white  bg-blue-900 hover:bg-blue-950  font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Add Scholar</button>
+            <button type="button"
+             onClick={()=> setShowAddScholar(true)}
+             class=" text-white  bg-blue-900 hover:bg-blue-950  font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
+              Add Scholar
+              </button>
             
             </div>
             
@@ -150,6 +255,129 @@ function Scholars ({scholars}) {
         {selectedFilter === 'Others' && <OtherScholars scholars={scholars} />}
         </div>
     </div>
+    {/* ADD SCHOLAR CONTENT */}
+    <AddScholarModal isVisible={showAddScholar} onClose={()=> setShowAddScholar(false)}>
+    <div className='py-6 px-6 lg:px-8 text-left'>
+      <h3 className='mb-4 text-xl font-medium text-blue-900'>
+        Add Scholar Information
+      </h3>
+      <form className={`space-y-6 text-gray-900 ${isShaking ? 'shake text-red-500' : ''}`} onSubmit={addScholar_Attempt} method='POST'>
+        <div className="flex">
+          <div className="flex flex-col mr-4 w-4/6">
+            <label htmlFor="id_no" className="text-sm font-medium  mb-2">
+              ID Number
+            </label>
+            <input
+              type="text"
+              name="id_no"
+              id="id_no"
+              className="bg-gray-50 border border-gray-300 text-sm rounded-lg focus:ring-blue-900 focus:border-blue-900 p-2.5"
+              placeholder="ID Number"
+              onChange={handleId_noChange}
+              required
+            />
+          </div>
+          <div className="flex flex-col w-2/6">
+            <label htmlFor="cluster" className="text-sm font-medium text-gray-900 mb-2">
+              Cluster
+            </label>
+            <select
+              name="cluster"
+              id="cluster"
+              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-900 focus:border-blue-900 p-2.5"
+              onChange={handleClusterChange}
+              required
+              defaultValue="1"
+            >
+              <option value="1">Cluster 1</option>
+              <option value="2">Cluster 2</option>
+              <option value="3">Cluster 3</option>
+              <option value="4">Cluster 4</option>
+              <option value="5">Cluster 5</option>
+            </select>
+          </div>
+        </div>
+        <p className='text-red-600 text-sm'>{errorMessage}</p>
+        <div>
+          <label 
+            for='name'
+            className='block mb-2 text-sm font-medium text-gray-900'
+          >
+            Full Name
+          </label>
+          <input
+            type='text'
+            name='name'
+            id="name"
+            className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-900 focus:border-blue-900 block w-full p-2.5'
+            placeholder='Full Name'
+            onChange={handleNameChange}
+            required
+          />  
+        </div>    
+        <div>
+          <label 
+            for='office'
+            className='block mb-2 text-sm font-medium text-gray-900'
+          >
+            Office
+          </label>
+          <input
+            type='text'
+            name='office'
+            id="office"
+            className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-900 focus:border-blue-900 block w-full p-2.5'
+            placeholder='Office'
+            onChange={handleOfficeChange}
+            required
+          />  
+        </div>    
+        <div className="flex">
+          <div className="flex flex-col mr-4 w-4/6">
+            <label htmlFor="id_no" className="text-sm font-medium text-gray-900 mb-2">
+              Organization
+            </label>
+            <select
+              name="organization"
+              id="organization"
+              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-900 focus:border-blue-900 p-2.5"
+              onChange={handleOrganizationChange}
+              required
+              defaultValue="saso"
+            >
+              <option value="saso">SASO</option>
+              <option value="others">Others</option>
+            </select>
+          </div>
+          <div className="flex flex-col w-2/6">
+            <label htmlFor="cluster" className="text-sm font-medium text-gray-900 mb-2">
+              Year Level
+            </label>
+            <select
+              name="year"
+              id="year"
+              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-900 focus:border-blue-900 p-2.5"
+              onChange={handleYearChange}
+              required
+              defaultValue="1"
+            >
+              <option value="1">1st Year</option>
+              <option value="2">2nd Year</option>
+              <option value="3">3rd Year</option>
+              <option value="4">4th Year</option>
+            </select>
+          </div>
+        </div>
+        <div className='flex flex-col ps-3'>
+            <button
+             class=" w-3/6  text-white place-self-end bg-blue-900 hover:bg-blue-950  font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
+              Add Scholar
+              </button>
+          </div>
+      </form>
+    </div>
+   </AddScholarModal>
+    </Fragment>
     )
 
 }
