@@ -4,7 +4,7 @@ import { useAuthState } from 'react-firebase-hooks/auth'
 import { useEffect, useState } from "react";
 <link rel="icon" type="image/png" href="hcdclogo.png"></link>
 import { addDoc, collection, onSnapshot, orderBy, query, serverTimestamp, where, doc, getDocs} from 'firebase/firestore'
-
+import { Helmet } from "react-helmet";
 
 function Authentication() {
 
@@ -62,6 +62,9 @@ function Authentication() {
 
     return(
         <div className='flex flex-col items-center justify-center min-h-screen py-2 bg-gray-100'>
+          <Helmet>
+          <link rel="icon" type="image/png" href="hcdclogo.png" />
+        </Helmet>
             <main className='flex flex-col flex-1 text-center px-20 items-center justify-center w-full h-screen'>
             
                 <div id="load">
