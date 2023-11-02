@@ -501,16 +501,15 @@ function Scholars ({scholars}) {
 
 const AllScholars = ({scholars}) => {
 
-  const exportDataToCSV = async () => {
+  const exportDataToCSV = () => {
   
-    // Query data from Firestore (adjust the query as needed)
-    const usersCollection = collection(db, 'users');
-    const querySnapshot = await getDocs(usersCollection);
-  
-    // Convert Firestore data to an array of objects
-    const data = [];
-    querySnapshot.forEach((doc) => {
-      data.push(doc.data());
+    const data = scholars.map(scholar => {
+      const { id, ...rest } = scholar; // Exclude the 'id' property
+      return {
+        id_no: scholar.id_no,
+        name: scholar.name, // Make 'id_no' the first cell
+        ...rest,
+      };
     });
   
     // Convert data to CSV format
@@ -587,6 +586,28 @@ const SASOScholars = ({scholars}) => {
     const saso =scholars.filter((scholar) => {
         return scholar.organization == "saso";
       });
+
+      const exportDataToCSV = () => {
+  
+        const data = saso.map(scholar => {
+          const { id, ...rest } = scholar; // Exclude the 'id' property
+          return {
+            id_no: scholar.id_no,
+            name: scholar.name, // Make 'id_no' the first cell
+            ...rest,
+          };
+        });
+      
+        // Convert data to CSV format
+        const csvData = Papa.unparse(data);
+      
+        // Create a Blob containing the CSV data
+        const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8' });
+      
+        // Save the CSV data as a file
+        saveAs(blob, 'exported_data_All_Scholars.csv');
+      };
+
     return (
         <div className="w-full h-full flex flex-col">
             {saso.length > 0?
@@ -618,6 +639,13 @@ const SASOScholars = ({scholars}) => {
                 
               ))}
             </div>
+            <div className='place-self-end w-1/6 pt-2'>
+              <button
+              onClick={exportDataToCSV}
+                class=" w-3/6  text-white place-self-end bg-blue-900 hover:bg-blue-950  font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
+                Extract Data
+              </button>
+            </div>
       
             </>:
             <div className='w-full h-full'>
@@ -642,6 +670,27 @@ const OtherScholars = ({scholars}) => {
     const others =scholars.filter((scholar) => {
         return scholar.organization != "saso";
       });
+
+      const exportDataToCSV = () => {
+  
+        const data = others.map(scholar => {
+          const { id, ...rest } = scholar; // Exclude the 'id' property
+          return {
+            id_no: scholar.id_no,
+            name: scholar.name, // Make 'id_no' the first cell
+            ...rest,
+          };
+        });
+      
+        // Convert data to CSV format
+        const csvData = Papa.unparse(data);
+      
+        // Create a Blob containing the CSV data
+        const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8' });
+      
+        // Save the CSV data as a file
+        saveAs(blob, 'exported_data_All_Scholars.csv');
+      };
     return (
         <div className="w-full h-full flex flex-col">
             {others.length > 0?
@@ -673,7 +722,13 @@ const OtherScholars = ({scholars}) => {
                 
               ))}
             </div>
-      
+            <div className='place-self-end w-1/6 pt-2'>
+              <button
+              onClick={exportDataToCSV}
+                class=" w-3/6  text-white place-self-end bg-blue-900 hover:bg-blue-950  font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
+                Extract Data
+              </button>
+            </div>
             </>:
             <div className='w-full h-full'>
                 <div className="flex text-2xl  font-bold bg-blue-950 text-center text-white  rounded-t-xl">
