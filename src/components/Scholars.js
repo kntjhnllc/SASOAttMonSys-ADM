@@ -9,6 +9,7 @@ import { db } from '@/config/firebase';
 import { useEffect, useState,useRef } from "react";
 import { addDoc, collection, onSnapshot, orderBy, query, serverTimestamp,WriteBatch, where, doc,updateDoc, getDocs, writeBatch} from 'firebase/firestore';
 import CSVReader from 'react-csv-reader'
+import { saveAs } from 'file-saver';
 import Swal from 'sweetalert2';
 import AddScholarModal from '../components/AddScholarModal';
 
@@ -225,8 +226,8 @@ function Scholars ({scholars}) {
 
     return (
       <Fragment>
-        <div className="">
-        <h1 className='text-2xl font-semibold font-montserrat text-blue-900'>Scholars</h1>
+        <div className="w-full h-full">
+        <h1 className='text-2xl font-semibold font-montserrat text-blue-900 '>Scholars</h1>
         <hr className="h-1 my-4 bg-gray-200 border-0 dark:bg-gray-700"/>
         {/* count */}
         <div className="grid grid-cols-3 divide-x-2 items-center justify-center text-center font-montserrat text-blue-900">
@@ -365,7 +366,7 @@ function Scholars ({scholars}) {
                 </Menu>
             </div>
         </div>
-        <div className='w-full h-full py-5'>
+        <div className='w-full h-full py-5 '>
         {selectedFilter === 'All Scholars' && <AllScholars scholars={scholars} />}
         {selectedFilter === 'SASO' && <SASOScholars scholars={scholars} />}
         {selectedFilter === 'Others' && <OtherScholars scholars={scholars} />}
@@ -500,8 +501,30 @@ function Scholars ({scholars}) {
 
 const AllScholars = ({scholars}) => {
 
+  const exportDataToCSV = async () => {
+  
+    // Query data from Firestore (adjust the query as needed)
+    const usersCollection = collection(db, 'users');
+    const querySnapshot = await getDocs(usersCollection);
+  
+    // Convert Firestore data to an array of objects
+    const data = [];
+    querySnapshot.forEach((doc) => {
+      data.push(doc.data());
+    });
+  
+    // Convert data to CSV format
+    const csvData = Papa.unparse(data);
+  
+    // Create a Blob containing the CSV data
+    const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8' });
+  
+    // Save the CSV data as a file
+    saveAs(blob, 'exported_data_All_Scholars.csv');
+  };
+
     return (
-        <div className="w-full h-full flex flex-col">
+        <div className="w-full h-full flex flex-col relative">
             {scholars.length > 0?
             <>
             <div className="flex text-2xl  font-bold bg-blue-950 text-center text-white  rounded-t-xl">
@@ -512,11 +535,11 @@ const AllScholars = ({scholars}) => {
               <div className="flex-1 p-2">Office</div>
               <div className="flex-1 p-2">Organization</div>
             </div>
-            <div className="w-full h-full overflow-y-auto border-s-2 border-e-2 border-b-2">
+            <div className="w-full h-96 overflow-y-auto border-s-2 border-e-2 border-b-2 relative group">
               {scholars.map((scholar) => (
                 <div
                   key={scholar.id}
-                  className="flex items-center mb-2 hover:bg-gray-300 hover:bg-opacity-75  text-lg font-semibold p-2"
+                  className="flex items-center  mb-2 hover:bg-gray-300 hover:bg-opacity-75  text-lg font-semibold p-2 "
                 >
                   <div className="flex flex-1 items-center truncate">
                   
@@ -527,11 +550,20 @@ const AllScholars = ({scholars}) => {
                   <div className="flex-1 truncate text-center">{scholar.cluster}</div>
                   <div className="flex-1 text-sm text-center">{scholar.office}</div>
                   <div className="flex-1 truncate text-center uppercase">{scholar.organization}</div>
+                  
                 </div>
                 
               ))}
+              
             </div>
-      
+            <div className='place-self-end w-1/6 pt-2'>
+              <button
+              onClick={exportDataToCSV}
+                class=" w-3/6  text-white place-self-end bg-blue-900 hover:bg-blue-950  font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
+                Extract Data
+              </button>
+            </div>
+            
             </>:
             <div className='w-full h-full'>
             <div className="flex text-2xl  font-bold bg-blue-950 text-center text-white  rounded-t-xl">
