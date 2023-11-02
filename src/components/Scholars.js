@@ -1,15 +1,15 @@
 
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&family=Roboto&display=swap" rel="stylesheet"></link>
 
+import Papa from 'papaparse';
 import { Fragment } from 'react';
 import { Menu, Transition } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import { db } from '@/config/firebase';
-import { useEffect, useState } from "react";
-import { addDoc, collection, onSnapshot, orderBy, query, serverTimestamp, where, doc,updateDoc, getDocs} from 'firebase/firestore';
-
+import { useEffect, useState,useRef } from "react";
+import { addDoc, collection, onSnapshot, orderBy, query, serverTimestamp,WriteBatch, where, doc,updateDoc, getDocs, writeBatch} from 'firebase/firestore';
+import CSVReader from 'react-csv-reader'
 import Swal from 'sweetalert2';
-
 import AddScholarModal from '../components/AddScholarModal';
 
 function Scholars ({scholars}) {
@@ -29,6 +29,9 @@ function Scholars ({scholars}) {
     const [office , setOffice] = useState ("");
     const [organization , setOrganization] = useState ("saso");
     const [year , setYear] = useState ("1");
+
+    const [csvData, setCsvData] = useState([]);
+    const fileInputRef = useRef(null);
 
     const handleId_noChange = (e) => {
       setId_no(e.target.value);
@@ -59,6 +62,90 @@ function Scholars ({scholars}) {
         setOthers(filteredUsersOthers);
 
       }, [scholars]);
+
+      const handleFileUpload = (event) => {
+        const file = event.target.files[0];
+      
+        Papa.parse(file, {
+          header: true,
+          dynamicTyping: true,
+          complete: (result) => {
+            const csvData = result.data.map((rowData) => {
+              // Convert each value in the row to a string
+              const stringifiedRow = {};
+              for (const key in rowData) {
+                if (rowData.hasOwnProperty(key)) {
+                  stringifiedRow[key] = String(rowData[key]);
+                }
+              }
+              return stringifiedRow;
+            });
+      
+            // Now, `csvData` contains all values as strings
+            setCsvData(csvData);
+          },
+        });
+      };
+      
+      const importUsersToFirestore =  (event) => {
+        event.preventDefault();
+        csvData.forEach(async(user) => {
+          console.log("looptext")
+          const scholarsCheck =scholars.filter((scholar) => {
+            return scholar.id_no == user.id_no;
+          });
+          console.log(user.id_no)
+          const usersCollection = collection(db, 'users');
+          const queryRef = query(usersCollection, where('id_no', '==', user.id_no));
+          const querySnapshot = await getDocs(queryRef);
+          console.log(querySnapshot.size)
+          const userData = {
+            id_no: user.id_no,
+            name: user.name,
+            cluster: user.cluster, 
+            office: user.office,
+            year: user.year,
+            organization: user.organization,
+          };
+          if (
+            userData.id_no === "" ||
+            userData.name === "" ||
+            userData.cluster === "" ||
+            userData.office === "" ||
+            userData.year === "" ||
+            userData.organization === "" ||
+            userData.cluster >= 6 ||
+            userData.year >= 5
+          ) {
+            setErrorMessage("*Some field are wrong. Skipping")
+            setIsShaking(true);
+            setTimeout(() => {
+              setErrorMessage('');
+              setIsShaking(false);
+            }, 2000); // Adjust the duration as needed
+          } else {
+            if (scholarsCheck.length>=1){
+              querySnapshot.forEach((doc) => {
+                updateDoc(doc.ref, {
+                  name: user.name,
+                  cluster: user.cluster, 
+                  office: user.office,
+                  year: user.year,
+                  organization: user.organization,});
+              });
+              console.log("modified");
+            } else {
+            addDoc(usersCollection, userData);
+            console.log("added");
+            }
+          }
+          // Reset the file input value
+          if (fileInputRef.current) {
+            fileInputRef.current.value = ''; // This will clear the file input's value
+          }
+        });
+      };
+
 
     const addScholar_Attempt = async (event)=> {
         event.preventDefault();
@@ -178,19 +265,40 @@ function Scholars ({scholars}) {
                 </form>
             </div>
             {/* ADD SCHOLAR */}
-            <div className='w-1/6 ps-5 '>
-            <button type="button"
+            <div className='w-1/6 ps-5'>
+              <button type="button"
              onClick={()=> setShowAddScholar(true)}
              class=" text-white  bg-blue-900 hover:bg-blue-950  font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
               Add Scholar
               </button>
             
             </div>
-            
             {/* ADD SCHOLAR THROUGH CSV */}
-            <div className='w-2/6'>
-
+            <div className='w-2/6 '>
+              <label class="block -mt-3 ps-1 text-sm font-medium text-gray-900 dark:text-gray-300" for="file_input">Batch Adding - .csv files</label>
+              <form Method="Post" onSubmit={importUsersToFirestore} className={`${isShaking? 'shake' :''}`}>
+                <div className='flex'>
+                  <div className=""> 
+                    <input class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" id="file_input" 
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".csv"
+                    onChange={handleFileUpload}
+                    required
+                  />
+                  </div>
+                  <div className='ps-2 -mt-2'>
+                    <button
+                    class=" text-white  bg-blue-900 hover:bg-blue-950  font-medium rounded-lg text-sm py-2.5 px-5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
+                    Batch Add
+                    </button>
+                  </div>
+                  
+                </div>
+                <p className='text-red-600 text-sm'>{errorMessage}</p>
+              </form>
             </div>
+            
             {/* FILTER */}
             <div className="w-1/6 ps-5">
                 <Menu as="div" className="relative inline-block text-left w-full">

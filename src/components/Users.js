@@ -308,7 +308,6 @@ const AccessUsers = ({users}) => {
         const isChecked = event.target.checked;
         const collectionRef = collection(db, 'admin_users');
         const queryRef = query(collectionRef, where('uid', '==', uid));
-
         const querySnapshot = await getDocs(queryRef);
 
         if (isChecked) {
