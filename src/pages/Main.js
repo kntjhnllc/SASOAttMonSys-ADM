@@ -32,6 +32,8 @@ function Home () {
     const [users,setUsers] = useState([]);
     const [scholars,setScholars] = useState([]);
     const [admin, setAdmin] = useState([]);
+    const [attendance, setAttendance] = useState([]);
+    const [meeting, setMeeting] = useState([]);
     const router = useRouter();
     const [open, setOpen] = useState(true)
     const [accessDenied , setAccessDenied] =useState(false)
@@ -116,9 +118,7 @@ function Home () {
       });
       return () => unsubscribe();
     }, []);
-
     //users (scholars) collection
-    // admin_users collection
 
     useEffect(() => {
       const que = query(
@@ -148,6 +148,69 @@ function Home () {
       });
       return () => unsubscribe();
     }, []);  
+
+
+    // attendance collection
+
+    useEffect(() => {
+      const que = query(
+        collection(db, "attendance"), 
+        orderBy('dateTime', 'desc'));
+        
+      const unsubscribe = onSnapshot(que, (querySnapshot) => {
+
+        querySnapshot.docChanges().forEach((change) => {
+          const data = change.doc.data();
+          const id =change.doc.id;
+
+          console.log('attendance Test read onchange')
+          
+          if (change.type === "added"){
+            setAttendance((prevAttendance) => [...prevAttendance, {...data, id}]);
+            console.log("added");
+          } else if (change.type === "modified"){
+            setAttendance((prevAttendance) => prevAttendance.map((attend) => attend.id===id? {...data, id} :attend));
+            console.log("modified");
+          }
+          else if (change.type === "removed"){
+            setAttendance((prevAttendance) => prevAttendance.filter((attend) => attend.id !==id));
+            console.log("removed");
+          }
+        });
+      });
+      return () => unsubscribe();
+    }, []);
+
+    // meeting collection
+
+    useEffect(() => {
+      const que = query(
+        collection(db, "meeting"), 
+        orderBy('meetDate', 'desc'));
+        
+      const unsubscribe = onSnapshot(que, (querySnapshot) => {
+
+        querySnapshot.docChanges().forEach((change) => {
+          const data = change.doc.data();
+          const id =change.doc.id;
+
+          console.log('meeting Test read onchange')
+          
+          if (change.type === "added"){
+            setMeeting((prevMeeting) => [...prevMeeting, {...data, id}]);
+            console.log("added");
+          } else if (change.type === "modified"){
+            setMeeting((prevMeeting) => prevMeeting.map((meet) => meet.id===id? {...data, id} :meet));
+            console.log("modified");
+          }
+          else if (change.type === "removed"){
+            setMeeting((prevMeeting) => prevMeeting.filter((meet) => meet.id !==id));
+            console.log("removed");
+          }
+        });
+      });
+      return () => unsubscribe();
+    }, []);
 
     useEffect(() => {
       if (adminSuper) {
@@ -258,7 +321,7 @@ function Home () {
         // eslint-disable-next-line
         case 'Scholars': return <Scholars scholars={scholars}/>;break;
         // eslint-disable-next-line
-        case 'Attendance': return <Attendance/>;break;
+        case 'Attendance': return <Attendance attendance={attendance} meeting={meeting} scholars={scholars}/>;break;
         // eslint-disable-next-line
         case 'Profile': return <Profile/>;break;
         // eslint-disable-next-line

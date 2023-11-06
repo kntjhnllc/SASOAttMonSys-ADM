@@ -226,7 +226,7 @@ function Scholars ({scholars}) {
 
     return (
       <Fragment>
-        <div className="w-full h-full">
+      <div className="w-full h-full">
         <h1 className='text-2xl font-semibold font-montserrat text-blue-900 '>Scholars</h1>
         <hr className="h-1 my-4 bg-gray-200 border-0 dark:bg-gray-700"/>
         {/* count */}
@@ -244,6 +244,7 @@ function Scholars ({scholars}) {
                 <p className="text-gray-300 ">Others</p>
             </div>
         </div>
+        
         {/* search bar */}
         <div className="pt-7 flex items-center justify-center">
             <div className="w-3/6">
