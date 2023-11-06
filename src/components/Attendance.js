@@ -21,15 +21,16 @@ function Attendance ({attendance,meeting,scholars}) {
     const [attend, setAttend] = useState([]);
     const [addMeeting, setAddMeeting] = useState("");
     const [idNumber, setIdNumber] = useState("");
+    const [saveFileAs , setSaveFileAs] = useState("");
+    const [saveDateAs , setSaveDateAs] = useState("");
  
     const [errorMessage, setErrorMessage] = useState();
     const [errorMessage2, setErrorMessage2] = useState();
     const [isShaking, setIsShaking] = useState(false);
     const [isShaking2, setIsShaking2] = useState(false);
+    
 
-    const handleMeetingClick = (meetId) => {
-        setSelectedMeetingId(meetId); // Update the state with the selected meeting ID
-    };
+    
 
     const handleAddMeetingChange = (e) => {
         setAddMeeting(e.target.value);
@@ -37,15 +38,14 @@ function Attendance ({attendance,meeting,scholars}) {
     const handleAttendChange = (e) => {
         setIdNumber(e.target.value);
     };
+    
     const handleAttendClick = async (event) => {
         event.preventDefault();
         try{
-            const usersCollection = collection(db, 'users');
-            const q = query(usersCollection, where('id_no', '==', idNumber));
-            const querySnapshot = await getDocs(q);
-            querySnapshot.forEach((doc) => {
-            });
-            if (querySnapshot.empty){
+            const users =scholars.filter((scholar) => {
+                return scholar.id_no == idNumber;
+              });
+            if (users.length==0){
               setErrorMessage2('*No scholar found!');
               setIsShaking2(true);
     
@@ -60,11 +60,25 @@ function Attendance ({attendance,meeting,scholars}) {
             }
             else {
                 const attendCollection = collection(db, 'attendance');
-                const q = query(attendCollection, where('id_no', '==', idNumber));
-                const querySnapshot = await getDocs(q);
-                querySnapshot.forEach((doc) => {
-                });
-                if (!querySnapshot.empty){
+                const filteredAttendance = attend.map(attend => {
+                    // Calculate the conditional uid based on the provided condition
+                    const id_no = attend.id_no;
+                    console.log(id_no)
+                    // Find a matching uid based on the calculated uid
+                    const matchingid = scholars.find(scholar => scholar.id_no === id_no);
+                    console.log("matching",matchingid)
+                    if (matchingid) {
+                    // If a matching uid is found, update Name
+                    return {
+                        ...attend,
+                        name: matchingid.name,
+                        cluster: matchingid.cluster
+                    };
+                    }
+                
+                    return attend;
+                }); // Return the original history if no match is found
+                if (filteredAttendance.length>=1){
                 setErrorMessage2('*Scholar already attended!');
                 setIsShaking2(true);
 
@@ -88,9 +102,7 @@ function Attendance ({attendance,meeting,scholars}) {
                     setTimeout(() => {
                         setErrorMessage2("");
                         setIdNumber("");
-                    }, 2000); // Adjust the duration as needed
-                    
-                    
+                    }, 2000); // Adjust the duration as needed                    
                 }
             }
         }
@@ -119,11 +131,10 @@ function Attendance ({attendance,meeting,scholars}) {
         .join('');
         try{
               const meetingCollection = collection(db, 'meeting');
-              const q = query(meetingCollection, where('meetName', '==', addMeeting));
-              const querySnapshot = await getDocs(q);
-              querySnapshot.forEach((doc) => {
+              const meet =meeting.filter((meet) => {
+                return meet.meetName == addMeeting;
               });
-              if (!querySnapshot.empty){
+              if (meet.length>=1){
                 setErrorMessage('*Meeting Name Already Taken!');
                 setIsShaking(true);
       
@@ -176,74 +187,93 @@ function Attendance ({attendance,meeting,scholars}) {
 
         }
     }
-
-    useEffect(() => {
-    const filteredAttend = attendance.filter((attend) => attend.meetID === selectedMeetingId);
-    setAttend(filteredAttend);
-  }, [attendance, selectedMeetingId]);
-
-    const filteredAttendance = attend.map(attend => {
-        // Calculate the conditional uid based on the provided condition
-        const id_no = attend.id_no;
-        console.log(id_no)
-        // Find a matching uid based on the calculated uid
-        const matchingid = scholars.find(scholar => scholar.id_no === id_no);
-        console.log("matching",matchingid)
-        if (matchingid) {
-        // If a matching uid is found, update Name
-        return {
-            ...attend,
-            name: matchingid.name,
-            cluster: matchingid.cluster
-        };
-        }
-    
-        return attend; // Return the original history if no match is found
-    });
-    console.log("filtered",filteredAttendance)
-
-
     function formatTimestamp(timestamp) {
         if (timestamp == null) {
-          const now = new Date();
-          const options = {
+            return ""; // Handle null timestamp as per your requirements
+        }
+    
+        const date = timestamp.toDate();
+        const options = {
             year: 'numeric',
             month: 'short',
             day: 'numeric',
             hour: '2-digit',
             minute: '2-digit',
             hour12: true, // Include AM/PM
-          };
-          return now.toLocaleString(undefined, options);
-        } else {
-          const date = timestamp.toDate();
-          const now = new Date();
-          const diff = Math.floor((now - date) / 1000);  // Calculate difference in seconds
-      
-          if (diff < 60) {
-            return `${diff} seconds ago`;
-          } else if (diff < 3600) {
-            const minutes = Math.floor(diff / 60);
-            return `${minutes} minute${minutes !== 1 ? 's' : ''} ago`;
-          } else if (diff < 86400) {
-            const hours = Math.floor(diff / 3600);
-            return `${hours} hour${hours !== 1 ? 's' : ''} ago`;
-          } else if (diff <= 5 * 86400) {
-            const days = Math.floor(diff / 86400);
-            return `${days} day${days !== 1 ? 's' : ''} ago`;
-          } else {
-            const options = {
-              year: 'numeric',
-              month: 'short',
-              day: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit',
-              hour12: true, // Include AM/PM
-            };
-            return date.toLocaleString(undefined, options);
-          }
+        };
+    
+        return date.toLocaleString(undefined, options);
+    }
+    useEffect(() => {
+    const filteredAttend = attendance.filter((attend) => attend.meetID === selectedMeetingId);
+    setAttend(filteredAttend);
+
+  }, [attendance, selectedMeetingId]);
+
+   
+
+    const filteredAttendance = attend.map(attend => {
+        // Calculate the conditional uid based on the provided condition
+        const id_no = attend.id_no;
+        const meetID =attend.meetID;
+        const formattedDateTime = formatTimestamp(attend.dateTime);
+        console.log(id_no)
+        // Find a matching uid based on the calculated uid
+        const matchingid = scholars.find(scholar => scholar.id_no === id_no);
+        const meetingMatch =meeting.find(meet => meet.meetID === meetID)
+        console.log("matching",matchingid)
+        if (matchingid) {
+        // If a matching uid is found, update Name
+        return {
+            ...attend,
+            name: matchingid.name,
+            cluster: matchingid.cluster,
+            meetName: meetingMatch.meetName,
+            formattedDateTime: formattedDateTime,
+        };
         }
-      }
+        
+        return attend; // Return the original history if no match is found
+    });
+
+    useEffect(() => {
+        // Check if there is at least one element in the filteredAttendance array
+        if (filteredAttendance.length > 0) {
+            setSaveFileAs(filteredAttendance[0].meetName);
+            setSaveDateAs(filteredAttendance[0].formattedDateTime); // Set the value based on the first element's meetName property
+        } else {
+            // Handle the case where the array is empty or there is no match
+            setSaveFileAs("");
+        }
+    }, [filteredAttendance]);
+
+    const handleMeetingClick = (meetId) => {
+        setSelectedMeetingId(meetId); // Update the state with the selected meeting ID
+    };
+    console.log("filtered",filteredAttendance)
+    console.log('name', saveFileAs)
+      const exportDataToCSV = () => {
+        
+        const data = filteredAttendance.map(attend => {
+          const { id, meetID, ...rest } = attend; // Exclude the 'id' property
+            
+          return {
+            meetName:attend.meetName,
+            id_no: attend.id_no,
+            name: attend.name, // Make 'id_no' the first cell
+            ...rest,
+          };
+        });
+      
+        // Convert data to CSV format
+        const csvData = Papa.unparse(data);
+      
+        // Create a Blob containing the CSV data
+        const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8' });
+      
+        // Save the CSV data as a file
+        saveAs(blob, saveFileAs+'_Attendance_'+saveDateAs+'.csv');
+      };
 
     return (
         <div>
@@ -412,6 +442,21 @@ function Attendance ({attendance,meeting,scholars}) {
                                 <div className='text-lg'> No Data Available<br/>•ω•</div>
                             </div>}
                         </div>
+                    </div>
+                </div>
+                <div className='w-full h-full justify-between flex mt-2'>
+                    <div className='w-full h-full'>
+                        <button
+                            class="text-white place-self-end bg-blue-900 hover:bg-blue-950  font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
+                            Confirm Meeting
+                        </button>
+                    </div>
+                    <div className='w-full h-full '>
+                        <button
+                            class=" text-white place-self-end bg-blue-900 hover:bg-blue-950  font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+                            onClick={exportDataToCSV}>
+                            Extract Attendance
+                        </button>
                     </div>
                 </div>
             </div>    
