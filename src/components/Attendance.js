@@ -25,6 +25,7 @@ function Attendance ({attendance,meeting,scholars}) {
     const [idNumber, setIdNumber] = useState("");
     const [saveFileAs , setSaveFileAs] = useState("");
     const [saveDateAs , setSaveDateAs] = useState("");
+    const [allAttend, setAllAttend] = useState();
     const [saso , setSaso] = useState();
     const [others , setOthers] = useState();
     const [errorMessage, setErrorMessage] = useState();
@@ -254,13 +255,15 @@ console.log("attend",attend)
   console.log(filteredAttendance);
 
     useEffect(() => {
-        let filteredUsersSASO,filteredUsersOthers;
+        let filteredUsersSASO,filteredUsersOthers,filteredAllAttend;
       
           filteredUsersSASO = filteredAttendance.filter(scholar => scholar.organization=="saso" &&scholar.status=="Present").length;
           filteredUsersOthers = filteredAttendance.filter(scholar => scholar.organization!="saso"&&scholar.status=="Present").length;
+          filteredAllAttend = filteredAttendance.filter(scholar =>scholar.status=="Present").length;
          // Set the filtered users in the access state
         setSaso(filteredUsersSASO);
         setOthers(filteredUsersOthers);
+        setAllAttend(filteredAllAttend);
 
       }, [filteredAttendance]);
 
@@ -373,8 +376,8 @@ console.log("attend",attend)
                 {/* count */}
                 <div className="grid grid-cols-3 divide-x-2 items-center justify-center text-center font-montserrat text-blue-900">
                     <div className="">
-                        <p className="text-6xl ">{scholars.length}</p>
-                        <p className="text-gray-300 text-sm">Scholar/s</p>
+                        <p className="text-6xl ">{allAttend}/{scholars.length}</p>
+                        <p className="text-gray-300 text-sm">Total Present/out of</p>
                     </div>
                     <div className="">
                         <p className="text-6xl ">{saso}</p>
