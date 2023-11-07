@@ -366,15 +366,6 @@ console.log("attend",attend)
     sortedMeetings.sort((a, b) => b.meetDate - a.meetDate);
 
 
-    const barcodeInput = document.getElementById('barcodeInput');
-    barcodeInput.addEventListener('input', function (event) {
-    const scannedData = event.target.value;
-    // Process or handle the scanned data as needed.
-    console.log('Scanned Data:', scannedData);
-    // Clear the input field to prepare for the next scan.
-    event.target.value = '';
-    });
-
     return (
         <div>
             <div className="w-full h-full">
@@ -441,7 +432,7 @@ console.log("attend",attend)
                                 placeholder="Enter ID Number..."
                                 onChange={handleAttendChange}
                                 value={idNumber}
-                                id="barcodeInput" autofocus
+                                autofocus
                                 required
                                 disabled={selectedMeetingId==null?true:null}/>
                             </div>
