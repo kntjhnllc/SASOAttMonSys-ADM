@@ -35,20 +35,20 @@ function Users ({users}) {
             {/* count */}
             <div className="grid grid-cols-3 divide-x-2 items-center justify-center text-center font-montserrat text-blue-900">
                 <div className="">
-                    <p className="text-8xl ">{userCount}</p>
-                    <p className="text-gray-300 ">Peoples</p>
+                    <p className="text-6xl ">{userCount}</p>
+                    <p className="text-gray-300 text-sm">Peoples</p>
                 </div>
                 <div className="">
-                    <p className="text-8xl ">{access}</p>
-                    <p className="text-gray-300 ">Access</p>
+                    <p className="text-6xl ">{access}</p>
+                    <p className="text-gray-300 text-sm">Access</p>
                 </div>
                 <div className="">
-                    <p className="text-8xl ">{denied}</p>
-                    <p className="text-gray-300 ">Denied</p>
+                    <p className="text-6xl ">{denied}</p>
+                    <p className="text-gray-300 text-sm">Denied</p>
                 </div>
             </div>
             {/* search bar */}
-            <div className="pt-7 flex items-center justify-center">
+            <div className="pt-2 flex items-center justify-center">
                 <div className="w-5/6">
                     <form class="flex items-center">   
                         <label for="simple-search" class="sr-only">Search</label>
@@ -134,7 +134,7 @@ function Users ({users}) {
                     </Menu>
                 </div>
             </div>
-            <div className='w-full h-[300px] py-5'>
+            <div className='w-full h-[400px] py-2'>
             {selectedFilter === 'All Users' && <AllUsers users={users} />}
             {selectedFilter === 'Access' && <AccessUsers users={users} />}
             {selectedFilter === 'Denied' && <DeniedUsers users={users} />}
@@ -249,7 +249,7 @@ const AllUsers = ({users}) => {
         <div className="w-full h-full flex flex-col">
             {users.length > 0?
             <>
-            <div className="flex text-2xl  font-bold bg-blue-950 text-center text-white  rounded-t-xl">
+            <div className="flex text-sm  font-bold bg-blue-950 text-center text-white  rounded-t-xl">
               <div className="flex-1 p-2 text-left">Name</div>
               <div className="flex-1 p-2 text-left">Email</div>
               <div className="flex-1 p-2">Date Created</div>
@@ -260,7 +260,7 @@ const AllUsers = ({users}) => {
               {users.map((user) => (
                 <div
                   key={user.id}
-                  className="flex items-center mb-2 hover:bg-gray-300 hover:bg-opacity-75  text-lg font-semibold p-2"
+                  className="flex items-center mb-2 hover:bg-gray-300 hover:bg-opacity-75  text-sm font-semibold p-2"
                 >
                   <div className="flex flex-1 items-center truncate">
                   
@@ -407,7 +407,7 @@ const AccessUsers = ({users}) => {
         <div className="w-full h-full flex flex-col">
             {users.length > 0?
             <>
-            <div className="flex text-2xl  font-bold bg-blue-950 text-center text-white  rounded-t-xl">
+            <div className="flex text-sm  font-bold bg-blue-950 text-center text-white  rounded-t-xl">
               <div className="flex-1 p-2 text-left">Name</div>
               <div className="flex-1 p-2 text-left">Email</div>
               <div className="flex-1 p-2">Date Created</div>
@@ -418,7 +418,7 @@ const AccessUsers = ({users}) => {
               {accessUsers.map((user) => (
                 <div
                   key={user.id}
-                  className="flex items-center mb-2 hover:bg-gray-300 hover:bg-opacity-75  text-lg font-semibold p-2"
+                  className="flex items-center mb-2 hover:bg-gray-300 hover:bg-opacity-75  text-sm font-semibold p-2"
                 >
                   <div className="flex flex-1 items-center truncate">
                   
@@ -566,7 +566,7 @@ const DeniedUsers = ({users}) => {
         <div className="w-full h-full flex flex-col">
             {users.length > 0?
             <>
-            <div className="flex text-2xl  font-bold bg-blue-950 text-center text-white  rounded-t-xl">
+            <div className="flex text-sm  font-bold bg-blue-950 text-center text-white  rounded-t-xl">
               <div className="flex-1 p-2 text-left">Name</div>
               <div className="flex-1 p-2 text-left">Email</div>
               <div className="flex-1 p-2">Date Created</div>
@@ -577,7 +577,7 @@ const DeniedUsers = ({users}) => {
               {deniedUsers.map((user) => (
                 <div
                   key={user.id}
-                  className="flex items-center mb-2 hover:bg-gray-300 hover:bg-opacity-75  text-lg font-semibold p-2"
+                  className="flex items-center mb-2 hover:bg-gray-300 hover:bg-opacity-75  text-sm font-semibold p-2"
                 >
                   <div className="flex flex-1 items-center truncate">
                   

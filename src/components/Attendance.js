@@ -9,7 +9,7 @@ import CSVReader from 'react-csv-reader'
 import { saveAs } from 'file-saver';
 import Swal from 'sweetalert2';
 
-import { BsFillPersonVcardFill} from "react-icons/bs";
+import { BsFillPersonVcardFill,BsArrowLeftShort} from "react-icons/bs";
 import { BiArrowToRight} from "react-icons/bi";
 import { HiViewGridAdd} from "react-icons/hi";
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&family=Roboto&display=swap" rel="stylesheet"></link>
@@ -18,18 +18,22 @@ import { HiViewGridAdd} from "react-icons/hi";
 function Attendance ({attendance,meeting,scholars}) {
 
     const [selectedMeetingId, setSelectedMeetingId] = useState();
+    const [meetingId, setMeetingId] = useState();
+    const [meetingName, setMeetingName] = useState();
     const [attend, setAttend] = useState([]);
     const [addMeeting, setAddMeeting] = useState("");
     const [idNumber, setIdNumber] = useState("");
     const [saveFileAs , setSaveFileAs] = useState("");
     const [saveDateAs , setSaveDateAs] = useState("");
- 
+    const [saso , setSaso] = useState();
+    const [others , setOthers] = useState();
     const [errorMessage, setErrorMessage] = useState();
     const [errorMessage2, setErrorMessage2] = useState();
+    const [errorMessage3, setErrorMessage3] = useState();
     const [isShaking, setIsShaking] = useState(false);
     const [isShaking2, setIsShaking2] = useState(false);
-    
-
+    const [isShaking3, setIsShaking3] = useState(false);
+    const [confirmMeeting, setConfirmMeeting] = useState(false);
     
 
     const handleAddMeetingChange = (e) => {
@@ -38,7 +42,8 @@ function Attendance ({attendance,meeting,scholars}) {
     const handleAttendChange = (e) => {
         setIdNumber(e.target.value);
     };
-    
+
+
     const handleAttendClick = async (event) => {
         event.preventDefault();
         try{
@@ -78,31 +83,36 @@ function Attendance ({attendance,meeting,scholars}) {
                 
                     return attend;
                 }); // Return the original history if no match is found
-                if (filteredAttendance.length>=1){
+                const id =filteredAttendance.filter((id) => {
+                    return id.id_no == idNumber;
+                  });
+                if (id.length==1){
                 setErrorMessage2('*Scholar already attended!');
                 setIsShaking2(true);
 
         
                 // Clear the error message and reset the shake animation after a short delay
                     setTimeout(() => {
-                    setErrorMessage('');
+                    setErrorMessage2('');
                     setIsShaking2(false);
                     setIdNumber("");
                     }, 2000); // Adjust the duration as needed
                 }
                 else{
-                    const attendData = {
+                    if (users.length>0){
+                        const attendData = {
                     id_no: idNumber,
                     meetID: selectedMeetingId, 
                     status:"Present",
                     dateTime: serverTimestamp()
                     };
                     addDoc(attendCollection, attendData);
-                    setErrorMessage2("Scholar "+ idNumber + "Attended")
+                    setErrorMessage2("Scholar "+ users[0].name + " Attended");
                     setTimeout(() => {
                         setErrorMessage2("");
                         setIdNumber("");
-                    }, 2000); // Adjust the duration as needed                    
+                    }, 2000); // Adjust the duration as needed                
+                    }    
                 }
             }
         }
@@ -207,7 +217,7 @@ function Attendance ({attendance,meeting,scholars}) {
     useEffect(() => {
     const filteredAttend = attendance.filter((attend) => attend.meetID === selectedMeetingId);
     setAttend(filteredAttend);
-
+console.log("attend",attend)
   }, [attendance, selectedMeetingId]);
 
    
@@ -231,11 +241,25 @@ function Attendance ({attendance,meeting,scholars}) {
             office: matchingid.office,
             meetName: meetingMatch.meetName,
             formattedDateTime: formattedDateTime,
+            organization:matchingid.organization
         };
         }
         
         return attend; // Return the original history if no match is found
     });
+
+    useEffect(() => {
+        let filteredUsersSASO,filteredUsersOthers;
+      
+          filteredUsersSASO = filteredAttendance.filter(scholar => scholar.organization=="saso" &&scholar.status=="Present").length;
+          filteredUsersOthers = filteredAttendance.filter(scholar => scholar.organization!="saso"&&scholar.status=="Present").length;
+         // Set the filtered users in the access state
+        setSaso(filteredUsersSASO);
+        setOthers(filteredUsersOthers);
+
+      }, [filteredAttendance]);
+
+      console.log("attend",filteredAttendance)
 
     useEffect(() => {
         // Check if there is at least one element in the filteredAttendance array
@@ -276,6 +300,60 @@ function Attendance ({attendance,meeting,scholars}) {
         saveAs(blob, saveFileAs+'_Attendance_'+saveDateAs+'.csv');
       };
 
+      useEffect (()=>{
+        const meetTrue =meeting.filter((meet) => {
+            return meet.active == true;
+          });
+          setMeetingName(meetTrue[0]?.meetName);
+    });
+
+    const handleConfirmMeetingTrue = async (event) => {
+        event.preventDefault();
+        const meetingCollectionRef = collection(db, 'meeting');
+        if (meetingName?.length>=1){
+            setErrorMessage3('*There is an Active meeting!');
+            setIsShaking3(true);
+  
+            // Clear the error message and reset the shake animation after a short delay
+               setTimeout(() => {
+              setErrorMessage3('');
+              setIsShaking3(false);
+            }, 2000); // Adjust the duration as needed
+        }
+        else{
+            setConfirmMeeting(true);
+            setMeetingName(saveFileAs);
+            const q = query(meetingCollectionRef, where('meetID', '==', selectedMeetingId));
+            const querySnapshotUser = await getDocs(q);
+            querySnapshotUser.forEach(async (doc) => {                
+            await updateDoc(doc.ref, { active: true});
+            });
+        }
+
+    }
+    const handleConfirmMeetingFalse = async (event) => {
+        event.preventDefault();
+        setConfirmMeeting(false);
+        setMeetingId("");
+        const meetingCollectionRef = collection(db, 'meeting');
+        const q = query(meetingCollectionRef, where('meetID', '==', selectedMeetingId));
+        const querySnapshotUser = await getDocs(q);
+        querySnapshotUser.forEach(async (doc) => {                
+        await updateDoc(doc.ref, { active: false});
+        });
+    }
+
+    useEffect (()=>{
+        const meet = meeting.find((meet) => meet.meetID === selectedMeetingId);
+          console.log(meet)
+        if (meet?.active==false || meet?.active==undefined){
+            setConfirmMeeting(false);
+        }
+        else if (meet?.active==true){
+            setConfirmMeeting(true);
+        }
+    },[selectedMeetingId])
+
     return (
         <div>
             <div className="w-full h-full">
@@ -286,16 +364,16 @@ function Attendance ({attendance,meeting,scholars}) {
                 {/* count */}
                 <div className="grid grid-cols-3 divide-x-2 items-center justify-center text-center font-montserrat text-blue-900">
                     <div className="">
-                        <p className="text-6xl ">20</p>
-                        <p className="text-gray-300 ">Scholar/s</p>
+                        <p className="text-6xl ">{scholars.length}</p>
+                        <p className="text-gray-300 text-sm">Scholar/s</p>
                     </div>
                     <div className="">
-                        <p className="text-6xl ">20</p>
-                        <p className="text-gray-300 ">SASO Present</p>
+                        <p className="text-6xl ">{saso}</p>
+                        <p className="text-gray-300 text-sm">SASO Present</p>
                     </div>
                     <div className="">
-                        <p className="text-6xl ">0</p>
-                        <p className="text-gray-300 ">Others Present</p>
+                        <p className="text-6xl ">{others}</p>
+                        <p className="text-gray-300 text-sm">Others Present</p>
                     </div>
                 </div>
                 {/* add meeting and attendance */}
@@ -325,8 +403,8 @@ function Attendance ({attendance,meeting,scholars}) {
                         </form>
                         {isShaking?(<p className='shake text-red-500 text-sm'>{errorMessage}</p>):null}
                     </div>
-                    <div className=''>
-                    {isShaking2?(<p className='shake text-red-500 text-sm'>{errorMessage2}</p>):null}
+                    <div className='w-1/6'>
+                    <p className=' text-red-500 text-sm'>{errorMessage2} </p>
                     </div>
                     <div className="w-2/6">
                     <label  className="block -mt-3 ps-1 text-sm font-medium text-gray-900 dark:text-gray-300">Enter ID Number</label>
@@ -345,7 +423,8 @@ function Attendance ({attendance,meeting,scholars}) {
                                 required
                                 disabled={selectedMeetingId==null?true:null}/>
                             </div>
-                            <button type="submit" className="ml-2 text-sm font-medium text-blue-950">
+                            <button type="submit" className="ml-2 text-sm font-medium text-blue-950"
+                            disabled={selectedMeetingId==null?true:null}>
                                 <svg className="w-10 h-10" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
                                     <BsFillPersonVcardFill/>
                                 </svg>
@@ -361,7 +440,7 @@ function Attendance ({attendance,meeting,scholars}) {
                             {meeting.length > 0?
                             <>
                             <div className="flex text-2xl  font-bold bg-blue-950 text-center text-white  rounded-t-xl">
-                                <div className="flex-1 p-2 text-sm text-left">Meeting</div>
+                                <div className="flex-1 p-2 text-sm text-left">Meeting<span className="ps-1 text-red-600">{meetingName}</span></div>
                             </div>
                             <div className="w-full h-full overflow-y-auto border-s-2 border-e-2 border-b-2">
                             {meeting.map((meet) => (
@@ -389,8 +468,8 @@ function Attendance ({attendance,meeting,scholars}) {
                             ))}
                             </div>
                             </>:
-                            <div className='w-full h-full justify-center items-center text-center text-5xl text-blue-950 font-bold'>
-                                <div className="flex text-2xl  font-bold bg-blue-950 text-center text-white  rounded-t-xl">
+                            <div className='w-full h-full justify-center items-center text-center text-lg text-blue-950 font-bold'>
+                                <div className="flex text-sm  font-bold bg-blue-950 text-center text-white  rounded-t-xl">
                                     <div className="flex-1 p-2 text-sm text-left">Meeting</div>
                                 </div>      
                                 No Data Available<br/>•ω•
@@ -403,9 +482,9 @@ function Attendance ({attendance,meeting,scholars}) {
                             <>
                             <div className="flex text-2xl  font-bold bg-blue-950 text-center text-white  rounded-t-xl">
                                 <div className="flex-1 p-2 text-sm text-left">ID No.</div>
-                                <div className="flex-1 p-2 text-sm text-left">Name</div>
-                                <div className="flex-1 p-2 text-sm text-center">Cluster</div>
-                                <div className="flex-1 p-2 text-sm text-center">Status</div>
+                                <div className="flex-1 p-2 text-sm -ms-20 text-left">Name</div>
+                                <div className="flex-1 p-2 text-sm -ms-20 text-center">Cluster</div>
+                                <div className="flex-1 p-2 text-sm -ms-20 text-center">Status</div>
                                 <div className="flex-1 p-2 text-sm text-left">DateTime</div>
                             </div>
                             <div className="w-full h-full overflow-y-auto border-s-2 border-e-2 border-b-2">
@@ -417,13 +496,13 @@ function Attendance ({attendance,meeting,scholars}) {
                                     <div className="flex text-start flex-1 truncate text-sm text-blue-950">
                                     <span className='w-full truncate'>{attend.id_no}</span>
                                     </div>
-                                    <div className="flex text-start flex-1 truncate text-sm text-blue-950">
+                                    <div className="flex text-start -ms-20 flex-1 truncate text-sm text-blue-950">
                                     <span className='w-full truncate'>{attend.name}</span>
                                     </div>
-                                    <div className="flex flex-1 truncate text-center text-sm text-blue-950">
+                                    <div className="flex flex-1 -ms-20 truncate text-center text-sm text-blue-950">
                                     <span className='w-full truncate'>{attend.cluster}</span>
                                     </div>
-                                    <div className="flex flex-1 truncate text-center text-sm text-blue-950">
+                                    <div className="flex flex-1 -ms-20 truncate text-center text-sm text-blue-950">
                                     <span className='w-full truncate'>{attend.status}</span>
                                     </div>
                                     <div className="flex text-start flex-1 truncate text-sm text-blue-950">
@@ -438,6 +517,7 @@ function Attendance ({attendance,meeting,scholars}) {
                                 <div className="flex-1 p-2 text-sm text-left">ID No.</div>
                                 <div className="flex-1 p-2 text-sm text-left">Name</div>
                                 <div className="flex-1 p-2 text-sm text-left">Cluster</div>
+                                <div className="flex-1 p-2 text-sm -ms-20 text-center">Status</div>
                                 <div className="flex-1 p-2 text-sm text-left">DateTime</div>
                                 </div>      
                                 <div className='text-lg'> No Data Available<br/>•ω•</div>
@@ -446,20 +526,39 @@ function Attendance ({attendance,meeting,scholars}) {
                     </div>
                 </div>
                 <div className='w-full h-full justify-between flex mt-2'>
-                    <div className='w-2/6 h-full'>
-                        <button
-                            class="text-white place-self-end bg-blue-900 hover:bg-blue-950  font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
-                            Confirm Meeting
-                        </button>
+                    <div className={`${isShaking3?"shake":" "} w-2/6 h-full flex`}>
+                        {confirmMeeting?
+                            (
+                            <button
+                                class="text-white place-self-end bg-blue-900 hover:bg-blue-950  font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+                                onClick={handleConfirmMeetingFalse}
+                                disabled={selectedMeetingId==null?true:null}>
+                                    Unconfirm Meeting
+                            </button>
+                            )
+                            :
+                            (
+                            <button
+                                class="text-white place-self-end bg-blue-900 hover:bg-blue-950  font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+                                onClick={handleConfirmMeetingTrue}
+                                disabled={selectedMeetingId==null?true:null}>
+                                    Confirm Meeting
+                            </button>
+                            )
+                        }
+                        <BsArrowLeftShort className='text-blue-950 mt-1'/>
+                        <p className='text-[10px] text-blue-950'>*For Mobile Scanner</p>
                     </div>
                     <div className='w-4/6 ps-5 h-full '>
                         <button
                             class=" text-white place-self-end bg-blue-900 hover:bg-blue-950  font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
-                            onClick={exportDataToCSV}>
+                            onClick={exportDataToCSV}
+                            disabled={attend.length==0?true:null}>
                             Extract Attendance
                         </button>
                     </div>
                 </div>
+                <p className='shake text-red-600 text-[10px] '>{errorMessage3} </p>
             </div>    
         </div>
     )

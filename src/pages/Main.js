@@ -155,7 +155,7 @@ function Home () {
     useEffect(() => {
       const que = query(
         collection(db, "attendance"), 
-        orderBy('dateTime', 'desc'));
+        orderBy('dateTime', 'asc'));
         
       const unsubscribe = onSnapshot(que, (querySnapshot) => {
 
