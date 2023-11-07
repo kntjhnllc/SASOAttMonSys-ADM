@@ -224,37 +224,34 @@ console.log("attend",attend)
 
    
 
-    const filteredAttendance = attend.map(attend => {
-        // Calculate the conditional uid based on the provided condition
-        const id_no = attend.id_no;
-        const meetID =attend.meetID;
-        const formattedDateTime = formatTimestamp(attend.dateTime);
-        console.log(id_no)
-        // Find a matching uid based on the calculated uid
-        const matchingid = scholars.find(scholar => scholar.id_no === id_no);
-        const meetingMatch =meeting.find(meet => meet.meetID === meetID)
-        console.log("matching",matchingid)
-        if (matchingid) {
-        // If a matching uid is found, update Name
-        return {
-            ...attend,
-            name: matchingid.name,
-            cluster: matchingid.cluster,
-            office: matchingid.office,
-            meetName: meetingMatch.meetName,
-            formattedDateTime: formattedDateTime,
-            organization:matchingid.organization
-        };
-        }
-        
-        return attend; // Return the original history if no match is found
-    }).filter(Boolean);
-
-    filteredAttendance.sort((a, b) => {
-    // Assuming 'dateTime' is in a format that can be compared directly, like Unix timestamps or ISO date strings
+  const filteredAttendance = attend.reduce((result, item) => {
+    const id_no = item.id_no;
+    const meetID = item.meetID;
+    const formattedDateTime = formatTimestamp(item.dateTime);
+  
+    const matchingid = scholars.find(scholar => scholar.id_no === id_no);
+    const meetingMatch = meeting.find(meet => meet.meetID === meetID);
+  
+    if (matchingid) {
+      result.push({
+        ...item,
+        name: matchingid.name,
+        cluster: matchingid.cluster,
+        office: matchingid.office,
+        meetName: meetingMatch ? meetingMatch.meetName : null,
+        formattedDateTime: formattedDateTime,
+        organization: matchingid.organization
+      });
+    }
+  
+    return result;
+  }, []).sort((a, b) => {
+    // Assuming 'formattedDateTime' is in a format that can be compared directly, like ISO date strings
     // If it's not, you may need to parse it first.
-    return new Date(b.formattedDateTime) - new Date(a.formattedDateTime);
-    });console.log(filteredAttendance);
+    return new Date(b.dateTime) - new Date(a.dateTime);
+  });
+  
+  console.log(filteredAttendance);
 
     useEffect(() => {
         let filteredUsersSASO,filteredUsersOthers;
