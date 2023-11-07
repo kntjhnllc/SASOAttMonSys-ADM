@@ -197,6 +197,8 @@ function Attendance ({attendance,meeting,scholars}) {
 
         }
     }
+
+    
     function formatTimestamp(timestamp) {
         if (timestamp == null) {
             return ""; // Handle null timestamp as per your requirements
@@ -246,7 +248,13 @@ console.log("attend",attend)
         }
         
         return attend; // Return the original history if no match is found
-    });
+    }).filter(Boolean);
+
+    filteredAttendance.sort((a, b) => {
+    // Assuming 'dateTime' is in a format that can be compared directly, like Unix timestamps or ISO date strings
+    // If it's not, you may need to parse it first.
+    return new Date(b.formattedDateTime) - new Date(a.formattedDateTime);
+    });console.log(filteredAttendance);
 
     useEffect(() => {
         let filteredUsersSASO,filteredUsersOthers;
@@ -354,6 +362,9 @@ console.log("attend",attend)
         }
     },[selectedMeetingId])
 
+    const sortedMeetings = [...meeting]; 
+    sortedMeetings.sort((a, b) => b.meetDate - a.meetDate);
+
     return (
         <div>
             <div className="w-full h-full">
@@ -404,11 +415,11 @@ console.log("attend",attend)
                         {isShaking?(<p className='shake text-red-500 text-sm'>{errorMessage}</p>):null}
                     </div>
                     <div className='w-1/6'>
-                    <p className=' text-red-500 text-sm'>{errorMessage2} </p>
+                    <p className=' text-red-500 text-[10px]  text-right pt-3'>{errorMessage2} </p>
                     </div>
                     <div className="w-2/6">
                     <label  className="block -mt-3 ps-1 text-sm font-medium text-gray-900 dark:text-gray-300">Enter ID Number</label>
-                        <form className={`${isShaking2? "shake text-red-500":""}flex items-center text-gray-900`} onSubmit={handleAttendClick}>   
+                        <form className={`${isShaking2? "shake text-red-500 ":""}flex items-center pe-2 text-gray-900`} onSubmit={handleAttendClick}>   
                             <div className="relative w-full">
                                 <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                                     <svg className="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
@@ -443,7 +454,7 @@ console.log("attend",attend)
                                 <div className="flex-1 p-2 text-sm text-left">Meeting<span className="ps-1 text-red-600">{meetingName}</span></div>
                             </div>
                             <div className="w-full h-full overflow-y-auto border-s-2 border-e-2 border-b-2">
-                            {meeting.map((meet) => (
+                            {sortedMeetings.map((meet) => (
                                 <div
                                 key={meet.id}
                                 className={`flex hover:bg-gray-300 hover:bg-opacity-75 ${selectedMeetingId === meet.meetID ?"bg-gray-300 bg-opacity-75" :""}  text-lg font-semibold p-2`}
