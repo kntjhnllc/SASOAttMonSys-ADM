@@ -345,7 +345,7 @@ function Home () {
     }, []);
 
     return(
-      <div className="main">
+      <div className="main h-screen">
         <Helmet>
           <link rel="icon" type="image/png" href="hcdclogo.png" />
         </Helmet>
@@ -355,8 +355,9 @@ function Home () {
             <SplashScreen />
           </div>
         ) : <div className={`${accessDenied? "absolute inset-0 bg-opacity-90 bg-gray-100  backdrop-blur-sm z-50 w-full h-full":""}`}></div>}
-        <div className='flex'>
-          <div className={` bg-blue-950 h-screen ${open ? "w-72":"w-20"} duration-300 p-5 pt-8 relative`}>
+        
+        <div className='flex flex-row relative'>
+          <div className={`absolute bg-blue-950 h-screen ${open ? "w-72":"w-20"} duration-300 p-5 pt-8 relative`}>
             <BsArrowLeftShort className={`bg-white text-blue-950 text-3xl rounded-full absolute -right-3 top-9 border border-blue-950 cursor-pointer ${
               !open && "rotate-180"}`}
             onClick={() => setOpen(!open)}
@@ -416,8 +417,7 @@ function Home () {
               </span>
             </div> 
           </div> 
-
-          <div className='p-7 w-full'>
+          <div className={`p-7 w-full max-h-[100vh]`}>
             <h1 className='text-2xl font-semibold font-montserrat'>{getMenu()}</h1>
           </div>  
         </div>  

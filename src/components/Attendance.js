@@ -354,7 +354,7 @@ function Attendance ({attendance,meeting,scholars}) {
                     </div>
                 </div>
                 {/* table */}
-                <div className="w-full h-full flex justify-between mt-3">
+                <div className="w-full h-[350px] flex justify-between mt-3">
                     <div className="w-2/6">
                         <div className="w-full h-full flex flex-col">
                             {meeting.length > 0?

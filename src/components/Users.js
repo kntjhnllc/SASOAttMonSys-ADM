@@ -134,7 +134,7 @@ function Users ({users}) {
                     </Menu>
                 </div>
             </div>
-            <div className='w-full h-full py-5'>
+            <div className='w-full h-[400px] py-5'>
             {selectedFilter === 'All Users' && <AllUsers users={users} />}
             {selectedFilter === 'Access' && <AccessUsers users={users} />}
             {selectedFilter === 'Denied' && <DeniedUsers users={users} />}
