@@ -369,7 +369,7 @@ function Scholars ({scholars}) {
               </div>
           </div>
         </div>
-        <div className='h-[650px] w-full pt-[270px]'>
+        <div className='h-[600px] w-full pt-[270px]'>
           <div className='w-full h-full py-5 '>
           {selectedFilter === 'All Scholars' && <AllScholars scholars={scholars} />}
           {selectedFilter === 'SASO' && <SASOScholars scholars={scholars} />}
