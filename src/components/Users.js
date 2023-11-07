@@ -168,8 +168,8 @@ const AllUsers = ({users}) => {
                         updateDoc(doc.ref, { access: isChecked });
                     });
                     Swal.fire({
-                        title:'Access Taken!',
-                        text:'Access has been taken away.',
+                        title:'Access Given!',
+                        text:'User now has access.',
                         icon:'success',
                         iconColor:'#000080',
                         confirmButtonColor:'#000080'

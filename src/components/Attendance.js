@@ -228,6 +228,7 @@ function Attendance ({attendance,meeting,scholars}) {
             ...attend,
             name: matchingid.name,
             cluster: matchingid.cluster,
+            office: matchingid.office,
             meetName: meetingMatch.meetName,
             formattedDateTime: formattedDateTime,
         };
@@ -255,7 +256,7 @@ function Attendance ({attendance,meeting,scholars}) {
       const exportDataToCSV = () => {
         
         const data = filteredAttendance.map(attend => {
-          const { id, meetID, ...rest } = attend; // Exclude the 'id' property
+          const { id, meetID,dateTime, ...rest } = attend; // Exclude the 'id' property
             
           return {
             meetName:attend.meetName,
@@ -396,7 +397,7 @@ function Attendance ({attendance,meeting,scholars}) {
                             </div>}
                         </div>
                     </div>
-                    <div className="w-3/6">
+                    <div className="w-4/6 ps-5">
                         <div className="w-full h-full flex flex-col">
                             {filteredAttendance.length > 0?
                             <>
@@ -445,13 +446,13 @@ function Attendance ({attendance,meeting,scholars}) {
                     </div>
                 </div>
                 <div className='w-full h-full justify-between flex mt-2'>
-                    <div className='w-full h-full'>
+                    <div className='w-2/6 h-full'>
                         <button
                             class="text-white place-self-end bg-blue-900 hover:bg-blue-950  font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
                             Confirm Meeting
                         </button>
                     </div>
-                    <div className='w-full h-full '>
+                    <div className='w-4/6 ps-5 h-full '>
                         <button
                             class=" text-white place-self-end bg-blue-900 hover:bg-blue-950  font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
                             onClick={exportDataToCSV}>
