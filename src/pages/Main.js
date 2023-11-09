@@ -377,8 +377,7 @@ function Home () {
               !open && "rotate-180"}`}  
             onClick={() => setOpen(!open)}
             />
-            <BiMenu className={` text-white text-3xl absolute flex lg:hidden right-3 top-5 cursor-pointer ${
-              !open && "rotate-180"}`}  
+            <BiMenu className={` text-white text-3xl absolute flex lg:hidden right-3 top-5 cursor-pointer`}  
             onClick={() => setOpen(!open)}
             />
             
@@ -407,8 +406,8 @@ function Home () {
                 }`}
               />
             </div> */}
-            <div className={`${open?"":"hidden"}`}>
-              <ul className='pt-7 pl-5 md:pl-0'>
+            <div className={`${open?"":"hidden "} `}>
+              <ul className='md:pt-7 pt-2 px-5  md:px-0'>
                   {MenuOptions.map((menu, index) => (
                     <>
                       <li key={index} onClick={() => changeMenu(menu.title)}
