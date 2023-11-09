@@ -377,7 +377,7 @@ function Home () {
               !open && "rotate-180"}`}  
             onClick={() => setOpen(!open)}
             />
-            <BiMenu className={` text-white text-7xl absolute flex lg:hidden right-3 top-1 cursor-pointer ${
+            <BiMenu className={` text-white text-3xl absolute flex lg:hidden right-3 top-1 cursor-pointer ${
               !open && "rotate-180"}`}  
             onClick={() => setOpen(!open)}
             />
@@ -385,7 +385,7 @@ function Home () {
             <div className='md:inline-flex -mt-5 mb-5 ml-5 md:-mt-0 md:mb-0 md:ml-0 md:pt-2 '>
               <img src='hcdclogo.png' className={` bg-red-700 rounded mr-2 cursor-pointer block float-left md:w-9 md:h-10  h-14 w-12 duration-500 ${
                 !open && "rotate-[360deg]"}`}/>
-              <h1 className={`text-white pt-2 origin-left md:text-lg text-3xl font-medium font-montserrat duration-300 ${
+              <h1 className={`text-white pt-2 origin-left text-lg  font-medium font-montserrat duration-300 ${
                 !open && "md:scale-0"
                 } `}
               >
