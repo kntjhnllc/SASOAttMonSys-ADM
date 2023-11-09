@@ -11,7 +11,7 @@ import { BsArrowLeftShort,BsSearch, BsCardChecklist, BsFillPersonFill} from "rea
 import { RiDashboardFill} from "react-icons/ri";
 import { SiGooglescholar} from "react-icons/si";
 import { FaUsersCog, FaList} from "react-icons/fa";
-import { BiLogOut} from "react-icons/bi";
+import { BiLogOut,BiMenu} from "react-icons/bi";
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&family=Roboto&display=swap" rel="stylesheet"></link>
 import { Helmet } from "react-helmet";
 
@@ -358,10 +358,15 @@ function Home () {
         
         <div className='flex flex-col md:flex-row relative'>
           <div className={`absolute bg-blue-950 md:h-screen ${open ? "md:w-72":"md:w-20"} duration-300 p-5 pt-8 relative`}>
-            <BsArrowLeftShort className={`bg-white text-blue-950 text-3xl rounded-full absolute -right-3 top-9 border border-blue-950 cursor-pointer ${
-              !open && "rotate-180"}`}
+            <BsArrowLeftShort className={`bg-white text-blue-950 text-3xl rounded-full md:absolute hidden lg:flex md:-right-3 md:top-9 border border-blue-950 cursor-pointer ${
+              !open && "rotate-180"}`}  
             onClick={() => setOpen(!open)}
             />
+            <BiMenu className={` text-white text-5xl absolute flex lg:hidden right-3 top-6 cursor-pointer ${
+              !open && "rotate-180"}`}  
+            onClick={() => setOpen(!open)}
+            />
+            
             <div className='md:inline-flex'>
               <img src='hcdclogo.png' className={`p-1 bg-red-700 rounded mr-2 cursor-pointer block float-left w-9 h-10 duration-500 ${
                 !open && "rotate-[360deg]"}`}/>
