@@ -368,7 +368,7 @@ console.log("attend",attend)
 
     return (
         <div>
-            <div className="w-full h-full">
+            <div className="w-full h-full hidden md:block">
                 <h1 className='text-2xl font-semibold font-montserrat text-blue-900'>
                     Attendance
                 </h1>
@@ -572,6 +572,14 @@ console.log("attend",attend)
                     </div>
                 </div>
                 <p className='shake text-red-600 text-[10px] '>{errorMessage3} </p>
+            </div>
+            <div className='md:hidden block '>
+                <h1 className='text-4xl font-semibold font-montserrat text-blue-900'>
+                    Attendance
+                </h1>
+                <h1 className='text-5xl pt-40 px-20 font-semibold items-center text-center justify-center font-montserrat text-blue-900'>
+                    Please use a computer to access this menu.
+                </h1>
             </div>    
         </div>
     )

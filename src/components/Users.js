@@ -29,7 +29,8 @@ function Users ({users}) {
       }, [users]);
 
     return (
-        <div className="w-full h-full">
+      <div>
+        <div className="md:block hidden w-full h-full">
             <h1 className='text-2xl font-semibold font-montserrat text-blue-900'>Users</h1>
             <hr className="h-1 my-4 bg-gray-200 border-0 dark:bg-gray-700"/>
             {/* count */}
@@ -140,6 +141,15 @@ function Users ({users}) {
             {selectedFilter === 'Denied' && <DeniedUsers users={users} />}
             </div>
         </div>
+        <div className='md:hidden block '>
+                <h1 className='text-4xl font-semibold font-montserrat text-blue-900'>
+                    Users
+                </h1>
+                <h1 className='text-5xl pt-40 px-20 font-semibold items-center text-center justify-center font-montserrat text-blue-900'>
+                    Please use a computer to access this menu.
+                </h1>
+            </div>    
+      </div>  
     )
 }
 
