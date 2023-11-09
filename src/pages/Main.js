@@ -406,7 +406,7 @@ function Home () {
                 }`}
               />
             </div> */}
-            <div className={`${open?"":"hidden "} `}>
+            <div className={`${open?"":"hidden md:block"} `}>
               <ul className='md:pt-7 pt-2 px-5  md:px-0'>
                   {MenuOptions.map((menu, index) => (
                     <>
@@ -423,9 +423,9 @@ function Home () {
                   ))}
               </ul>
             </div> 
-            <div className={`text-white md:absolute text-base pl-7 md:pl-0 
+            <div className={`text-white md:absolute md:bottom-5 md:left-5 text-base pl-7 md:pl-0 
             ${
-              !open ? "w-11 hidden":"w-56 mb-2 md:mb-0 md:bottom-5 md:left-5"
+              !open ? "w-11 hidden md:block ":"w-56 mb-2 md:mb-0 "
               } 
               gap-x-4 cursor-pointer p-2 hover:bg-light-white rounded-md `}
               onClick={Sign_Out}>
@@ -436,7 +436,7 @@ function Home () {
               </span>
             </div> 
           </div> 
-          <div className={`p-7 w-full max-h-[100vh]`}>
+          <div className={`p-7 w-full max-h-[100vh] overflow-y-auto md:overflow-y-hidden`}>
             {getMenu()}
           </div>  
         </div>  
