@@ -372,17 +372,17 @@ function Home () {
         ) : <div className={`${accessDenied? "absolute inset-0 bg-opacity-90 bg-gray-100  backdrop-blur-sm z-50 w-full h-full":""}`}></div>}
         
         <div className='flex flex-col md:flex-row relative'>
-          <div className={`absolute bg-blue-950 md:h-screen ${open ? "md:w-72":"md:w-20"} duration-300 p-5 pt-8 relative`}>
+          <div className={`absolute bg-blue-950  md:h-screen ${open ? "md:w-72":"md:w-20"} duration-300 md:p-5 pt-8  relative`}>
             <BsArrowLeftShort className={`bg-white text-blue-950 text-3xl rounded-full md:absolute hidden lg:flex md:-right-3 md:top-9 border border-blue-950 cursor-pointer ${
               !open && "rotate-180"}`}  
             onClick={() => setOpen(!open)}
             />
-            <BiMenu className={` text-white text-7xl absolute flex lg:hidden right-3 top-5 cursor-pointer ${
+            <BiMenu className={` text-white text-7xl absolute flex lg:hidden right-3 top-1 cursor-pointer ${
               !open && "rotate-180"}`}  
             onClick={() => setOpen(!open)}
             />
             
-            <div className='md:inline-flex  md:pt-2 '>
+            <div className='md:inline-flex -mt-5 mb-5 ml-5 md:-mt-0 md:mb-0 md:ml-0 md:pt-2 '>
               <img src='hcdclogo.png' className={` bg-red-700 rounded mr-2 cursor-pointer block float-left md:w-9 md:h-10  h-14 w-12 duration-500 ${
                 !open && "rotate-[360deg]"}`}/>
               <h1 className={`text-white pt-2 origin-left md:text-lg text-3xl font-medium font-montserrat duration-300 ${
@@ -408,7 +408,7 @@ function Home () {
               />
             </div> */}
             <div className={`${open?"":"hidden"}`}>
-              <ul className='pt-7'>
+              <ul className='pt-7 pl-5 md:pl-0'>
                   {MenuOptions.map((menu, index) => (
                     <>
                       <li key={index} onClick={() => changeMenu(menu.title)}
@@ -418,15 +418,15 @@ function Home () {
                         <span className='text-2xl block float-left'> 
                           {menu.icon? menu.icon : <RiDashboardFill/>}
                         </span>
-                        <span className={`md:text-base text-4xl font-medium flex-1 ${!open && "hidden"} duration-200`}>{menu.title}</span>
+                        <span className={`text-base  font-medium flex-1 ${!open && "hidden"} duration-200`}>{menu.title}</span>
                       </li>
                     </>
                   ))}
               </ul>
             </div> 
-            <div className={`text-white md:absolute  md:text-base text-4xl 
+            <div className={`text-white md:absolute text-base pl-7 md:pl-0 
             ${
-              !open ? "w-11 hidden":"w-56 md:bottom-5 md:left-5"
+              !open ? "w-11 hidden":"w-56 mb-2 md:mb-0 md:bottom-5 md:left-5"
               } 
               gap-x-4 cursor-pointer p-2 hover:bg-light-white rounded-md `}
               onClick={Sign_Out}>

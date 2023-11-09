@@ -337,7 +337,7 @@ const HomePage = () => {
                 <span className='text-blue-900'>HCDC -</span> SASO
               </div>
               <div className='py-10'>
-                <h2 className='text-3xl font-bold text-blue-900 mb-2'>
+                <h2 className='text-3xl font-bold text-blue-900 md:mb-2'>
                   Sign in to your Account
                 </h2>
                 <div className='border-2 w-10 border-blue-900 inline-block mb-2'></div>
