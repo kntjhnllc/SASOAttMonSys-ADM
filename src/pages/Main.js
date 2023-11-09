@@ -354,19 +354,19 @@ function Home () {
             {/* Content to be displayed when load is true */}
             <SplashScreen />
           </div>
-        ) : <div className={`${accessDenied? "absolute inset-0 bg-opacity-90 bg-gray-100  backdrop-blur-sm z-50 w-full h-full":""}`}></div>}
+        ) : <div className={`${accessDenied? "absolute inset-0 bg-opacity-90 bg-gray-100  backdrop-blur-sm z-50 w-full h-[768px] md:h-full":""}`}></div>}
         
-        <div className='flex flex-row relative'>
-          <div className={`absolute bg-blue-950 h-screen ${open ? "w-72":"w-20"} duration-300 p-5 pt-8 relative`}>
+        <div className='flex flex-col md:flex-row relative'>
+          <div className={`absolute bg-blue-950 md:h-screen ${open ? "md:w-72":"md:w-20"} duration-300 p-5 pt-8 relative`}>
             <BsArrowLeftShort className={`bg-white text-blue-950 text-3xl rounded-full absolute -right-3 top-9 border border-blue-950 cursor-pointer ${
               !open && "rotate-180"}`}
             onClick={() => setOpen(!open)}
             />
-            <div className='inline-flex'>
+            <div className='md:inline-flex'>
               <img src='hcdclogo.png' className={`p-1 bg-red-700 rounded mr-2 cursor-pointer block float-left w-9 h-10 duration-500 ${
                 !open && "rotate-[360deg]"}`}/>
               <h1 className={`text-white pt-2 origin-left font-medium font-montserrat duration-300 ${
-                !open && "scale-0"
+                !open && "md:scale-0"
                 } `}
               >
                   HCDC-SCHOLAR
@@ -387,7 +387,7 @@ function Home () {
                 }`}
               />
             </div> */}
-            <div className=''>
+            <div className={`${open?"":"hidden"}`}>
               <ul className='pt-7'>
                   {MenuOptions.map((menu, index) => (
                     <>
@@ -404,9 +404,9 @@ function Home () {
                   ))}
               </ul>
             </div> 
-            <div className={`text-gray-300 text-sm absolute bottom-5 left-5 
+            <div className={`text-gray-300 text-sm md:absolute  
             ${
-              !open ? "w-11":"w-56"
+              !open ? "w-11 hidden":"w-56 md:bottom-5 md:left-5"
               } 
               gap-x-4 cursor-pointer p-2 hover:bg-light-white rounded-md `}
               onClick={Sign_Out}>
@@ -418,7 +418,7 @@ function Home () {
             </div> 
           </div> 
           <div className={`p-7 w-full max-h-[100vh]`}>
-            <h1 className='text-2xl font-semibold font-montserrat'>{getMenu()}</h1>
+            {getMenu()}
           </div>  
         </div>  
       </div>         

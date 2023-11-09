@@ -29,7 +29,7 @@ function Users ({users}) {
       }, [users]);
 
     return (
-        <div className="w-full h-full overflow-y-auto">
+        <div className="w-full h-full">
             <h1 className='text-2xl font-semibold font-montserrat text-blue-900'>Users</h1>
             <hr className="h-1 my-4 bg-gray-200 border-0 dark:bg-gray-700"/>
             {/* count */}
