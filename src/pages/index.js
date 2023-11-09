@@ -333,7 +333,7 @@ const HomePage = () => {
         <div className='bg-white flex rounded-2xl mt-96 md:mt-0  shadow-2xl md:w-2/3 md:max-w-4xl'>
           <div className={`w-3/5 p-5 ${isSignUpVisible ? 'signIn-slide-in' : 'signIn-slide-out'}`}>
             <div className={`${isSignUpVisible ? 'text-container-invi' : 'text-container-full'}`}>
-              <div className='text-left font-bold font-montserrat'>
+              <div className='text-left font-bold font-montserrat  md:pt-0'>
                 <span className='text-blue-900'>HCDC -</span> SASO
               </div>
               <div className='py-10'>
@@ -381,9 +381,9 @@ const HomePage = () => {
                 </div>
               </div>
             </div>
-            <div className={`-mt-[435px]  ${isSignUpVisible ? 'text-container-sign-up' : 'text-container-sign-up-invi'}`} style={{ opacity: isSignUpVisible ? 1 : 0 }}>
+            <div className={`md:-mt-[435px] -mt-[470px] -ml-5 md:-ml-0 ${isSignUpVisible ? 'text-container-sign-up' : 'text-container-sign-up-invi'}`} style={{ opacity: isSignUpVisible ? 1 : 0 }}>
                 <div className='text-left font-bold font-montserrat '>
-                  HCDC - <span className='text-blue-900'>SASO</span>
+                  HCDC - <span className='text-blue-900 '>SASO</span>
                 </div>
                 <div className='mt-8'>
                   <h2 className='text-3xl font-bold text-blue-900 mb-2'>
@@ -439,9 +439,9 @@ const HomePage = () => {
                 </div>
             </div>
           </div>
-          <div className={`w-2/5 bg-blue-950 text-gray-100 rounded-tr-2xl rounded-br-2xl py-36 px-12 ${isSignUpVisible ? 'signUp-slide-in' : 'signUp-slide-out'}`}>
+          <div className={`w-2/5 bg-blue-950 text-gray-100 rounded-tr-2xl rounded-br-2xl md:py-36 px-12 ${isSignUpVisible ? 'signUp-slide-in' : 'signUp-slide-out'}`}>
             <div className={`${isSignUpVisible ? 'text-container-invi' : 'text-container-full'}`}>
-              <h2 className='text-3xl font-bold mb-2 font-montserrat'>Hello, Scholar!</h2>
+              <h2 className='text-3xl font-bold mb-2 font-montserrat pt-20 md:pt-0'>Hello, Scholar!</h2>
               <div className='border-2 w-10 border-white inline-block mb-2'></div>
               <p className='mb-10'>
                 Fill up personal information and start journey with us.
@@ -451,7 +451,7 @@ const HomePage = () => {
                 Sign Up
               </button>
             </div>
-            <div className={`-mt-48  ${isSignUpVisible ? 'text-container-sign-up' : 'text-container-sign-up-invi'}`} style={{ opacity: isSignUpVisible ? 1 : 0 }}>
+            <div className={`-mt-72 md:-mt-48 ${isSignUpVisible ? 'text-container-sign-up' : 'text-container-sign-up-invi'}`} style={{ opacity: isSignUpVisible ? 1 : 0 }}>
               <h2 className='text-3xl font-bold mb-2 font-montserrat'>Hello, Scholar!</h2>
               <div className='border-2 w-10 border-white inline-block mb-2'></div>
               <p className='mb-10'>
