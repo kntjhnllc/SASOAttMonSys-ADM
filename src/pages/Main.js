@@ -41,12 +41,16 @@ function Home () {
     const [Menu, setMenu] = useState('Dashboard');
     const [MenuOptions, setMenuOptions] = useState([]);
     const isMobile = useMediaQuery({ query: '(max-width: 768px)' });
+    const [modalSize, setModalSize] = useState('md');
 
 
     useEffect(() => {
       setOpen(!isMobile);
     }, [isMobile]);
 
+    useEffect(() => {
+      setModalSize(isMobile ? 'lg' : 'md');
+    }, [isMobile]);
     
     useEffect(() => {
       // Ensure admin.Access is initialized to an empty string when admin is null or undefined
@@ -251,6 +255,9 @@ function Home () {
         confirmButtonColor: '#000080', 
         cancelButtonText: `Cancel`,
         buttonsStyling: true,
+        customClass: {
+          popup: `swal2-${modalSize}`,
+        },
       }).then((result) => {
         /* Read more about isConfirmed, isDenied below */
         if (result.isConfirmed) {
@@ -370,15 +377,15 @@ function Home () {
               !open && "rotate-180"}`}  
             onClick={() => setOpen(!open)}
             />
-            <BiMenu className={` text-white text-5xl absolute flex lg:hidden right-3 top-6 cursor-pointer ${
+            <BiMenu className={` text-white text-7xl absolute flex lg:hidden right-3 top-5 cursor-pointer ${
               !open && "rotate-180"}`}  
             onClick={() => setOpen(!open)}
             />
             
-            <div className='md:inline-flex'>
-              <img src='hcdclogo.png' className={`p-1 bg-red-700 rounded mr-2 cursor-pointer block float-left w-9 h-10 duration-500 ${
+            <div className='md:inline-flex  md:pt-2 '>
+              <img src='hcdclogo.png' className={` bg-red-700 rounded mr-2 cursor-pointer block float-left md:w-9 md:h-10  h-14 w-12 duration-500 ${
                 !open && "rotate-[360deg]"}`}/>
-              <h1 className={`text-white md:pt-2 origin-left md:text-lg text-4xl font-medium font-montserrat duration-300 ${
+              <h1 className={`text-white pt-2 origin-left md:text-lg text-3xl font-medium font-montserrat duration-300 ${
                 !open && "md:scale-0"
                 } `}
               >
@@ -411,22 +418,22 @@ function Home () {
                         <span className='text-2xl block float-left'> 
                           {menu.icon? menu.icon : <RiDashboardFill/>}
                         </span>
-                        <span className={`text-base font-medium flex-1 ${!open && "hidden"} duration-200`}>{menu.title}</span>
+                        <span className={`md:text-base text-4xl font-medium flex-1 ${!open && "hidden"} duration-200`}>{menu.title}</span>
                       </li>
                     </>
                   ))}
               </ul>
             </div> 
-            <div className={`text-gray-300 text-sm md:absolute  
+            <div className={`text-white md:absolute  md:text-base text-4xl 
             ${
               !open ? "w-11 hidden":"w-56 md:bottom-5 md:left-5"
               } 
               gap-x-4 cursor-pointer p-2 hover:bg-light-white rounded-md `}
               onClick={Sign_Out}>
-              <span className='text-2xl block float-left mr-3'> 
+              <span className='block float-left mr-3'> 
                 <BiLogOut/>
               </span>
-              <span className={`text-base font-medium flex-1 ${!open && "hidden"} duration-200`}>Logout
+              <span className={`font-medium flex-1 ${!open && "hidden"} duration-200`}>Logout
               </span>
             </div> 
           </div> 

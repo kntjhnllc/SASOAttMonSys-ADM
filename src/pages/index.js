@@ -320,14 +320,17 @@ const HomePage = () => {
   
     <>
     {loading?
-      <><SplashScreen/> 
+      <> <div className="fixed inset-0 bg-opacity-90 bg-gray-100 backdrop-blur-sm z-50 w-full h-full">
+            {/* Content to be displayed when load is true */}
+            <SplashScreen />
+          </div>
         <Helmet>
           <link rel="icon" type="image/png" href="hcdclogo.png" />
         </Helmet>
       </>:
-    <div className='flex flex-col items-center justify-center min-h-screen py-2 bg-gray-100'>
-      <main className='flex flex-col flex-1 text-center px-20 items-center justify-center w-full h-screen'>
-        <div className='bg-white flex rounded-2xl shadow-2xl w-2/3 max-w-4xl'>
+    <div className='h-full w-full'>
+      <main className='flex flex-col md:flex-1 text-center  px-80 md:px-20 items-center justify-center w-full h-screen'>
+        <div className='bg-white flex rounded-2xl mt-96 md:mt-0  shadow-2xl md:w-2/3 md:max-w-4xl'>
           <div className={`w-3/5 p-5 ${isSignUpVisible ? 'signIn-slide-in' : 'signIn-slide-out'}`}>
             <div className={`${isSignUpVisible ? 'text-container-invi' : 'text-container-full'}`}>
               <div className='text-left font-bold font-montserrat'>

@@ -65,19 +65,10 @@ function Authentication() {
           <Helmet>
           <link rel="icon" type="image/png" href="hcdclogo.png" />
         </Helmet>
-            <main className='flex flex-col flex-1 text-center px-20 items-center justify-center w-full h-screen'>
-            
-                <div id="load">
-                    <div>G</div>
-                    <div>N</div>
-                    <div>I</div>
-                    <div>D</div>
-                    <div>A</div>
-                    <div>O</div>
-                    <div>L</div>
-                </div>
-           
-            </main>
+        <div className="fixed inset-0 bg-opacity-90 bg-gray-100 backdrop-blur-sm z-50 w-full h-full">
+            {/* Content to be displayed when load is true */}
+            <SplashScreen />
+          </div>
         </div>
     )
 }
