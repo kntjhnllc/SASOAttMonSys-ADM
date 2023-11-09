@@ -392,7 +392,7 @@ function Home () {
                 }`}
               />
             </div> */}
-            <div className={`${open?"":"hidden"}`}>
+            <div className={`${open?"hidden":""}`}>
               <ul className='pt-7'>
                   {MenuOptions.map((menu, index) => (
                     <>
