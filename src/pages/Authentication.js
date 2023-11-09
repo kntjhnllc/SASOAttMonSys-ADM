@@ -6,6 +6,8 @@ import { useEffect, useState } from "react";
 import { addDoc, collection, onSnapshot, orderBy, query, serverTimestamp, where, doc, getDocs} from 'firebase/firestore'
 import { Helmet } from "react-helmet";
 
+import SplashScreen from '../components/SplashScreen';
+
 function Authentication() {
 
     const router = useRouter();
