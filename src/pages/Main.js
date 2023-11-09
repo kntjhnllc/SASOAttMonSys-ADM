@@ -3,6 +3,7 @@ import { useRouter } from 'next/router'
 import { useAuthState } from 'react-firebase-hooks/auth'
 import { auth,db } from '@/config/firebase';
 import { useEffect, useState } from "react";
+import { useMediaQuery } from 'react-responsive';
 import { getAuth, createUserWithEmailAndPassword,signInWithEmailAndPassword,sendPasswordResetEmail, signOut } from "firebase/auth";
 import { addDoc, collection, onSnapshot, orderBy, query, serverTimestamp, where, doc, getDocs} from 'firebase/firestore'
 import Swal from 'sweetalert2';
@@ -39,7 +40,14 @@ function Home () {
     const [accessDenied , setAccessDenied] =useState(false)
     const [Menu, setMenu] = useState('Dashboard');
     const [MenuOptions, setMenuOptions] = useState([]);
+    const isMobile = useMediaQuery({ query: '(max-width: 768px)' });
 
+
+    useEffect(() => {
+      setOpen(!isMobile);
+    }, [isMobile]);
+
+    
     useEffect(() => {
       // Ensure admin.Access is initialized to an empty string when admin is null or undefined
       const adminSuper = admin ? admin.super : undefined;
@@ -392,7 +400,7 @@ function Home () {
                 }`}
               />
             </div> */}
-            <div className={`${open?"hidden":""}`}>
+            <div className={`${open?"":"hidden"}`}>
               <ul className='pt-7'>
                   {MenuOptions.map((menu, index) => (
                     <>
