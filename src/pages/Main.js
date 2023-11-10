@@ -436,7 +436,7 @@ function Home () {
               </span>
             </div> 
           </div> 
-          <div className={`p-7 w-full max-h-[100vh] overflow-y-auto md:overflow-y-hidden`}>
+          <div className={`p-7 w-full max-h-[629px]`}>
             {getMenu()}
           </div>  
         </div>  
