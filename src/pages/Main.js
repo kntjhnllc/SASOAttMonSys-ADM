@@ -37,6 +37,7 @@ function Home () {
     const [meeting, setMeeting] = useState([]);
     const router = useRouter();
     const [open, setOpen] = useState(true)
+    const [openButton, setOpenButton] = useState(false)
     const [accessDenied , setAccessDenied] =useState(false)
     const [Menu, setMenu] = useState('Dashboard');
     const [MenuOptions, setMenuOptions] = useState([]);
@@ -46,8 +47,9 @@ function Home () {
     const [loadUsers, setLoadUsers] = useState(false);
     const [loadAttendance, setLoadAttendance] = useState(false);
     const [loadMeeting, setLoadMeeting] = useState(false);
- 
-
+    
+    
+  
     useEffect(() => {
       setOpen(!isMobile);
     }, [isMobile]);
@@ -400,7 +402,7 @@ function Home () {
     }, []);
 
     return(
-      <div className="main  md:h-screen md:w-full">
+      <div className="main h-full  md:h-screen md:w-full">
         <Helmet>
           <link rel="icon" type="image/png" href="hcdclogo.png" />
         </Helmet>
@@ -478,8 +480,30 @@ function Home () {
           </div> 
           <div className={`p-7 w-full max-h-[629px]`}>
             {getMenu()}
-          </div>  
+          </div>
         </div>  
+        <div className='md:hidden'>
+          <div className={`fixed z-50 bottom-5 right-5 duration-300 ${openButton?"p-7 rounded-[30px] opacity-100" :"opacity-70"} bg-gradient-to-t from-[#172554] to-[#4B5B8F] p-6 rounded-3xl`}
+          onClick={() => {
+            setOpenButton(prevState => !prevState);
+            setTimeout(() => {
+              setOpenButton(false);
+            }, 3000);
+          }}>
+          </div>
+          <div className={`fixed ${Menu=="Dashboard"?"z-30":"z-20"}  bottom-8 right-14 bg-blue-950 rounded-bl-3xl rounded-tr-3xl text-white p-3 px-5 duration-300 ${openButton?'rotate-[55deg] block opacity-100':"rotate-[-160deg] scale-0 opacity-0"}  transform origin-right font-montserrat`}
+          onClick={() => changeMenu("Dashboard")}>
+              Dashboard
+          </div>  
+          <div className={`fixed ${Menu=="Profile"?"z-30":"z-20"} bottom-8 right-16 bg-blue-950 rounded-bl-3xl rounded-tr-3xl text-white p-3 px-8 duration-300 ${openButton?'rotate-[20deg] block opacity-100':"rotate-[-160deg] scale-0 opacity-0"}  transform origin-right font-montserrat`}
+          onClick={() => changeMenu("Profile")}>
+              Profile
+          </div>
+          <div className={`fixed bottom-8 right-[72px] bg-blue-950 rounded-bl-3xl rounded-tr-3xl text-white p-3 px-7 duration-300 ${openButton?'rotate-[-20deg] block opacity-100':"rotate-[-160deg] scale-0 opacity-0"} transform origin-right font-montserrat`}
+          onClick={Sign_Out}>
+              Logout
+          </div>    
+        </div>
       </div>         
     )
 }
