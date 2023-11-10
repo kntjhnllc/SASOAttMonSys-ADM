@@ -3,14 +3,24 @@
 @tailwind utilities;
 
 
-
-
+@font-face {
+  font-family: 'Montserrat';
+  src: url('https://your-project-id.web.app/path/to/montserrat.woff2') format('woff2'),
+       url('https://your-project-id.web.app/path/to/montserrat.woff') format('woff');
+  /* Add additional formats if needed */
+  font-weight: normal;
+  font-style: normal;
+}
+.font-montserrat {
+  font-family: 'Montserrat', sans-serif;
+}
 
 @media screen and (min-width: 768px) {
   body {
     min-width: 768px;
     min-height: 432px;
     background-color: #f5f5f5;
+    font-family: 'Montserrat', sans-serif;
   }
 }
 
@@ -19,6 +29,7 @@
     min-width: 1024px;
     min-height: 576px;
     background-color: #f5f5f5;
+    font-family: 'Montserrat', sans-serif;
   }
 }
 
