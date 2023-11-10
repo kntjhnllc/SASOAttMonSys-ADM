@@ -14,19 +14,22 @@ import Swal from 'sweetalert2';
 import AddScholarModal from '../components/AddScholarModal';
 import { BsPersonFillAdd} from "react-icons/bs";
 import { HiSaveAs} from "react-icons/hi";
-import { MdOutlineBatchPrediction} from "react-icons/md";
+import { BiDotsVerticalRounded} from "react-icons/bi";
+import { MdOutlineBatchPrediction,MdEditDocument} from "react-icons/md";
 
-function Scholars ({scholars}) {
+function Scholars ({scholars,setLoadUsers}) {
+
+  useEffect(() => {
+    setLoadUsers(true)
+  },[]);
 
     const [selectedFilter, setSelectedFilter] = useState('All Scholars');
     const [saso , setSaso] = useState();
     const [others , setOthers] = useState();
     const [showAddScholar,setShowAddScholar] = useState(false);
     const scholarCount = scholars.length;
-
     const [errorMessage, setErrorMessage] = useState('');
     const [isShaking, setIsShaking] = useState(false);
-
     const [id_no , setId_no] = useState ("");
     const [cluster , setCluster] = useState ("1");
     const [name , setName] = useState ("");
@@ -55,6 +58,7 @@ function Scholars ({scholars}) {
     const handleYearChange = (e) => {
       setYear(e.target.value);
     };
+    
 
     useEffect(() => {
         let filteredUsersSASO,filteredUsersOthers;
@@ -100,8 +104,20 @@ function Scholars ({scholars}) {
               return scholar.id_no == user.id_no;
             });
             console.log(user.id_no)
+            const excludedUserIds = csvData.map((user) => user.id_no);
             const usersCollection = collection(db, 'users');
             const queryRef = query(usersCollection, where('id_no', '==', user.id_no));
+            const excludedUsersQueryRef = query(usersCollection, where('id_no', 'not-in', excludedUserIds));
+            const excludedUsersQuerySnapshot = await getDocs(excludedUsersQueryRef);
+
+            excludedUsersQuerySnapshot.forEach(async (doc) => {
+              // Update the status of users not in the CSV list
+              await updateDoc(doc.ref, {
+                status: 'NOT ENROLLED', // Change 'newStatus' to the desired status
+              });
+              console.log("Status updated for user not in CSV list");
+            });
+
             const querySnapshot = await getDocs(queryRef);
             console.log(querySnapshot.size)
             const userData = {
@@ -111,6 +127,7 @@ function Scholars ({scholars}) {
               office: user.office,
               year: user.year,
               organization: user.organization,
+              status:user.status
             };
             if (
               userData.id_no === "" ||
@@ -119,7 +136,8 @@ function Scholars ({scholars}) {
               userData.year === "" ||
               userData.organization === "" ||
               userData.cluster >= 6 ||
-              userData.year >= 5
+              userData.year >= 5 ||
+              userData.status === ""
             ) {
               setErrorMessage("*Some field are wrong. Skipping")
               setIsShaking(true);
@@ -135,7 +153,8 @@ function Scholars ({scholars}) {
                     cluster: user.cluster, 
                     office: user.office,
                     year: user.year,
-                    organization: user.organization,});
+                    organization: user.organization,
+                    status: user.status,});
                 });
                 console.log("modified");
               } else {
@@ -199,6 +218,7 @@ function Scholars ({scholars}) {
                       office: office,
                       organization: organization,
                       year: year,
+                      statu: "CURRENTLY ENROLLED"
                       };
                       addDoc(usersCollection, userData);
                       Swal.fire({
@@ -239,8 +259,8 @@ function Scholars ({scholars}) {
 
       //EXPORT ALL
       const exportDataToCSV = () => {
-  
-        const data = scholars.map(scholar => {
+        const enrolledScholars = scholars.filter(scholar => scholar.status === 'CURRENTLY ENROLLED');
+        const data = enrolledScholars.map(scholar => {
           const { id, ...rest } = scholar; // Exclude the 'id' property
           return {
             id_no: scholar.id_no,
@@ -357,7 +377,7 @@ function Scholars ({scholars}) {
                                   <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
                               </svg>
                           </div>
-                          <input type="text" id="simple-search" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-900 focus:border-blue-900 block w-full pl-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-900 dark:focus:border-blue-900" placeholder="Search scholar..." required/>
+                          <input type="text" id="searchScholarInput" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-900 focus:border-blue-900 block w-full pl-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-900 dark:focus:border-blue-900" placeholder="Search scholar..." required/>
                       </div>
                       <button type="submit" class="p-2.5 ml-2 text-sm font-medium text-white bg-blue-900 rounded-lg border border-blue-900 hover:bg-blue-950 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
                           <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
@@ -628,7 +648,44 @@ function Scholars ({scholars}) {
 }
 
 const AllScholars = ({scholars}) => {
+  const [hoveredIndex, setHoveredIndex] = useState(null);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef(null);
 
+  const handleMouseEnter = (index) => {
+    if (!showDropdown) {
+      setHoveredIndex(index);
+    }
+  };
+  const toggleDropdown = () => {
+    setShowDropdown(!showDropdown);
+  };
+  const handleClickOutside = (event) => {
+    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      setShowDropdown(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+  const sortedScholars = scholars.map(scholar => scholar)
+  .sort((a, b) => {
+    const nameA = a.name.toUpperCase(); // convert to uppercase for case-insensitive sorting
+    const nameB = b.name.toUpperCase();
+
+    if (nameA < nameB) {
+      return -1;
+    }
+    if (nameA > nameB) {
+      return 1;
+    }
+    return 0; // names are equal
+  });
 
     return (
         <div className="w-full h-full flex flex-col relative">
@@ -642,11 +699,12 @@ const AllScholars = ({scholars}) => {
               <div className="flex-1 p-2">Office</div>
               <div className="flex-1 p-2">Organization</div>
             </div>
-            <div className="w-full h-full overflow-y-auto border-s-2 border-e-2 border-b-2 relative group">
-              {scholars.map((scholar) => (
+            <div className="w-full h-full overflow-y-auto overflow-x-hidden border-s-2 border-e-2 border-b-2 relative group">
+              {sortedScholars.map((scholar,index) => (
                 <div
                   key={scholar.id}
-                  className="flex items-center  mb-2 hover:bg-gray-300 hover:bg-opacity-75  text-sm font-semibold p-2 "
+                  className={`flex items-center ${!showDropdown && index === hoveredIndex ? 'hover:bg-gray-300 hover:bg-opacity-75' : ''}  mb-2 hover:bg-gray-300 hover:bg-opacity-75  text-sm font-semibold p-2`}
+                  onMouseEnter={() => handleMouseEnter(index)}
                 >
                   <div className="flex flex-1 items-center truncate">
                   
@@ -657,7 +715,21 @@ const AllScholars = ({scholars}) => {
                   <div className="flex-1 truncate text-center">{scholar.cluster}</div>
                   <div className="flex-1 text-sm text-center">{scholar.office}</div>
                   <div className="flex-1 truncate text-center uppercase">{scholar.organization}</div>
-                  
+                   {/* Icon */}
+                  <div className={`absolute right-0 mr-2 cursor-pointer 
+                  ${hoveredIndex === index ? '' : 'hidden'}`}
+                  ref={dropdownRef}
+                   onClick={toggleDropdown}>
+                    <BiDotsVerticalRounded className='text-3xl text-gray-400'/>
+                  </div>
+                  {showDropdown && hoveredIndex === index && (
+                  <div className="absolute right-0 mt-2 mr-2 text-blue-950 bg-white border text-center rounded-lg shadow-md py-4">
+                    {/* Dropdown content */}
+                    <p className='hover:bg-slate-200 w-full px-3'>Edit Scholar</p>
+                    <p className='hover:bg-slate-200 w-full px-3'>Delete Scholar</p>
+                    {/* Add more menu items as needed */}
+                  </div>
+                )}
                 </div>
                 
               ))}

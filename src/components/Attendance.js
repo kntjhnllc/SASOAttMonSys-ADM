@@ -15,7 +15,7 @@ import { HiViewGridAdd} from "react-icons/hi";
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&family=Roboto&display=swap" rel="stylesheet"></link>
 
 
-function Attendance ({attendance,meeting,scholars}) {
+function Attendance ({attendance,meeting,scholars,setLoadAttendance,setLoadMeeting,setLoadUsers}) {
 
     const [selectedMeetingId, setSelectedMeetingId] = useState();
     const [meetingId, setMeetingId] = useState();
@@ -35,7 +35,14 @@ function Attendance ({attendance,meeting,scholars}) {
     const [isShaking2, setIsShaking2] = useState(false);
     const [isShaking3, setIsShaking3] = useState(false);
     const [confirmMeeting, setConfirmMeeting] = useState(false);
+ 
     
+
+    useEffect(() => {
+        setLoadAttendance(true)
+        setLoadMeeting(true)
+        setLoadUsers(true)
+      },[]);
 
     const handleAddMeetingChange = (e) => {
         setAddMeeting(e.target.value);
@@ -43,8 +50,7 @@ function Attendance ({attendance,meeting,scholars}) {
     const handleAttendChange = (e) => {
         setIdNumber(e.target.value);
     };
-
-
+    
     const handleAttendClick = async (event) => {
         event.preventDefault();
         try{
@@ -430,9 +436,10 @@ console.log("attend",attend)
                                 <input type="text" 
                                 className="bg-gray-50 border border-gray-300  text-sm rounded-lg focus:ring-blue-900 focus:border-blue-900 block w-full pl-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-900 dark:focus:border-blue-900" 
                                 placeholder="Enter ID Number..."
+                                pattern="[0-9]*"
                                 onChange={handleAttendChange}
                                 value={idNumber}
-                                autofocus
+                                autoFocus
                                 required
                                 disabled={selectedMeetingId==null?true:null}/>
                             </div>

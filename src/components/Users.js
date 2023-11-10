@@ -10,7 +10,10 @@ import Swal from 'sweetalert2';
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&family=Roboto&display=swap" rel="stylesheet"></link>
 
 
-function Users ({users}) {
+function Users ({users,setLoadAdminUsers}) {
+  useEffect(() => {
+    setLoadAdminUsers(true);
+  },[]);
     
     const [selectedFilter, setSelectedFilter] = useState('All Users');
     const [access, setAccess] = useState(0);

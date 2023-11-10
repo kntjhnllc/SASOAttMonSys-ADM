@@ -42,7 +42,11 @@ function Home () {
     const [MenuOptions, setMenuOptions] = useState([]);
     const isMobile = useMediaQuery({ query: '(max-width: 768px)' });
     const [modalSize, setModalSize] = useState('md');
-
+    const [loadAdminUsers, setLoadAdminUsers] = useState(false);
+    const [loadUsers, setLoadUsers] = useState(false);
+    const [loadAttendance, setLoadAttendance] = useState(false);
+    const [loadMeeting, setLoadMeeting] = useState(false);
+ 
 
     useEffect(() => {
       setOpen(!isMobile);
@@ -103,126 +107,152 @@ function Home () {
     // admin_users collection
 
     useEffect(() => {
-      const que = query(
-        collection(db, "admin_users"), 
-        orderBy('name', 'asc'));
-        
-      const unsubscribe = onSnapshot(que, (querySnapshot) => {
-
-        querySnapshot.docChanges().forEach((change) => {
-          const data = change.doc.data();
-          const id =change.doc.id;
-
-          console.log('Admin Test read onchange')
+      if (loadAdminUsers==true && users.length==0){
+        const que = query(
+          collection(db, "admin_users"), 
+          orderBy('date_created', 'desc'));
           
-          if (change.type === "added"){
-            setUsers((prevUsers) => [...prevUsers, {...data, id}]);
-            console.log("added");
-          } else if (change.type === "modified"){
-            setUsers((prevUsers) => prevUsers.map((user) => user.id===id? {...data, id} :user));
-            console.log("modified");
-          }
-          else if (change.type === "removed"){
-            setUsers((prevUsers) => prevUsers.filter((user) => user.id !==id));
-            console.log("removed");
-          }
+        const unsubscribe = onSnapshot(que, (querySnapshot) => {
+  
+          querySnapshot.docChanges().forEach((change) => {
+            const data = change.doc.data();
+            const id =change.doc.id;
+  
+            console.log('Admin Test read onchange')
+            
+            if (change.type === "added"){
+              setUsers((prevUsers) => [...prevUsers, {...data, id}]);
+              console.log("added");
+            } else if (change.type === "modified"){
+              setUsers((prevUsers) => prevUsers.map((user) => user.id===id? {...data, id} :user));
+              console.log("modified");
+            }
+            else if (change.type === "removed"){
+              setUsers((prevUsers) => prevUsers.filter((user) => user.id !==id));
+              console.log("removed");
+            }
+          });
         });
-      });
-      return () => unsubscribe();
-    }, []);
+        return () => unsubscribe();
+      }
+      else {
+        console.log("admin_users not loaded")
+      }
+      
+    }, [loadAdminUsers]);
+
     //users (scholars) collection
 
     useEffect(() => {
-      const que = query(
-        collection(db, "users"), 
-        orderBy('name', 'asc'));
-        
-      const unsubscribe = onSnapshot(que, (querySnapshot) => {
+      if (loadUsers==true && scholars.length==0){
+        const que = query(
+          collection(db, "users"),
+          where("status", "==", "CURRENTLY ENROLLED"));
 
-        querySnapshot.docChanges().forEach((change) => {
-          const data = change.doc.data();
-          const id =change.doc.id;
-
-          console.log('users/scholars Test read onchange')
           
-          if (change.type === "added"){
-            setScholars((prevUsers) => [...prevUsers, {...data, id}]);
-            console.log("added");
-          } else if (change.type === "modified"){
-            setScholars((prevUsers) => prevUsers.map((user) => user.id===id? {...data, id} :user));
-            console.log("modified");
-          }
-          else if (change.type === "removed"){
-            setScholars((prevUsers) => prevUsers.filter((user) => user.id !==id));
-            console.log("removed");
-          }
+        const unsubscribe = onSnapshot(que, (querySnapshot) => {
+  
+          querySnapshot.docChanges().forEach((change) => {
+            const data = change.doc.data();
+            const id =change.doc.id;
+  
+            console.log('users/scholars Test read onchange')
+            
+            if (change.type === "added"){
+              setScholars((prevUsers) => [...prevUsers, {...data, id}]);
+              console.log("added");
+            } else if (change.type === "modified"){
+              setScholars((prevUsers) => prevUsers.map((user) => user.id===id? {...data, id} :user));
+              console.log("modified");
+            }
+            else if (change.type === "removed"){
+              setScholars((prevUsers) => prevUsers.filter((user) => user.id !==id));
+              console.log("removed");
+            }
+          });
         });
-      });
-      return () => unsubscribe();
-    }, []);  
+        return () => unsubscribe();
+      }
+      else {
+        console.log("users not loaded")
+      }
+      
+    }, [loadUsers]);  
 
 
     // attendance collection
 
     useEffect(() => {
-      const que = query(
-        collection(db, "attendance"), 
-        orderBy('dateTime', 'desc'));
-        
-      const unsubscribe = onSnapshot(que, (querySnapshot) => {
-
-        querySnapshot.docChanges().forEach((change) => {
-          const data = change.doc.data();
-          const id =change.doc.id;
-
-          console.log('attendance Test read onchange')
+      if (loadAttendance==true && attendance.length==0){
+        const que = query(
+          collection(db, "attendance"), 
+          orderBy('dateTime', 'desc'));
           
-          if (change.type === "added"){
-            setAttendance((prevAttendance) => [...prevAttendance, {...data, id}]);
-            console.log("added");
-          } else if (change.type === "modified"){
-            setAttendance((prevAttendance) => prevAttendance.map((attend) => attend.id===id? {...data, id} :attend));
-            console.log("modified");
-          }
-          else if (change.type === "removed"){
-            setAttendance((prevAttendance) => prevAttendance.filter((attend) => attend.id !==id));
-            console.log("removed");
-          }
+        const unsubscribe = onSnapshot(que, (querySnapshot) => {
+  
+          querySnapshot.docChanges().forEach((change) => {
+            const data = change.doc.data();
+            const id =change.doc.id;
+  
+            console.log('attendance Test read onchange')
+            
+            if (change.type === "added"){
+              setAttendance((prevAttendance) => [...prevAttendance, {...data, id}]);
+              console.log("added");
+            } else if (change.type === "modified"){
+              setAttendance((prevAttendance) => prevAttendance.map((attend) => attend.id===id? {...data, id} :attend));
+              console.log("modified");
+            }
+            else if (change.type === "removed"){
+              setAttendance((prevAttendance) => prevAttendance.filter((attend) => attend.id !==id));
+              console.log("removed");
+            }
+          });
         });
-      });
-      return () => unsubscribe();
-    }, []);
+        return () => unsubscribe();
+      }
+      else {
+        console.log("attendance not loaded")
+      }
+     
+    }, [loadAttendance]);
 
     // meeting collection
 
     useEffect(() => {
-      const que = query(
-        collection(db, "meeting"), 
-        orderBy('meetDate', 'desc'));
-        
-      const unsubscribe = onSnapshot(que, (querySnapshot) => {
-
-        querySnapshot.docChanges().forEach((change) => {
-          const data = change.doc.data();
-          const id =change.doc.id;
-
-          console.log('meeting Test read onchange')
+      if (loadMeeting==true && meeting.length==0) {
+        const que = query(
+          collection(db, "meeting"), 
+          orderBy('meetDate', 'desc'));
           
-          if (change.type === "added"){
-            setMeeting((prevMeeting) => [...prevMeeting, {...data, id}]);
-            console.log("added");
-          } else if (change.type === "modified"){
-            setMeeting((prevMeeting) => prevMeeting.map((meet) => meet.id===id? {...data, id} :meet));
-            console.log("modified");
-          }
-          else if (change.type === "removed"){
-            setMeeting((prevMeeting) => prevMeeting.filter((meet) => meet.id !==id));
-            console.log("removed");
-          }
+        const unsubscribe = onSnapshot(que, (querySnapshot) => {
+  
+          querySnapshot.docChanges().forEach((change) => {
+            const data = change.doc.data();
+            const id =change.doc.id;
+  
+            console.log('meeting Test read onchange')
+            
+            if (change.type === "added"){
+              setMeeting((prevMeeting) => [...prevMeeting, {...data, id}]);
+              console.log("added");
+            } else if (change.type === "modified"){
+              setMeeting((prevMeeting) => prevMeeting.map((meet) => meet.id===id? {...data, id} :meet));
+              console.log("modified");
+            }
+            else if (change.type === "removed"){
+              setMeeting((prevMeeting) => prevMeeting.filter((meet) => meet.id !==id));
+              console.log("removed");
+            }
+          });
         });
-      });
-      return () => unsubscribe();
-    }, []);
+        return () => unsubscribe();
+      }
+      else {
+        console.log("meeting not loaded")
+      }
+     
+    }, [loadMeeting]);
 
     useEffect(() => {
       if (adminSuper) {
@@ -334,13 +364,23 @@ function Home () {
         // eslint-disable-next-line
         case 'Dashboard': return <Dashboard />;break;
         // eslint-disable-next-line
-        case 'Scholars': return <Scholars scholars={scholars}/>;break;
+        case 'Scholars': return <Scholars 
+                          scholars={scholars} 
+                          setLoadUsers={setLoadUsers}/>;break;
         // eslint-disable-next-line
-        case 'Attendance': return <Attendance attendance={attendance} meeting={meeting} scholars={scholars}/>;break;
+        case 'Attendance': return <Attendance 
+                          attendance={attendance} 
+                          meeting={meeting} 
+                          scholars={scholars} 
+                          setLoadUsers={setLoadUsers}
+                          setLoadAttendance={setLoadAttendance}
+                          setLoadMeeting={setLoadMeeting}/>;break;
         // eslint-disable-next-line
         case 'Profile': return <Profile/>;break;
         // eslint-disable-next-line
-        case 'Users': return <Users users={users}/>;break;
+        case 'Users': return <Users 
+                          users={users}
+                          setLoadAdminUsers={setLoadAdminUsers}/>;break;
         default: return <Not_Found/>;break;
       }
     }
