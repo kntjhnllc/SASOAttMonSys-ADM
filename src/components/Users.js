@@ -142,13 +142,13 @@ function Users ({users}) {
             </div>
         </div>
         <div className='md:hidden block '>
-                <h1 className='text-4xl font-semibold font-montserrat text-blue-900'>
-                    Users
-                </h1>
-                <h1 className='text-5xl pt-40 px-20 font-semibold items-center text-center justify-center font-montserrat text-blue-900'>
-                    Please use a computer to access this menu.
-                </h1>
-            </div>    
+          <h1 className='text-4xl font-semibold font-montserrat text-blue-900'>
+            Users
+          </h1>
+          <h1 className='text-5xl pt-40 px-20 font-semibold items-center text-center justify-center font-montserrat text-blue-900'>
+            Please use a computer to access this menu.
+            </h1>
+        </div>    
       </div>  
     )
 }
