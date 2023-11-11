@@ -483,7 +483,8 @@ function Home () {
           </div>
         </div>  
         <div className='md:hidden'>
-          <div className={`fixed z-50 bottom-5 right-5 duration-300 ${openButton?"p-7 rounded-[30px] opacity-100" :"opacity-70"} bg-gradient-to-t from-[#172554] to-[#4B5B8F] p-6 rounded-3xl`}
+          <div className={` fixed z-50 bottom-5 right-5 duration-300 ${openButton?"p-7 rounded-[30px] opacity-100" :"opacity-20"} bg-gradient-to-t from-[#172554] to-[#4B5B8F] p-5 rounded-3xl`}
+          id="circle"
           onClick={() => {
             setOpenButton(prevState => !prevState);
             setTimeout(() => {
@@ -491,17 +492,19 @@ function Home () {
             }, 3000);
           }}>
           </div>
-          <div className={`fixed ${Menu=="Dashboard"?"z-30":"z-20"}  bottom-8 right-14 bg-blue-950 rounded-bl-3xl rounded-tr-3xl text-white p-3 px-5 duration-300 ${openButton?'rotate-[55deg] block opacity-100':"rotate-[-160deg] scale-0 opacity-0"}  transform origin-right font-montserrat`}
+          <div className={`fixed ${Menu=="Dashboard"?"z-30":"z-20"} 
+          ${openButton?"bottom-24 right-4 opacity-100":"-bottom-14 right-[120px] -rotate-[195deg] scale-0 opacity-0"}  bg-blue-950 rounded-tl-xl rounded-tr-xl rounded-bl-3xl rounded-br-3xl text-xl text-white p-3 px-5 duration-700 transform origin-bottom font-montserrat`}
           onClick={() => changeMenu("Dashboard")}>
-              Dashboard
+              <RiDashboardFill/>
           </div>  
-          <div className={`fixed ${Menu=="Profile"?"z-30":"z-20"} bottom-8 right-16 bg-blue-950 rounded-bl-3xl rounded-tr-3xl text-white p-3 px-8 duration-300 ${openButton?'rotate-[20deg] block opacity-100':"rotate-[-160deg] scale-0 opacity-0"}  transform origin-right font-montserrat`}
+          <div className={`fixed ${Menu=="Profile"?"z-30":"z-20"} 
+          ${openButton?"bottom-20 right-[59px] -rotate-45 opacity-100":"-bottom-5 right-[100px] -rotate-180 scale-0 opacity-0"} bg-blue-950 rounded-tl-xl rounded-tr-xl rounded-bl-3xl rounded-br-3xl text-xl text-white p-3 px-5 duration-500 transform origin-bottom font-montserrat`}
           onClick={() => changeMenu("Profile")}>
-              Profile
+              <BsFillPersonFill/>
           </div>
-          <div className={`fixed bottom-8 right-[72px] bg-blue-950 rounded-bl-3xl rounded-tr-3xl text-white p-3 px-7 duration-300 ${openButton?'rotate-[-20deg] block opacity-100':"rotate-[-160deg] scale-0 opacity-0"} transform origin-right font-montserrat`}
+          <div className={`fixed ${openButton?"bottom-9 right-[69px] -rotate-90 opacity-100":"bottom-0 right-[69px] -rotate-180 scale-0 opacity-0"}  bg-blue-950 rounded-tl-xl rounded-tr-xl rounded-bl-3xl rounded-br-3xl text-xl text-white p-3 px-5 duration-300  transform origin-bottom  font-montserrat`}
           onClick={Sign_Out}>
-              Logout
+              <BiLogOut/>
           </div>    
         </div>
       </div>         
