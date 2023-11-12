@@ -413,8 +413,8 @@ function Home () {
           </div>
         ) : <div className={`${accessDenied? "absolute inset-0 bg-opacity-90 bg-gray-100  backdrop-blur-sm z-50 w-full h-full":""}`}></div>}
         
-        <div className='flex flex-col md:flex-row relative'>
-          <div className={`absolute bg-blue-950  md:h-screen ${open ? "md:w-72":"md:w-20"} duration-300 md:p-5 pt-8  relative`}>
+        <div className='flex flex-col  md:flex-row relative'>
+          <div className={`fixed bg-blue-950 w-full md:h-screen ${open ? "md:w-72":"md:w-20"} duration-300 md:p-5 pt-8  md:relative`}>
             <BsArrowLeftShort className={`bg-white text-blue-950 text-3xl rounded-full md:absolute hidden lg:flex md:-right-3 md:top-9 border border-blue-950 cursor-pointer ${
               !open && "rotate-180"}`}  
             onClick={() => setOpen(!open)}
@@ -478,12 +478,12 @@ function Home () {
               </span>
             </div> 
           </div> 
-          <div className={`p-7 w-full max-h-[629px]`}>
+          <div className={`p-7 pt-20 md:pt-7 w-full max-h-[629px]`}>
             {getMenu()}
           </div>
         </div>  
-        <div className='md:hidden'>
-          <div className={` fixed z-50 bottom-5 right-5 duration-300 ${openButton?"p-7 rounded-[30px] opacity-100" :"opacity-20"} bg-gradient-to-t from-[#172554] to-[#4B5B8F] p-5 rounded-3xl`}
+        <div className='md:hidden flex justify-center items-center '>
+          <div className={` fixed z-50  duration-300 ${openButton?"p-4 rounded-[30px] opacity-100 bottom-5" :"opacity-50 -bottom-7 p-7 rounded-[30px]"} bg-gradient-to-t from-[#172554] to-[#4B5B8F]   `}
           id="circle"
           onClick={() => {
             setOpenButton(prevState => !prevState);
@@ -492,20 +492,26 @@ function Home () {
             }, 3000);
           }}>
           </div>
-          <div className={`fixed ${Menu=="Dashboard"?"z-30":"z-20"} 
-          ${openButton?"bottom-24 right-4 opacity-100":"-bottom-14 right-[120px] -rotate-[195deg] scale-0 opacity-0"}  bg-blue-950 rounded-tl-xl rounded-tr-xl rounded-bl-3xl rounded-br-3xl text-xl text-white p-3 px-5 duration-700 transform origin-bottom font-montserrat`}
-          onClick={() => changeMenu("Dashboard")}>
-              <RiDashboardFill/>
-          </div>  
-          <div className={`fixed ${Menu=="Profile"?"z-30":"z-20"} 
-          ${openButton?"bottom-20 right-[59px] -rotate-45 opacity-100":"-bottom-5 right-[100px] -rotate-180 scale-0 opacity-0"} bg-blue-950 rounded-tl-xl rounded-tr-xl rounded-bl-3xl rounded-br-3xl text-xl text-white p-3 px-5 duration-500 transform origin-bottom font-montserrat`}
-          onClick={() => changeMenu("Profile")}>
-              <BsFillPersonFill/>
+          <div className={`fixed bottom-8 duration-500 transform origin-bottom ${openButton?"opacity-100":"-rotate-180 opacity-0 delay-100"} flex justify-center items-center  h-5 pb-12`}>
+            <div className={`fixed ${Menu=="Dashboard"?"z-30":"z-20"} 
+            bg-blue-950 rounded-tl-xl rounded-tr-xl rounded-bl-3xl rounded-br-3xl text-xl text-white p-3 px-5 duration-700 font-montserrat`}
+            onClick={openButton ? () => changeMenu("Dashboard") : null}>
+                <RiDashboardFill/>
+            </div>  
           </div>
-          <div className={`fixed ${openButton?"bottom-9 right-[69px] -rotate-90 opacity-100":"bottom-0 right-[69px] -rotate-180 scale-0 opacity-0"}  bg-blue-950 rounded-tl-xl rounded-tr-xl rounded-bl-3xl rounded-br-3xl text-xl text-white p-3 px-5 duration-300  transform origin-bottom  font-montserrat`}
-          onClick={Sign_Out}>
-              <BiLogOut/>
-          </div>    
+          <div className={`fixed bottom-8 transform origin-bottom duration-700 ${openButton?"rotate-[75deg] opacity-100":"-rotate-180 opacity-0 duration-300"} flex justify-center items-center  h-5 pb-12`}>
+            <div className={`${Menu=="Profile"?"z-30":"z-20"} 
+            bg-blue-950 rounded-tl-xl rounded-tr-xl rounded-bl-3xl rounded-br-3xl text-xl text-white p-3 px-5  font-montserrat`}
+            onClick={openButton ? () => changeMenu("Profile") : null}>
+                <BsFillPersonFill/>
+            </div>
+          </div>
+          <div className={`fixed bottom-8 duration-300  transform origin-bottom ${openButton?"-rotate-[75deg]   opacity-100":"-rotate-180 opacity-0 delay-200"} flex justify-center items-center  h-5 pb-12`}>
+            <div className={` bg-blue-950 rounded-tl-xl rounded-tr-xl rounded-bl-3xl rounded-br-3xl text-xl text-white p-3 px-5  font-montserrat`}
+            onClick={openButton ? Sign_Out : null}>
+                <BiLogOut/>
+            </div>    
+          </div>
         </div>
       </div>         
     )
