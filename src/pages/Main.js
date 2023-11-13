@@ -47,7 +47,7 @@ function Home () {
     const [loadUsers, setLoadUsers] = useState(false);
     const [loadAttendance, setLoadAttendance] = useState(false);
     const [loadMeeting, setLoadMeeting] = useState(false);
-    
+    const calendarSrc = 'https://calendar.google.com/calendar/embed?src=hcdc.saso%40gmail.com&ctz=UTC';
     
   
     useEffect(() => {
@@ -364,7 +364,8 @@ function Home () {
     function getMenu() {
       switch (Menu) {
         // eslint-disable-next-line
-        case 'Dashboard': return <Dashboard />;break;
+        case 'Dashboard': return <Dashboard
+                          calendarSrc={calendarSrc} />;break;
         // eslint-disable-next-line
         case 'Scholars': return <Scholars 
                           scholars={scholars} 
@@ -419,9 +420,9 @@ function Home () {
               !open && "rotate-180"}`}  
             onClick={() => setOpen(!open)}
             />
-            <BiMenu className={` text-white text-3xl absolute flex lg:hidden right-3 top-5 cursor-pointer`}  
+            {/* <BiMenu className={` text-white text-3xl absolute flex lg:hidden right-3 top-5 cursor-pointer`}  
             onClick={() => setOpen(!open)}
-            />
+            /> */}
             
             <div className='md:inline-flex -mt-5 mb-5 ml-5 md:-mt-0 md:mb-0 md:ml-0 md:pt-2 '>
               <img src='hcdclogo.png' className={` bg-red-700 rounded mr-2 cursor-pointer block float-left md:w-9 md:h-10  h-12 w-10 duration-500 ${
@@ -483,7 +484,7 @@ function Home () {
           </div>
         </div>  
         <div className='md:hidden flex justify-center items-center '>
-          <div className={` fixed z-50  duration-300 ${openButton?"p-4 rounded-[30px] opacity-100 bottom-5" :"opacity-50 -bottom-7 p-7 rounded-[30px]"} bg-gradient-to-t from-[#172554] to-[#4B5B8F]   `}
+          <div className={` fixed z-40  duration-300 ${openButton?"p-4 rounded-[30px] opacity-100 bottom-5" :"opacity-50 -bottom-7 p-7 rounded-[30px]"} bg-gradient-to-t from-[#172554] to-[#4B5B8F]   `}
           id="circle"
           onClick={() => {
             setOpenButton(prevState => !prevState);
