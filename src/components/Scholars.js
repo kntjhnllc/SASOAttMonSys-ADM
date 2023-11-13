@@ -15,7 +15,7 @@ import AddScholarModal from '../components/AddScholarModal';
 import { BsPersonFillAdd} from "react-icons/bs";
 import { HiSaveAs} from "react-icons/hi";
 import { BiDotsVerticalRounded} from "react-icons/bi";
-import { MdOutlineBatchPrediction,MdEditDocument} from "react-icons/md";
+import { MdOutlineBatchPrediction,MdEditDocument,MdManageAccounts} from "react-icons/md";
 
 function Scholars ({scholars,setLoadUsers}) {
 
@@ -648,6 +648,7 @@ function Scholars ({scholars,setLoadUsers}) {
 }
 
 const AllScholars = ({scholars}) => {
+  const [addAccount , setAddAccount] = useState("");
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
@@ -703,7 +704,7 @@ const AllScholars = ({scholars}) => {
               {sortedScholars.map((scholar,index) => (
                 <div
                   key={scholar.id}
-                  className={`flex items-center ${!showDropdown && index === hoveredIndex ? 'hover:bg-gray-300 hover:bg-opacity-75' : ''}  mb-2 hover:bg-gray-300 hover:bg-opacity-75  text-sm font-semibold p-2`}
+                  className={`flex items-center ${!showDropdown && index === hoveredIndex ? 'hover:bg-gray-300 hover:bg-opacity-75' : ''}  mb-2   text-sm font-semibold p-2`}
                   onMouseEnter={() => handleMouseEnter(index)}
                 >
                   <div className="flex flex-1 items-center truncate">
@@ -716,6 +717,10 @@ const AllScholars = ({scholars}) => {
                   <div className="flex-1 text-sm text-center">{scholar.office}</div>
                   <div className="flex-1 truncate text-center uppercase">{scholar.organization}</div>
                    {/* Icon */}
+                   <div className={`absolute right-0 mr-7 cursor-pointer 
+                  ${hoveredIndex === index ? '' : 'hidden'}`}>
+                    <MdManageAccounts className='text-3xl text-gray-400'/>
+                  </div>
                   <div className={`absolute right-0 mr-2 cursor-pointer 
                   ${hoveredIndex === index ? '' : 'hidden'}`}
                   ref={dropdownRef}
