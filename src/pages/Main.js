@@ -494,14 +494,14 @@ function Home () {
           }}>
           </div>
           <div className={`fixed bottom-8 duration-500 transform origin-bottom ${openButton?"opacity-100":"-rotate-180 opacity-0 delay-100"} flex justify-center items-center  h-5 pb-12`}>
-            <div className={`fixed ${Menu=="Dashboard"?"z-30":"z-20"} 
+            <div className={`fixed ${Menu=="Dashboard"?"z-30 text-[#FFD700]":"z-20"} 
             bg-blue-950 rounded-tl-xl rounded-tr-xl rounded-bl-3xl rounded-br-3xl text-xl text-white p-3 px-5 duration-700 font-montserrat`}
             onClick={openButton ? () => changeMenu("Dashboard") : null}>
                 <RiDashboardFill/>
             </div>  
           </div>
           <div className={`fixed bottom-8 transform origin-bottom duration-700 ${openButton?"rotate-[75deg] opacity-100":"-rotate-180 opacity-0 duration-300"} flex justify-center items-center  h-5 pb-12`}>
-            <div className={`${Menu=="Profile"?"z-30":"z-20"} 
+            <div className={`${Menu=="Profile"?"z-30 text-[#FFD700]" :"z-20"} 
             bg-blue-950 rounded-tl-xl rounded-tr-xl rounded-bl-3xl rounded-br-3xl text-xl text-white p-3 px-5  font-montserrat`}
             onClick={openButton ? () => changeMenu("Profile") : null}>
                 <BsFillPersonFill/>
