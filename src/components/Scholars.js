@@ -653,6 +653,13 @@ const AllScholars = ({scholars}) => {
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
 
+  const handleAccount = (id_no) => {
+    const accountAccess =scholars.filter((scholar) => {
+      return scholar.id_no == id_no;
+    });
+    console.log(accountAccess[0].account)
+  }
+
   const handleMouseEnter = (index) => {
     if (!showDropdown) {
       setHoveredIndex(index);
@@ -718,7 +725,8 @@ const AllScholars = ({scholars}) => {
                   <div className="flex-1 truncate text-center uppercase">{scholar.organization}</div>
                    {/* Icon */}
                    <div className={`absolute right-0 mr-7 cursor-pointer 
-                  ${hoveredIndex === index ? '' : 'hidden'}`}>
+                  ${hoveredIndex === index ? '' : 'hidden'}`}
+                  onClick={()=>handleAccount(scholar.id_no)}>
                     <MdManageAccounts className='text-3xl text-gray-400'/>
                   </div>
                   <div className={`absolute right-0 mr-2 cursor-pointer 

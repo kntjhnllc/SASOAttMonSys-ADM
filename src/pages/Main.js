@@ -86,8 +86,7 @@ function Home () {
     
     const unsubscribe = onSnapshot(
         query(
-          collection(db, "admin_users"),
-          where("uid", "==", user.uid),
+          collection(db, "users"),
           where('access', '==', true)
         ),
         (querySnapshot) => {
@@ -98,7 +97,6 @@ function Home () {
             });
           } else {
             setAdmin([]);
-            setAccessDenied(true);
           }
         }
       );
@@ -106,42 +104,6 @@ function Home () {
       return () => unsubscribe(); // Unsubscribe when component unmounts or when dependencies change
     }, [user,loading]);
 
-    // admin_users collection
-
-    useEffect(() => {
-      if (loadAdminUsers==true && users.length==0){
-        const que = query(
-          collection(db, "admin_users"), 
-          orderBy('date_created', 'desc'));
-          
-        const unsubscribe = onSnapshot(que, (querySnapshot) => {
-  
-          querySnapshot.docChanges().forEach((change) => {
-            const data = change.doc.data();
-            const id =change.doc.id;
-  
-            console.log('Admin Test read onchange')
-            
-            if (change.type === "added"){
-              setUsers((prevUsers) => [...prevUsers, {...data, id}]);
-              console.log("added");
-            } else if (change.type === "modified"){
-              setUsers((prevUsers) => prevUsers.map((user) => user.id===id? {...data, id} :user));
-              console.log("modified");
-            }
-            else if (change.type === "removed"){
-              setUsers((prevUsers) => prevUsers.filter((user) => user.id !==id));
-              console.log("removed");
-            }
-          });
-        });
-        return () => unsubscribe();
-      }
-      else {
-        console.log("admin_users not loaded")
-      }
-      
-    }, [loadAdminUsers]);
 
     //users (scholars) collection
 
@@ -265,11 +227,17 @@ function Home () {
           { title: 'Profile', icon: <BsFillPersonFill/> },
           { title: 'Users', icon: <FaUsersCog/> },
         ]);
-      } else if(adminSuper==undefined) {
+      } else if(adminSuper==undefined && admin.access==true) {
         setMenuOptions([
           { title: 'Dashboard' },
           { title: 'Scholars', icon:<SiGooglescholar/> },
           { title: 'Attendance', icon: <FaList/> },
+          { title: 'Profile', icon: <BsFillPersonFill/> },
+        ]);
+      }
+      else {
+        setMenuOptions([
+          { title: 'Dashboard' },
           { title: 'Profile', icon: <BsFillPersonFill/> },
         ]);
       }
@@ -310,43 +278,43 @@ function Home () {
       }) 
     }
 
-    useEffect(() => {
-      if (accessDenied) {
-        let timerInterval
-        Swal.fire({
-          title: 'Access Denied!',
-          html: 'Please wait to be given access by ADMIN <br> <p> Automatic logout in <b></b> milliseconds. </p> ', 
-          timer: 5000,
-          allowOutsideClick:false,
-          timerProgressBar: true,
-          didOpen: () => {
-            Swal.showLoading()
-            const b = Swal.getHtmlContainer().querySelector('b')
-            timerInterval = setInterval(() => {
-              b.textContent = Swal.getTimerLeft()
-            }, 100)
-          },
-          willClose: () => {
-            clearInterval(timerInterval)
-          }
-        }).then((result) => {
-          setAccessDenied(false);
-          sessionStorage.setItem('Signout', true);
-          sessionStorage.setItem('isFirstRun', 'false');
-          sessionStorage.removeItem('Menu');
-          router.push('/').then(() => {
-            auth.signOut()
-              .then(() => {
-                console.log('Sign out successful');
-              })
-              .catch((error) => {
-                console.error('Sign out error:', error);
-              });
-          });
-        })
-      return;
-      }
-    },[accessDenied]);
+    // useEffect(() => {
+    //   if (accessDenied) {
+    //     let timerInterval
+    //     Swal.fire({
+    //       title: 'Access Denied!',
+    //       html: 'Please wait to be given access by ADMIN <br> <p> Automatic logout in <b></b> milliseconds. </p> ', 
+    //       timer: 5000,
+    //       allowOutsideClick:false,
+    //       timerProgressBar: true,
+    //       didOpen: () => {
+    //         Swal.showLoading()
+    //         const b = Swal.getHtmlContainer().querySelector('b')
+    //         timerInterval = setInterval(() => {
+    //           b.textContent = Swal.getTimerLeft()
+    //         }, 100)
+    //       },
+    //       willClose: () => {
+    //         clearInterval(timerInterval)
+    //       }
+    //     }).then((result) => {
+    //       setAccessDenied(false);
+    //       sessionStorage.setItem('Signout', true);
+    //       sessionStorage.setItem('isFirstRun', 'false');
+    //       sessionStorage.removeItem('Menu');
+    //       router.push('/').then(() => {
+    //         auth.signOut()
+    //           .then(() => {
+    //             console.log('Sign out successful');
+    //           })
+    //           .catch((error) => {
+    //             console.error('Sign out error:', error);
+    //           });
+    //       });
+    //     })
+    //   return;
+    //   }
+    // },[accessDenied]);
 
     useEffect(() => {
       const storedMenu = sessionStorage.getItem('Menu');
@@ -412,7 +380,10 @@ function Home () {
             {/* Content to be displayed when load is true */}
             <SplashScreen />
           </div>
-        ) : <div className={`${accessDenied? "absolute inset-0 bg-opacity-90 bg-gray-100  backdrop-blur-sm z-50 w-full h-full":""}`}></div>}
+        ) : 
+        // <div className={`${accessDenied? "absolute inset-0 bg-opacity-90 bg-gray-100  backdrop-blur-sm z-50 w-full h-full":""}`}></div>
+        <div></div>
+        }
         
         <div className='flex flex-col  md:flex-row relative'>
           <div className={`fixed bg-blue-950 w-full md:h-screen ${open ? "md:w-72":"md:w-20"} duration-300 md:p-5 pt-8  md:relative`}>

@@ -4,10 +4,12 @@ import { useAuthState } from 'react-firebase-hooks/auth'
 import { auth,db } from '@/config/firebase';
 import { useEffect, useState } from "react";
 <link rel="icon" type="image/png" href="hcdclogo.png"></link>
-import { getAuth, createUserWithEmailAndPassword,signInWithEmailAndPassword,sendPasswordResetEmail, signOut,GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import { addDoc, collection, querySnapshot, onSnapshot, orderBy, query, serverTimestamp, where, doc, getDocs} from 'firebase/firestore'
+import { getAuth, createUserWithEmailAndPassword,signInWithEmailAndPassword ,sendPasswordResetEmail, signOut,GoogleAuthProvider, signInWithPopup, sendEmailVerification } from "firebase/auth";
+import { updateDoc,addDoc, collection, querySnapshot, onSnapshot, orderBy, query, serverTimestamp, where, doc, getDocs} from 'firebase/firestore'
 import { FaGoogle, FaRegEnvelope } from 'react-icons/fa';
-import {MdLockOutline} from 'react-icons/md';
+import {MdLockOutline,MdOutlineDateRange } from 'react-icons/md';
+import {PiIdentificationCardLight} from 'react-icons/pi';
+import { CiCalendarDate } from "react-icons/ci";
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&family=Roboto&display=swap" rel="stylesheet"></link>
 import SplashScreen from '../components/SplashScreen';
 import Swal from 'sweetalert2';
@@ -20,6 +22,8 @@ const HomePage = () => {
   const isAuthorized = router.query.isAuthorized;
   const [isSignUpVisible, setIsSignUpVisible] = useState(false);
   const [signUpEmail, setSignUpEmail] = useState('');
+  const [signUpIdNo, setSignUpIdNo] = useState('');
+  const [signUpBirthdate, setSignUpBirthdate] = useState()
   const [signUpPassword, setSignUpPassword] = useState('');
   const [signUpPasswordConfirm, setSignUpPasswordConfirm] = useState('');
   const [signInEmail, setSignInEmail] = useState('');
@@ -27,10 +31,12 @@ const HomePage = () => {
   const [hcdcEmail, setHcdcEmail] = useState(true);
   const [user] = useAuthState(auth);
   const [sign_up, setSignUp] = useState(false);
+  const [docID , setDocID] = useState();
   // State variables for error message and animation class
   const [errorMessage, setErrorMessage] = useState('');
   const [isShaking, setIsShaking] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [bdayAgree,setBdayAgree] = useState(false);
 
   useEffect(() => {
     // Set the title of the web page
@@ -101,7 +107,12 @@ const HomePage = () => {
   const handleSignUpEmailChange = (e) => {
     setSignUpEmail(e.target.value);
   };
-
+  const handleSignUpIdNoChange = (e) => {
+    setSignUpIdNo(e.target.value);
+  };
+  const handleSignUpBirthdateChange = (e) =>{
+    setSignUpBirthdate(e.target.value);
+  };
   const handleSignUpPasswordChange = (e) => {
     setSignUpPassword(e.target.value);
   };
@@ -117,72 +128,72 @@ const HomePage = () => {
     setSignInPassword(e.target.value);
   };
 
-  const signInWithGoogle = async () => {
-    const provider = new GoogleAuthProvider();
-    try {
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user; // Get the user object
-      const uid = user.uid; // Get the user's UID
-      const email = user.email;
-      Swal.fire({
-        position: 'top-end',
-        title: 'Signin in using Google',
-        text:"Authenticated as " + email,
-        showConfirmButton: false,
-        allowOutsideClick: false,
-        didOpen: () => {
-          Swal.showLoading(Swal.getDenyButton());
-        },
-      });
+  // const signInWithGoogle = async () => {
+  //   const provider = new GoogleAuthProvider();
+  //   try {
+  //     const result = await signInWithPopup(auth, provider);
+  //     const user = result.user; // Get the user object
+  //     const uid = user.uid; // Get the user's UID
+  //     const email = user.email;
+  //     Swal.fire({
+  //       position: 'top-end',
+  //       title: 'Signin in using Google',
+  //       text:"Authenticated as " + email,
+  //       showConfirmButton: false,
+  //       allowOutsideClick: false,
+  //       didOpen: () => {
+  //         Swal.showLoading(Swal.getDenyButton());
+  //       },
+  //     });
       
    
-      // Now, you can store the UID and email in your collection.
-      // For example, using Firestore (you need to set up Firestore in your project):
-      const usersCollection = collection(db, 'admin_users'); // Change 'users' to your collection name
-      const userData = {
-        uid: uid,
-        name: email,
-        email: email,
-        access: false,
-        verified: false,
-        date_created: serverTimestamp(),
-      };
+  //     // Now, you can store the UID and email in your collection.
+  //     // For example, using Firestore (you need to set up Firestore in your project):
+  //     const usersCollection = collection(db, 'admin_users'); // Change 'users' to your collection name
+  //     const userData = {
+  //       uid: uid,
+  //       name: email,
+  //       email: email,
+  //       access: false,
+  //       verified: false,
+  //       date_created: serverTimestamp(),
+  //     };
     
-      const q = query(collection(db, 'admin_users'), where('uid', '==', uid));
-      const querySnapshot = await getDocs(q);
-      querySnapshot.forEach((doc) => {
-      });
-      setTimeout(() => {
-      if (!querySnapshot.empty){
-        router.push('/Authentication');
-        Swal.close(); // Close Swal
-      }
-      else {
-        addDoc(usersCollection, userData)
-        .then(() => {
-          console.log('User data added to the collection');
-          Swal.close(); // Close Swal
-        })
-        .catch((error) => {
-          console.error('Error adding user data to the collection: ', error);
-          Swal.close(); // Close Swal
-        });
-      }
-    }, 3000);
+  //     const q = query(collection(db, 'admin_users'), where('uid', '==', uid));
+  //     const querySnapshot = await getDocs(q);
+  //     querySnapshot.forEach((doc) => {
+  //     });
+  //     setTimeout(() => {
+  //     if (!querySnapshot.empty){
+  //       router.push('/Authentication');
+  //       Swal.close(); // Close Swal
+  //     }
+  //     else {
+  //       addDoc(usersCollection, userData)
+  //       .then(() => {
+  //         console.log('User data added to the collection');
+  //         Swal.close(); // Close Swal
+  //       })
+  //       .catch((error) => {
+  //         console.error('Error adding user data to the collection: ', error);
+  //         Swal.close(); // Close Swal
+  //       });
+  //     }
+  //   }, 3000);
       
-    } catch (error) {
-      if (error.code === 'auth/cancelled-popup-request') {
-        Swal.close(); // Close Swal
-        console.log('User cancelled the sign-in process');
-      } else {
-        Swal.close(); // Close Swal
-        // Handle other sign-in errors here
-        console.error(error);
-      }
-    }
-  };
+  //   } catch (error) {
+  //     if (error.code === 'auth/cancelled-popup-request') {
+  //       Swal.close(); // Close Swal
+  //       console.log('User cancelled the sign-in process');
+  //     } else {
+  //       Swal.close(); // Close Swal
+  //       // Handle other sign-in errors here
+  //       console.error(error);
+  //     }
+  //   }
+  // };
   
-  
+
 
   const signUp_Attempt = async (event)=> {
     event.preventDefault();
@@ -199,13 +210,14 @@ const HomePage = () => {
           }, 2000); // Adjust the duration as needed
         }
         else {
-          const usersCollection = collection(db, 'admin_users');
-        const q = query(usersCollection, where('email', '==', signUpEmail));
+        const usersCollection = collection(db, 'users');
+        const q = query(usersCollection, where('id_no', '==', signUpIdNo));
         const querySnapshot = await getDocs(q);
         querySnapshot.forEach((doc) => {
+          setDocID(doc.id);
         });
-          if (!querySnapshot.empty){
-            setErrorMessage('Email already in use!');
+          if (querySnapshot.empty){
+            setErrorMessage('No scholar with the ID No.!');
             setIsShaking(true);
   
             // Clear the error message and reset the shake animation after a short delay
@@ -215,30 +227,29 @@ const HomePage = () => {
             }, 2000); // Adjust the duration as needed
           }
           else{
-            const authInstance = getAuth();
+          const authInstance = getAuth();
           createUserWithEmailAndPassword(authInstance, signUpEmail, signUpPassword)
             .then((userCredential) => {
               // For access grant
               const user = userCredential.user;
-              
               const userData = {
-                uid: user.uid, // Fix: use user.uid
-                name: signUpEmail, // Fix: use signUpEmail
+                id_no: signUpIdNo, // Fix: use user.uid // Fix: use signUpEmail
                 email: signUpEmail, // Fix: use signUpEmail
-                access: false,
-                verified: false,
+                birthdate: signUpBirthdate,
+                access:false,
+                verified:false,
                 date_created: serverTimestamp(),
               };
-              addDoc(usersCollection, userData);
+              const userDocRef = doc(usersCollection, docID);
+              updateDoc(userDocRef, userData);
+              sendEmailVerification(user);
               Swal.fire({
                 title: 'Sign Up Success!',
-                text: 'Please wait to be granted access!',
+                text: 'Verification has been sent to your email!',
                 icon: 'success',
                 confirmButtonColor: '#000080',
                 iconColor: '#000080',
               });
-    
-              handleSignUpClick();
             });
           }
         }
@@ -270,34 +281,47 @@ const HomePage = () => {
     
       event.preventDefault();
       // Check credentials
-        const auth = getAuth();
-        signInWithEmailAndPassword(auth, signInEmail, signInPassword)
+      const auth = getAuth();
+
+      signInWithEmailAndPassword(auth, signInEmail, signInPassword)
         .then((userCredential) => {
-          Swal.fire({
-            position: 'top-end',
-            timerProgressBar:true,
-            title: 'Logging in...',
-            color: '#000080',
-            showConfirmButton: false,
-            timer: 1000
-          })
-          // Signed in 
           const user = userCredential.user;
-          router.push('/Authentication');
-          // ...
+      
+          // Check if the email is verified
+          
+            if (user && user.emailVerified) {
+              // Email is verified, proceed with signing in
+              Swal.fire({
+                position: 'top-end',
+                timerProgressBar: true,
+                title: 'Logging in...',
+                color: '#000080',
+                showConfirmButton: false,
+                timer: 1000
+              });
+        
+              // Redirect the user to the authenticated page
+              router.push('/Authentication');
+            } else {
+                  Swal.fire({
+                    title: 'Email not verified!',
+                    text: 'Verification has been sent to your email.',
+                    icon: 'warning',
+                    confirmButtonColor: '#000080',
+                    iconColor: '#000080',
+                  });
+            }
         })
         .catch((error) => {
-          // Display error message and apply shake animation to the form
-        setErrorMessage("Invalid User");
-        setIsShaking(true);
-        console.log(error);
-        // Clear the error message and reset the shake animation after a short delay
-        setTimeout(() => {
-          setErrorMessage('');
-          setIsShaking(false);
-        }, 2000); // Adjust the duration as needed
-          
-    });
+          setErrorMessage("Incorrect Credentials!");
+          setIsShaking(true);
+          console.log(error);
+          // Clear the error message and reset the shake animation after a short delay
+          setTimeout(() => {
+            setErrorMessage('');
+            setIsShaking(false);
+          }, 2000); // Adjust the duration as needed
+        });      
   };
 
   useEffect(() => {
@@ -316,6 +340,26 @@ const HomePage = () => {
     };
     redirectIfUserIsNotNull(); // Initial check
   }, [user]);
+
+
+  const handleBirthdateAgreementClick =()=>{
+    if (!bdayAgree){
+      Swal.fire({
+        title: 'Agree to show your birthday?',
+        text: 'Entering your birthdate will be agreeing to show your birthday to others.',
+        icon: 'warning',
+        confirmButtonColor: '#000080',
+        iconColor: '#000080',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          setBdayAgree(true)
+        } else {
+          setBdayAgree(false)
+        }
+      });
+    }
+  }
+
   return (
   
     <>
@@ -332,27 +376,18 @@ const HomePage = () => {
       <main className='flex flex-col md:flex-1 text-center  px-80 md:px-20 items-center justify-center w-full h-screen'>
         <div className='bg-white flex rounded-2xl mt-96 md:mt-0 shadow-2xl md:w-2/3 md:max-w-4xl'>
           <div className={`w-3/5 p-5 ${isSignUpVisible ? 'signIn-slide-in' : 'signIn-slide-out'}`}>
-            <div className={`pb-10 md:pb-0 ${isSignUpVisible ? 'text-container-invi' : 'text-container-full'}`}>
+            <div className={`py-20 md:pb-0 ${isSignUpVisible ? 'text-container-invi' : 'text-container-full'}`}>
               <div className='text-left font-bold font-montserrat  md:pt-0'>
-                <span className='text-blue-900'>HCDC -</span> SASO
+                <span className='text-blue-900'>HCDC -</span> SCHOLAR
               </div>
               <div className='py-10'>
-                <h2 className='text-3xl font-bold text-blue-900 md:mb-2'>
+                <h2 className='text-lg md:text-3xl font-bold text-blue-900 md:mb-2'>
                   Sign in to your Account
                 </h2>
                 <div className='border-2 w-10 border-blue-900 inline-block mb-2'></div>
-                <div className='flex justify-center my-2 '>
-                  <button className='border-blue-900 text-blue-900 justify-center items-center flex border-2 rounded-full py-2 px-5 hover:bg-blue-950 hover:text-white'
-                    onClick={signInWithGoogle}>
-                    <p className='mr-1 '>Sign in using</p> 
-                    <FaGoogle/>
-                    <p className=''>oogle</p> 
-                  </button>
-                </div>
-                <p className='text-gray-400 my-3'>or use your HCDC premium email</p>
                 <div className='flex flex-col items-center'>
                   <form className={`text-blue-900 ${isShaking ? 'shake text-red-500' : ''}`} onSubmit={Login_Attempt} method='POST'>
-                    <div className='bg-gray-100 w-64 p-2 mb-3 flex items-center'>
+                    <div className='bg-gray-100 w-64 md:w-96 p-2 mb-3 flex items-center'>
                       <FaRegEnvelope className='m-2'/>
                       <input 
                       type='email' 
@@ -363,7 +398,7 @@ const HomePage = () => {
                       onChange={handleSignInEmailChange}/>
                     </div>
                     {isShaking?(<p className='text-red-500 text-sm -mt-3'>{errorMessage}</p>):null}
-                    <div className='bg-gray-100 w-64 mb-3 p-2  flex items-center'>
+                    <div className='bg-gray-100 w-64 md:w-96 mb-3 p-2  flex items-center'>
                       <MdLockOutline className='m-2'/>
                       <input 
                       type='password' 
@@ -381,19 +416,19 @@ const HomePage = () => {
                 </div>
               </div>
             </div>
-            <div className={`md:-mt-[435px] -mt-[475px] -ml-5 md:-ml-0 ${isSignUpVisible ? 'text-container-sign-up' : 'text-container-sign-up-invi'}`} style={{ opacity: isSignUpVisible ? 1 : 0 }}>
+            <div className={`md:-mt-[410px] -mt-[475px] -ml-5 md:-ml-0 ${isSignUpVisible ? 'text-container-sign-up' : 'text-container-sign-up-invi'}`} style={{ opacity: isSignUpVisible ? 1 : 0 }}>
                 <div className='text-left font-bold font-montserrat '>
-                  HCDC - <span className='text-blue-900 '>SASO</span>
+                  HCDC - <span className='text-blue-900 '>SCHOLAR</span>
                 </div>
-                <div className='mt-8'>
-                  <h2 className='text-3xl font-bold text-blue-900 mb-2'>
+                <div className='mt-8 pb-10'>
+                  <h2 className='text-lg md:text-3xl font-bold text-blue-900 mb-2'>
                     Sign up your Account
                   </h2>
                   <div className='border-2 w-10 border-blue-900 inline-block mb-2'></div>
-                  <p className='text-gray-400 my-3'>Using your HCDC premium email</p>
+                 
                   <div className='flex flex-col items-center'>
                     <form className={`text-blue-900 ${isShaking ? 'shake text-red-500' : ''}`} onSubmit={signUp_Attempt} method='POST'>
-                      <div className='bg-gray-100 w-64 p-2 mb-3  flex items-center'>
+                      <div className='bg-gray-100 w-64 md:w-96 p-2 mb-3  flex items-center'>
                         <FaRegEnvelope className='m-2'/>
                         <input 
                         type='email' 
@@ -407,7 +442,34 @@ const HomePage = () => {
                       {!hcdcEmail ? (
                         <p className='text-red-600'>{errorMessage}</p>
                       ) : null}
-                      <div className='bg-gray-100 w-64 mb-3 p-2  flex items-center'>
+                      <div className='bg-gray-100 w-64 md:w-96 mb-3 p-2  flex items-center'>
+                        <PiIdentificationCardLight className='m-2'/>
+                        <input 
+                        type='' 
+                        name='id_no' 
+                        required placeholder='ID No.'
+                        className='bg-gray-100 outline-none text-sm flex-1'
+                        value={signUpIdNo}
+                        onChange={handleSignUpIdNoChange}
+                        />
+                      </div>
+                      <div className={`bg-gray-100 w-64 md:w-96 mb-3 p-2 flex items-center ${bdayAgree?"":"cursor-help"}`}
+                        onClick={()=>handleBirthdateAgreementClick()}>
+                        <MdOutlineDateRange  className='m-2'/>
+                        {bdayAgree ? (
+                          <input
+                            type='date'
+                            name='birthdate'
+                            placeholder='Birthdate'
+                            className='bg-gray-100 outline-none text-sm flex-1'
+                            value={signUpBirthdate}
+                            onChange={handleSignUpBirthdateChange}
+                          />
+                        ) : (
+                          <p className='text-gray-400 text-sm '>Birthdate</p>
+                        )}
+                      </div>
+                      <div className='bg-gray-100 w-64 md:w-96 mb-3 p-2  flex items-center'>
                         <MdLockOutline className='m-2'/>
                         <input 
                         type='password' 
@@ -419,7 +481,7 @@ const HomePage = () => {
                         />
                       </div>
                       
-                      <div className='bg-gray-100 w-64 mb-3 p-2  flex items-center'>
+                      <div className='bg-gray-100 w-64 md:w-96 mb-3 p-2  flex items-center'>
                         <MdLockOutline className='m-2'/>
                         <input 
                         type='password' 
@@ -441,7 +503,7 @@ const HomePage = () => {
           </div>
           <div className={`w-2/5 bg-blue-950 text-gray-100 rounded-tr-2xl rounded-br-2xl md:py-36 px-12 ${isSignUpVisible ? 'signUp-slide-in' : 'signUp-slide-out'}`}>
             <div className={`${isSignUpVisible ? 'text-container-invi' : 'text-container-full'}`}>
-              <h2 className='text-3xl font-bold mb-2 font-montserrat pt-20 md:pt-0'>Hello, Scholar!</h2>
+              <h2 className='text-3xl font-bold mb-2 font-montserrat md:pt-0'>Hello, Scholar!</h2>
               <div className='border-2 w-10 border-white inline-block mb-2'></div>
               <p className='mb-10'>
                 Fill up personal information and start journey with us.
