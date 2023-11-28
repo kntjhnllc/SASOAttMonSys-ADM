@@ -2,7 +2,8 @@
 import { Fragment } from 'react';
 import { Menu, Transition } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
-import { db } from '@/config/firebase';
+import { auth,db } from '@/config/firebase';
+import { useAuthState } from 'react-firebase-hooks/auth'
 import { useEffect, useState } from "react";
 import { addDoc, collection, onSnapshot, orderBy, query, serverTimestamp, where, doc,updateDoc, getDocs} from 'firebase/firestore';
 import { exportPathMap } from '../../next.config';
@@ -10,9 +11,9 @@ import Swal from 'sweetalert2';
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&family=Roboto&display=swap" rel="stylesheet"></link>
 
 
-function Users ({users,setLoadAdminUsers}) {
+function Users ({users,setLoadUsers}) {
   useEffect(() => {
-    setLoadAdminUsers(true);
+    setLoadUsers(true);
   },[]);
     
     const [selectedFilter, setSelectedFilter] = useState('All Users');
@@ -157,18 +158,19 @@ function Users ({users,setLoadAdminUsers}) {
 }
 
 const AllUsers = ({users}) => {
+    const [userAccount] = useAuthState(auth);
 
-    const changeAccess = (uid,email) => async (event) => {
+    const changeAccess = (id_no,name) => async (event) => {
         const isChecked = event.target.checked;
-        const collectionRef = collection(db, 'admin_users');
-        const queryRef = query(collectionRef, where('uid', '==', uid));
+        const collectionRef = collection(db, 'users');
+        const queryRef = query(collectionRef, where('id_no', '==', id_no));
 
         const querySnapshot = await getDocs(queryRef);
 
         if (isChecked) {
             Swal.fire({
                 title: 'Give Access?',
-                text: "Do you want to give access to " +email+"?",
+                text: "Do you want to give access to " +name+"?",
                 icon: 'warning',
                 iconColor: '#d33',
                 showCancelButton: true,
@@ -192,7 +194,7 @@ const AllUsers = ({users}) => {
         } else {
             Swal.fire({
                 title: 'Take Access?',
-                text: "Do you want to take the access of " +email+"?",
+                text: "Do you want to take the access of " +name+"?",
                 icon: 'warning',
                 iconColor: '#d33',
                 showCancelButton: true,
@@ -290,13 +292,13 @@ const AllUsers = ({users}) => {
                         value="" 
                         class="sr-only peer" 
                         checked={user.access}
-                        onChange={changeAccess(user.uid,user.email)} 
+                        onChange={changeAccess(user.id_no,user.name)} 
                         />
                     <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
                     <span class="ml-3 text-sm font-medium text-gray-900 dark:text-gray-300">{user.access?"Access":"Denied"}</span>
                     </label>
                 </div>
-                  <div className="flex-1 truncate text-center">{user.verified?"Verified":"Not verified"}</div>
+                  <div className="flex-1 truncate text-center">{userAccount.emailVerified?"Verified":"Not verified"}</div>
                   
                 </div>
                 

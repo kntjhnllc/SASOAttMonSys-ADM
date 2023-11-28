@@ -60,7 +60,7 @@ function Home () {
     
     useEffect(() => {
       // Ensure admin.Access is initialized to an empty string when admin is null or undefined
-      const adminSuper = admin ? admin.super : undefined;
+      const adminSuper = admin ? admin.isSuper : undefined;
     
       // Update the adminAuthorityLevel state
       setAdminSuper(adminSuper);
@@ -351,8 +351,8 @@ function Home () {
         case 'Profile': return <Profile/>;break;
         // eslint-disable-next-line
         case 'Users': return <Users 
-                          users={users}
-                          setLoadAdminUsers={setLoadAdminUsers}/>;break;
+                          users={scholars}
+                          setLoadUsers={setLoadUsers}/>;break;
         default: return <Not_Found/>;break;
       }
     }

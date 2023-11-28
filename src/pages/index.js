@@ -23,7 +23,7 @@ const HomePage = () => {
   const [isSignUpVisible, setIsSignUpVisible] = useState(false);
   const [signUpEmail, setSignUpEmail] = useState('');
   const [signUpIdNo, setSignUpIdNo] = useState('');
-  const [signUpBirthdate, setSignUpBirthdate] = useState()
+  const [signUpBirthdate, setSignUpBirthdate] = useState('')
   const [signUpPassword, setSignUpPassword] = useState('');
   const [signUpPasswordConfirm, setSignUpPasswordConfirm] = useState('');
   const [signInEmail, setSignInEmail] = useState('');

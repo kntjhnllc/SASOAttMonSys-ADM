@@ -127,7 +127,8 @@ function Scholars ({scholars,setLoadUsers}) {
               office: user.office,
               year: user.year,
               organization: user.organization,
-              status:user.status
+              status:user.status,
+              access:false,
             };
             if (
               userData.id_no === "" ||
@@ -154,7 +155,8 @@ function Scholars ({scholars,setLoadUsers}) {
                     office: user.office,
                     year: user.year,
                     organization: user.organization,
-                    status: user.status,});
+                    status: user.status,
+                    access:false,});
                 });
                 console.log("modified");
               } else {
@@ -218,7 +220,7 @@ function Scholars ({scholars,setLoadUsers}) {
                       office: office,
                       organization: organization,
                       year: year,
-                      statu: "CURRENTLY ENROLLED"
+                      status: "CURRENTLY ENROLLED"
                       };
                       addDoc(usersCollection, userData);
                       Swal.fire({
@@ -261,7 +263,7 @@ function Scholars ({scholars,setLoadUsers}) {
       const exportDataToCSV = () => {
         const enrolledScholars = scholars.filter(scholar => scholar.status === 'CURRENTLY ENROLLED');
         const data = enrolledScholars.map(scholar => {
-          const { id, ...rest } = scholar; // Exclude the 'id' property
+          const { id,date_created,access,isSuper, ...rest } = scholar; // Exclude the 'id' property
           return {
             id_no: scholar.id_no,
             name: scholar.name, // Make 'id_no' the first cell
@@ -287,7 +289,7 @@ function Scholars ({scholars,setLoadUsers}) {
       const exportDataToCSVSaso = () => {
   
         const data = exportSaso.map(scholar => {
-          const { id, ...rest } = scholar; // Exclude the 'id' property
+          const { id,date_created,access,isSuper, ...rest } = scholar; // Exclude the 'id' property
           return {
             id_no: scholar.id_no,
             name: scholar.name, // Make 'id_no' the first cell
@@ -313,7 +315,7 @@ function Scholars ({scholars,setLoadUsers}) {
       const exportDataToCSVOthers = () => {
   
         const data = exportOthers.map(scholar => {
-          const { id, ...rest } = scholar; // Exclude the 'id' property
+          const { id,date_created,access,isSuper, ...rest } = scholar; // Exclude the 'id' property
           return {
             id_no: scholar.id_no,
             name: scholar.name, // Make 'id_no' the first cell
