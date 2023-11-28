@@ -35,6 +35,7 @@ function Attendance ({attendance,meeting,scholars,setLoadAttendance,setLoadMeeti
     const [isShaking2, setIsShaking2] = useState(false);
     const [isShaking3, setIsShaking3] = useState(false);
     const [confirmMeeting, setConfirmMeeting] = useState(false);
+    const [attended, setAttended] = useState(false);
  
     
 
@@ -114,8 +115,10 @@ function Attendance ({attendance,meeting,scholars,setLoadAttendance,setLoadMeeti
                     dateTime: serverTimestamp()
                     };
                     addDoc(attendCollection, attendData);
+                    setAttended(true);
                     setErrorMessage2("Scholar "+ users[0].name + " Attended");
                     setTimeout(() => {
+                        setAttended(false);
                         setErrorMessage2("");
                         setIdNumber("");
                     }, 2000); // Adjust the duration as needed                
@@ -224,10 +227,20 @@ function Attendance ({attendance,meeting,scholars,setLoadAttendance,setLoadMeeti
         return date.toLocaleString(undefined, options);
     }
     useEffect(() => {
-    const filteredAttend = attendance.filter((attend) => attend.meetID === selectedMeetingId);
-    setAttend(filteredAttend);
-console.log("attend",attend)
-  }, [attendance, selectedMeetingId]);
+        const filteredAttend = attendance.filter((attend) => attend.meetID === selectedMeetingId);
+      
+        // Sort the filteredAttend array in descending order by date
+        const sortedAttend = filteredAttend.sort((a, b) => {
+          const dateA = new Date(a.dateTime);
+          const dateB = new Date(b.dateTime);
+      
+          return dateB - dateA;
+        });
+      
+        setAttend(sortedAttend);
+        console.log("attend", attend);
+      }, [attendance, selectedMeetingId,attended]);
+      
 
    
 
@@ -258,6 +271,19 @@ console.log("attend",attend)
     return new Date(b.dateTime) - new Date(a.dateTime);
   });
   
+
+  useEffect(() => {
+    let filteredUsersSASO,filteredUsersOthers,filteredAllAttend;
+  
+      filteredUsersSASO = filteredAttendance.filter(scholar => scholar.organization=="saso" &&scholar.status=="Present").length;
+      filteredUsersOthers = filteredAttendance.filter(scholar => scholar.organization!="saso"&&scholar.status=="Present").length;
+      filteredAllAttend = filteredAttendance.filter(scholar =>scholar.status=="Present").length;
+     // Set the filtered users in the access state
+    setSaso(filteredUsersSASO);
+    setOthers(filteredUsersOthers);
+    setAllAttend(filteredAllAttend);
+
+  }, [filteredAttendance]);
   console.log(filteredAttendance);
 
     useEffect(() => {
@@ -371,7 +397,9 @@ console.log("attend",attend)
     const sortedMeetings = [...meeting]; 
     sortedMeetings.sort((a, b) => b.meetDate - a.meetDate);
 
-
+    const sortedAttendance = [...filteredAttendance]; 
+    sortedAttendance.sort((a, b) => b.dateTime - a.dateTime);
+    
     return (
         <div>
             <div className="w-full h-full hidden md:block">
@@ -508,7 +536,7 @@ console.log("attend",attend)
                                 <div className="flex-1 p-2 text-sm text-left">DateTime</div>
                             </div>
                             <div className="w-full h-full overflow-y-auto border-s-2 border-e-2 border-b-2">
-                            {filteredAttendance.map((attend) => (
+                            {sortedAttendance.map((attend) => (
                                 <div
                                 key={attend.id}
                                 className={`flex hover:bg-gray-300 hover:bg-opacity-75  text-lg font-semibold p-2`}
