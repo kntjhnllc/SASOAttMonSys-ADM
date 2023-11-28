@@ -460,7 +460,6 @@ const HomePage = () => {
                           <input
                             type='date'
                             name='birthdate'
-                            placeholder='Birthdate'
                             className='bg-gray-100 outline-none text-sm flex-1'
                             value={signUpBirthdate}
                             onChange={handleSignUpBirthdateChange}
@@ -503,7 +502,7 @@ const HomePage = () => {
           </div>
           <div className={`w-2/5 bg-blue-950 text-gray-100 rounded-tr-2xl rounded-br-2xl md:py-36 px-12 ${isSignUpVisible ? 'signUp-slide-in' : 'signUp-slide-out'}`}>
             <div className={`${isSignUpVisible ? 'text-container-invi' : 'text-container-full'}`}>
-              <h2 className='text-3xl font-bold mb-2 font-montserrat md:pt-0'>Hello, Scholar!</h2>
+              <h2 className='text-3xl font-bold mb-2 font-montserrat pt-24 md:pt-0'>Hello, Scholar!</h2>
               <div className='border-2 w-10 border-white inline-block mb-2'></div>
               <p className='mb-10'>
                 Fill up personal information and start journey with us.
