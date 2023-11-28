@@ -47,7 +47,7 @@ function Home () {
     const [loadUsers, setLoadUsers] = useState(false);
     const [loadAttendance, setLoadAttendance] = useState(false);
     const [loadMeeting, setLoadMeeting] = useState(false);
-    const calendarSrc = 'https://calendar.google.com/calendar/embed?src=hcdc.edu.ph_oiptuud2462l68ft5tv0e6csks%40group.calendar.google.com&ctz=Asia%2FManila';
+    const calendarSrc = 'https://calendar.google.com/calendar/embed?src=hcdc.saso%40gmail.com&ctz=UTC';
     
   
     useEffect(() => {
@@ -278,43 +278,43 @@ function Home () {
       }) 
     }
 
-    // useEffect(() => {
-    //   if (accessDenied) {
-    //     let timerInterval
-    //     Swal.fire({
-    //       title: 'Access Denied!',
-    //       html: 'Please wait to be given access by ADMIN <br> <p> Automatic logout in <b></b> milliseconds. </p> ', 
-    //       timer: 5000,
-    //       allowOutsideClick:false,
-    //       timerProgressBar: true,
-    //       didOpen: () => {
-    //         Swal.showLoading()
-    //         const b = Swal.getHtmlContainer().querySelector('b')
-    //         timerInterval = setInterval(() => {
-    //           b.textContent = Swal.getTimerLeft()
-    //         }, 100)
-    //       },
-    //       willClose: () => {
-    //         clearInterval(timerInterval)
-    //       }
-    //     }).then((result) => {
-    //       setAccessDenied(false);
-    //       sessionStorage.setItem('Signout', true);
-    //       sessionStorage.setItem('isFirstRun', 'false');
-    //       sessionStorage.removeItem('Menu');
-    //       router.push('/').then(() => {
-    //         auth.signOut()
-    //           .then(() => {
-    //             console.log('Sign out successful');
-    //           })
-    //           .catch((error) => {
-    //             console.error('Sign out error:', error);
-    //           });
-    //       });
-    //     })
-    //   return;
-    //   }
-    // },[accessDenied]);
+    useEffect(() => {
+      if (accessDenied) {
+        let timerInterval
+        Swal.fire({
+          title: 'Access Denied!',
+          html: 'Please please login your HCDC Email account <br> <p> Login page in <b></b> milliseconds. </p> ', 
+          timer: 5000,
+          allowOutsideClick:false,
+          timerProgressBar: true,
+          didOpen: () => {
+            Swal.showLoading()
+            const b = Swal.getHtmlContainer().querySelector('b')
+            timerInterval = setInterval(() => {
+              b.textContent = Swal.getTimerLeft()
+            }, 100)
+          },
+          willClose: () => {
+            clearInterval(timerInterval)
+          }
+        }).then((result) => {
+          setAccessDenied(false);
+          sessionStorage.setItem('Signout', true);
+          sessionStorage.setItem('isFirstRun', 'false');
+          sessionStorage.removeItem('Menu');
+          router.push('/').then(() => {
+            auth.signOut()
+              .then(() => {
+                console.log('Sign out successful');
+              })
+              .catch((error) => {
+                console.error('Sign out error:', error);
+              });
+          });
+        })
+      return;
+      }
+    },[accessDenied]);
 
     useEffect(() => {
       const storedMenu = sessionStorage.getItem('Menu');
@@ -382,8 +382,8 @@ function Home () {
             <SplashScreen />
           </div>
         ) : 
-        // <div className={`${accessDenied? "absolute inset-0 bg-opacity-90 bg-gray-100  backdrop-blur-sm z-50 w-full h-full":""}`}></div>
-        <div></div>
+        <div className={`${accessDenied? "absolute inset-0 bg-opacity-90 bg-gray-100  backdrop-blur-sm z-50 w-full h-full":""}`}></div>
+     
         }
         
         <div className='flex flex-col  md:flex-row relative'>
