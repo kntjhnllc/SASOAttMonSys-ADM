@@ -301,7 +301,7 @@ const HomePage = () => {
               });
         
               // Redirect the user to the authenticated page
-              router.push('/Authentication');
+              router.push('/Main');
             } else {
                   Swal.fire({
                     title: 'Email not verified!',
@@ -332,7 +332,7 @@ const HomePage = () => {
         if (user !== null && sign_up === false) {
           if (loading) {
             setTimeout(() => {
-              router.push('/Authentication');
+              router.push('/Main');
             }, 2000);
           }
         }
