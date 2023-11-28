@@ -47,7 +47,7 @@ function Home () {
     const [loadUsers, setLoadUsers] = useState(false);
     const [loadAttendance, setLoadAttendance] = useState(false);
     const [loadMeeting, setLoadMeeting] = useState(false);
-    const calendarSrc = 'https://calendar.google.com/calendar/embed?src=hcdc.saso%40gmail.com&ctz=UTC';
+    const calendarSrc = 'https://calendar.google.com/calendar/embed?src=hcdc.edu.ph_oiptuud2462l68ft5tv0e6csks%40group.calendar.google.com&ctz=Asia%2FManila';
     
   
     useEffect(() => {
