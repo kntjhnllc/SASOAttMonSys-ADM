@@ -234,6 +234,14 @@ const HomePage = () => {
 
     // For access grant
     const user = userCredential.user;
+    const userData = {
+      uid:user.uid,
+      id_no: signUpIdNo, // Fix: use user.uid // Fix: use signUpEmail
+      email: signUpEmail, // Fix: use signUpEmail
+      birthdate: signUpBirthdate,
+      access:false,
+      date_created: serverTimestamp(),
+    };
     const userDocRef = doc(usersCollection, docID);
 
     // Check if the email is already in use
@@ -248,7 +256,11 @@ const HomePage = () => {
 
     // Send email verification
     await sendEmailVerification(user);
-
+    setSignUpEmail('');
+    setSignUpIdNo('');
+    setSignUpBirthdate('');
+    setSignUpPassword('');
+    setSignUpPasswordConfirm('');
     // Show confirmation message after successful email verification
     Swal.fire({
       title: 'Sign Up Success!',
@@ -258,15 +270,11 @@ const HomePage = () => {
       iconColor: '#000080',
     });
 
-    setSignUpEmail('');
-    setSignUpIdNo('');
-    setSignUpBirthdate('');
-    setSignUpPassword('');
-    setSignUpPasswordConfirm('');
   } catch (error) {
     console.error('Error during sign up:', error);
 
     if (error.code === 'auth/email-already-in-use') {
+      
       // Handle email already in use error
       Swal.fire({
         title: 'Email Already in Use',
