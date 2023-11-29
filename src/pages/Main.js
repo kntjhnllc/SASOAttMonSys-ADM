@@ -48,6 +48,7 @@ function Home () {
     const [loadAttendance, setLoadAttendance] = useState(false);
     const [loadMeeting, setLoadMeeting] = useState(false);
     const [showBday, setShowBday] = useState(false);
+    const [bdayName, setBdayName] = useState('')
     const calendarSrc = 'https://calendar.google.com/calendar/embed?src=hcdc.saso%40gmail.com&ctz=UTC';
     
 
@@ -378,9 +379,11 @@ function Home () {
       const currentDateWithoutYear = new Date().toISOString().slice(5, 10);
       const userBirthday = scholars.filter((scholar) => {
           const scholarDateWithoutYear = scholar.birthdate?.slice(5, 10);
+          
           return scholar.uid == user?.uid && scholarDateWithoutYear === currentDateWithoutYear;
       });
       if (userBirthday.length>=1){
+          setBdayName(userBirthday[0].name);
           setShowBday(true);
       }
       else {
@@ -388,6 +391,10 @@ function Home () {
       }
      
   },[scholars])
+
+  const handleCloseBirthday = () => {
+    setShowBday(false);
+  };
 
     return(
       <div className="main h-full  md:h-screen md:w-full">
@@ -400,14 +407,10 @@ function Home () {
             <SplashScreen />
           </div>
         ) : 
-          <div className={`${accessDenied? "absolute inset-0 bg-opacity-90 bg-gray-100  backdrop-blur-sm z-50 w-full h-full":""}`}></div>}
-        
-        {showBday?(
-          <div className="flex flex-col items-center justify-center absolute inset-0 bg-opacity-90 bg-gray-100 backdrop-blur-sm z-50 w-full h-full">
-            <Birthday/>
-          </div>
-        ):
-          <div></div>}
+          <div className={`${showBday?"absolute flex flex-col justify-center items-center inset-0 bg-opacity-90 bg-gray-100  backdrop-blur-sm z-50 w-full h-full":""}`}>
+            {showBday && <Birthday bdayName={bdayName}onClose={handleCloseBirthday} />}
+            </div>}
+
         <div className='flex flex-col  md:flex-row relative'>
           <div className={`fixed bg-blue-950 w-full md:h-screen ${open ? "md:w-72":"md:w-20"} duration-300 md:p-5 pt-8  md:relative`}>
             <BsArrowLeftShort className={`bg-white text-blue-950 text-3xl rounded-full md:absolute hidden lg:flex md:-right-3 md:top-9 border border-blue-950 cursor-pointer ${
