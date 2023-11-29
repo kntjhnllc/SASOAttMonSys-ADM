@@ -1,17 +1,56 @@
 
+import Papa from 'papaparse';
+import { Fragment } from 'react';
+import { Menu, Transition } from '@headlessui/react';
+import { ChevronDownIcon } from '@heroicons/react/20/solid';
+import {auth, db } from '@/config/firebase';
+import { useAuthState } from 'react-firebase-hooks/auth'
+import { useEffect, useState,useRef } from "react";
+import { addDoc, collection, onSnapshot, orderBy, query, serverTimestamp,WriteBatch, where, doc,updateDoc, getDocs, writeBatch, or} from 'firebase/firestore';
+import CSVReader from 'react-csv-reader'
+import { saveAs } from 'file-saver';
+import Swal from 'sweetalert2';
+import AddScholarModal from '../components/AddScholarModal';
+import { BsPersonFillAdd} from "react-icons/bs";
+import { HiSaveAs} from "react-icons/hi";
+import { BiDotsVerticalRounded} from "react-icons/bi";
+import { MdOutlineBatchPrediction,MdEditDocument,MdManageAccounts} from "react-icons/md";
+
+
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&family=Roboto&display=swap" rel="stylesheet"></link>
 
 
-function Dashboard ({calendarSrc,scholars}) {
+function Dashboard ({calendarSrc,scholars,setLoadUsers,user}) {
+
+    useEffect(() => {
+        setLoadUsers(true)
+      },[]);
+    
+    useEffect(()=>{
+        console.log(user.uid)
+
+        const currentDateWithoutYear = new Date().toISOString().slice(5, 10);
+        const userBirthday = scholars.filter((scholar) => {
+            const scholarDateWithoutYear = scholar.birthdate?.slice(5, 10);
+            return scholar.uid == user.uid && scholarDateWithoutYear === currentDateWithoutYear;
+        });
+        if (userBirthday.length>=1){
+            console.log("happy bday")
+        }
+        else {
+            console.log("no bday")
+        }
+       
+    },[])
+
+
     const currentDateWithoutYear = new Date().toISOString().slice(5, 10); // Get current date without year in "MM-DD" format
-    console.log(currentDateWithoutYear)
     const bdayScholars = scholars.filter((scholar) => {
         const scholarDateWithoutYear = scholar.birthdate?.slice(5, 10);
-        return scholarDateWithoutYear === currentDateWithoutYear;
+       
+        return scholarDateWithoutYear === currentDateWithoutYear && scholar.uid == user.uid;
     });
 
-
-      console.log("scholars",scholars)
     return (
         <div className="">
             <h1 className='text-2xl font-semibold font-montserrat text-blue-900'>

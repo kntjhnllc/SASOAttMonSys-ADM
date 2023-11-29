@@ -49,7 +49,7 @@ function Home () {
     const [loadMeeting, setLoadMeeting] = useState(false);
     const calendarSrc = 'https://calendar.google.com/calendar/embed?src=hcdc.saso%40gmail.com&ctz=UTC';
     
-  
+
     useEffect(() => {
       setOpen(!isMobile);
     }, [isMobile]);
@@ -334,7 +334,9 @@ function Home () {
         // eslint-disable-next-line
         case 'Dashboard': return <Dashboard
                           calendarSrc={calendarSrc}
-                          scholars={scholars}  />;break;
+                          scholars={scholars}
+                          setLoadUsers={setLoadUsers} 
+                          user={user} />;break;
         // eslint-disable-next-line
         case 'Scholars': return <Scholars 
                           scholars={scholars} 
@@ -369,7 +371,9 @@ function Home () {
         setLoading(false);
       }, 3000);
     }
-    }, []);
+    }, [load]);
+
+    
 
     return(
       <div className="main h-full  md:h-screen md:w-full">
@@ -382,9 +386,7 @@ function Home () {
             <SplashScreen />
           </div>
         ) : 
-        <div className={`${accessDenied? "absolute inset-0 bg-opacity-90 bg-gray-100  backdrop-blur-sm z-50 w-full h-full":""}`}></div>
-     
-        }
+        <div className={`${accessDenied? "absolute inset-0 bg-opacity-90 bg-gray-100  backdrop-blur-sm z-50 w-full h-full":""}`}></div>}
         
         <div className='flex flex-col  md:flex-row relative'>
           <div className={`fixed bg-blue-950 w-full md:h-screen ${open ? "md:w-72":"md:w-20"} duration-300 md:p-5 pt-8  md:relative`}>
