@@ -233,6 +233,7 @@ const HomePage = () => {
               // For access grant
               const user = userCredential.user;
               const userData = {
+                uid:user.uid,
                 id_no: signUpIdNo, // Fix: use user.uid // Fix: use signUpEmail
                 email: signUpEmail, // Fix: use signUpEmail
                 birthdate: signUpBirthdate,

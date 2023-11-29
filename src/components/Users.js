@@ -19,7 +19,13 @@ function Users ({users,setLoadUsers}) {
     const [selectedFilter, setSelectedFilter] = useState('All Users');
     const [access, setAccess] = useState(0);
     const [denied, setDenied] = useState(0);
+    const [searchKey, setSearchKey] = useState('');
     const userCount = users.length;
+
+    const handleSearchChange = (e) => {
+      e.preventDefault();
+      setSearchKey(e.target.value);
+    };
 
     useEffect(() => {
         let filteredUsersAccess,filteredUsersDenied;
@@ -63,14 +69,11 @@ function Users ({users,setLoadUsers}) {
                                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
                                 </svg>
                             </div>
-                            <input type="text" id="simple-search" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-900 focus:border-blue-900 block w-full pl-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-900 dark:focus:border-blue-900" placeholder="Search user..." required/>
+                            <input type="text" id="simple-search" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-900 focus:border-blue-900 block w-full pl-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-900 dark:focus:border-blue-900" 
+                            onChange={handleSearchChange}
+                            placeholder="Search user..." required/>
                         </div>
-                        <button type="submit" class="p-2.5 ml-2 text-sm font-medium text-white bg-blue-900 rounded-lg border border-blue-900 hover:bg-blue-950 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                            <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
-                            </svg>
-                            <span class="sr-only">Search</span>
-                        </button>
+                        
                     </form>
                 </div>
                 {/* FILTER */}
@@ -140,9 +143,9 @@ function Users ({users,setLoadUsers}) {
                 </div>
             </div>
             <div className='w-full h-[400px] py-2'>
-            {selectedFilter === 'All Users' && <AllUsers users={users} />}
-            {selectedFilter === 'Access' && <AccessUsers users={users} />}
-            {selectedFilter === 'Denied' && <DeniedUsers users={users} />}
+            {selectedFilter === 'All Users' && <AllUsers users={users} searchKey={searchKey}/>}
+            {selectedFilter === 'Access' && <AccessUsers users={users} searchKey={searchKey} />}
+            {selectedFilter === 'Denied' && <DeniedUsers users={users} searchKey={searchKey}/>}
             </div>
         </div>
         <div className='md:hidden block '>
@@ -157,8 +160,25 @@ function Users ({users,setLoadUsers}) {
     )
 }
 
-const AllUsers = ({users}) => {
-    const [userAccount] = useAuthState(auth);
+const AllUsers = ({users,searchKey}) => {
+
+    const searchUsers =users.filter((user) => {
+      return user.name.trim().toLowerCase().includes(searchKey.trim().toLowerCase()) || user.id_no.includes(searchKey);
+    });
+
+    const sortedUsers = searchUsers.map(scholar => scholar)
+    .sort((a, b) => {
+      const nameA = a.name.toUpperCase(); // convert to uppercase for case-insensitive sorting
+      const nameB = b.name.toUpperCase();
+  
+      if (nameA < nameB) {
+        return -1;
+      }
+      if (nameA > nameB) {
+        return 1;
+      }
+      return 0; // names are equal
+    });
 
     const changeAccess = (id_no,name) => async (event) => {
         const isChecked = event.target.checked;
@@ -265,25 +285,26 @@ const AllUsers = ({users}) => {
             {users.length > 0?
             <>
             <div className="flex text-sm  font-bold bg-blue-950 text-center text-white  rounded-t-xl">
-              <div className="flex-1 p-2 text-left">Name</div>
+            <div className="flex-1 p-2 text-left">ID No</div>
+              <div className="flex-1 p-2 text-left -ml-24">Name</div>
               <div className="flex-1 p-2 text-left">Email</div>
               <div className="flex-1 p-2">Date Created</div>
               <div className="flex-1 p-2">Accessibility</div>
-              <div className="flex-1 p-2">Status</div>
             </div>
             <div className="w-full h-full overflow-y-auto border-s-2 border-e-2 border-b-2">
-              {users.map((user) => (
+              {sortedUsers.map((user) => (
                 <div
                   key={user.id}
                   className="flex items-center mb-2 hover:bg-gray-300 hover:bg-opacity-75  text-sm font-semibold p-2"
                 >
-                  <div className="flex flex-1 items-center truncate">
+                  <div className="flex-1 truncate">{user.id_no}</div>
+                  <div className="flex flex-1 items-center truncate -ml-24">
                   
                   <span className='w-full truncate'>{user.name}</span>
                   </div>
-                  <div className="flex-1 truncate">{user.email}</div>
+                  <div className="flex-1 truncate">{user.email?user.email:"Not yet signed up"}</div>
                   <div className="flex-1 text-center whitespace-pre-wrap truncate">
-                    {formatTimestamp(user.date_created)}
+                    {user.date_created?formatTimestamp(user.date_created):"Not yet signed up"}
                   </div>
                 <div className="flex-1 text-center">
                     <label class="relative inline-flex items-center cursor-pointer">
@@ -298,7 +319,6 @@ const AllUsers = ({users}) => {
                     <span class="ml-3 text-sm font-medium text-gray-900 dark:text-gray-300">{user.access?"Access":"Denied"}</span>
                     </label>
                 </div>
-                  <div className="flex-1 truncate text-center">{userAccount.emailVerified?"Verified":"Not verified"}</div>
                   
                 </div>
                 
@@ -306,17 +326,17 @@ const AllUsers = ({users}) => {
             </div>
       
             </>:
-            <div className='w-full h-full flex justify-center items-center text-center text-5xl text-[#415923] font-bold'>
+            <div className='w-full h-full flex justify-center items-center text-center text-5xl text-blue-900 font-bold'>
             No Data Available<br/>•ω•
             </div>}
           </div>
     )
 }
 
-const AccessUsers = ({users}) => {
+const AccessUsers = ({users,searchKey}) => {
 
     const accessUsers =users.filter((user) => {
-        return user.access == true;
+        return user.access == true && user.name.trim().toLowerCase().includes(searchKey.trim().toLowerCase()) || user.access == true && user.id_no.includes(searchKey);;
       });
 
     const changeAccess = (uid,email) => async (event) => {
@@ -419,15 +439,15 @@ const AccessUsers = ({users}) => {
       }
 
     return (
-        <div className="w-full h-full flex flex-col">
+      <div className="w-full h-full flex flex-col">
             {users.length > 0?
             <>
             <div className="flex text-sm  font-bold bg-blue-950 text-center text-white  rounded-t-xl">
-              <div className="flex-1 p-2 text-left">Name</div>
+            <div className="flex-1 p-2 text-left">ID No</div>
+              <div className="flex-1 p-2 text-left -ml-24">Name</div>
               <div className="flex-1 p-2 text-left">Email</div>
               <div className="flex-1 p-2">Date Created</div>
               <div className="flex-1 p-2">Accessibility</div>
-              <div className="flex-1 p-2">Status</div>
             </div>
             <div className="w-full h-full overflow-y-auto border-s-2 border-e-2 border-b-2">
               {accessUsers.map((user) => (
@@ -435,13 +455,14 @@ const AccessUsers = ({users}) => {
                   key={user.id}
                   className="flex items-center mb-2 hover:bg-gray-300 hover:bg-opacity-75  text-sm font-semibold p-2"
                 >
-                  <div className="flex flex-1 items-center truncate">
+                  <div className="flex-1 truncate">{user.id_no}</div>
+                  <div className="flex flex-1 items-center truncate -ml-24">
                   
                   <span className='w-full truncate'>{user.name}</span>
                   </div>
-                  <div className="flex-1 truncate">{user.email}</div>
+                  <div className="flex-1 truncate">{user.email?user.email:"Not yet signed up"}</div>
                   <div className="flex-1 text-center whitespace-pre-wrap truncate">
-                    {formatTimestamp(user.date_created)}
+                    {user.date_created?formatTimestamp(user.date_created):"Not yet signed up"}
                   </div>
                 <div className="flex-1 text-center">
                     <label class="relative inline-flex items-center cursor-pointer">
@@ -450,13 +471,12 @@ const AccessUsers = ({users}) => {
                         value="" 
                         class="sr-only peer" 
                         checked={user.access}
-                        onChange={changeAccess(user.uid,user.email)} 
+                        onChange={changeAccess(user.id_no,user.name)} 
                         />
                     <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
                     <span class="ml-3 text-sm font-medium text-gray-900 dark:text-gray-300">{user.access?"Access":"Denied"}</span>
                     </label>
                 </div>
-                  <div className="flex-1 truncate text-center">{user.verified?"Verified":"Not verified"}</div>
                   
                 </div>
                 
@@ -464,17 +484,17 @@ const AccessUsers = ({users}) => {
             </div>
       
             </>:
-            <div className='w-full h-full flex justify-center items-center text-center text-5xl text-[#415923] font-bold'>
+            <div className='w-full h-full flex justify-center items-center text-center text-5xl text-blue-900 font-bold'>
             No Data Available<br/>•ω•
             </div>}
           </div>
     )
 }
 
-const DeniedUsers = ({users}) => {
+const DeniedUsers = ({users,searchKey}) => {
 
     const deniedUsers =users.filter((user) => {
-        return user.access == false;
+        return user.access == false && user.name.trim().toLowerCase().includes(searchKey.trim().toLowerCase()) || user.access == false && user.id_no.includes(searchKey);;;
       });
 
     const changeAccess = (uid,email) => async (event) => {
@@ -578,15 +598,15 @@ const DeniedUsers = ({users}) => {
       }
 
     return (
-        <div className="w-full h-full flex flex-col">
+      <div className="w-full h-full flex flex-col">
             {users.length > 0?
             <>
             <div className="flex text-sm  font-bold bg-blue-950 text-center text-white  rounded-t-xl">
-              <div className="flex-1 p-2 text-left">Name</div>
+            <div className="flex-1 p-2 text-left">ID No</div>
+              <div className="flex-1 p-2 text-left -ml-24">Name</div>
               <div className="flex-1 p-2 text-left">Email</div>
               <div className="flex-1 p-2">Date Created</div>
               <div className="flex-1 p-2">Accessibility</div>
-              <div className="flex-1 p-2">Status</div>
             </div>
             <div className="w-full h-full overflow-y-auto border-s-2 border-e-2 border-b-2">
               {deniedUsers.map((user) => (
@@ -594,13 +614,14 @@ const DeniedUsers = ({users}) => {
                   key={user.id}
                   className="flex items-center mb-2 hover:bg-gray-300 hover:bg-opacity-75  text-sm font-semibold p-2"
                 >
-                  <div className="flex flex-1 items-center truncate">
+                  <div className="flex-1 truncate">{user.id_no}</div>
+                  <div className="flex flex-1 items-center truncate -ml-24">
                   
                   <span className='w-full truncate'>{user.name}</span>
                   </div>
-                  <div className="flex-1 truncate">{user.email}</div>
+                  <div className="flex-1 truncate">{user.email?user.email:"Not yet signed up"}</div>
                   <div className="flex-1 text-center whitespace-pre-wrap truncate">
-                    {formatTimestamp(user.date_created)}
+                    {user.date_created?formatTimestamp(user.date_created):"Not yet signed up"}
                   </div>
                 <div className="flex-1 text-center">
                     <label class="relative inline-flex items-center cursor-pointer">
@@ -609,13 +630,12 @@ const DeniedUsers = ({users}) => {
                         value="" 
                         class="sr-only peer" 
                         checked={user.access}
-                        onChange={changeAccess(user.uid,user.email)} 
+                        onChange={changeAccess(user.id_no,user.name)} 
                         />
                     <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
                     <span class="ml-3 text-sm font-medium text-gray-900 dark:text-gray-300">{user.access?"Access":"Denied"}</span>
                     </label>
                 </div>
-                  <div className="flex-1 truncate text-center">{user.verified?"Verified":"Not verified"}</div>
                   
                 </div>
                 
@@ -623,7 +643,7 @@ const DeniedUsers = ({users}) => {
             </div>
       
             </>:
-            <div className='w-full h-full flex justify-center items-center text-center text-5xl text-[#415923] font-bold'>
+            <div className='w-full h-full flex justify-center items-center text-center text-5xl text-blue-900 font-bold'>
             No Data Available<br/>•ω•
             </div>}
           </div>

@@ -7,7 +7,7 @@ import { Menu, Transition } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import { db } from '@/config/firebase';
 import { useEffect, useState,useRef } from "react";
-import { addDoc, collection, onSnapshot, orderBy, query, serverTimestamp,WriteBatch, where, doc,updateDoc, getDocs, writeBatch} from 'firebase/firestore';
+import { addDoc, collection, onSnapshot, orderBy, query, serverTimestamp,WriteBatch, where, doc,updateDoc, getDocs, writeBatch, or} from 'firebase/firestore';
 import CSVReader from 'react-csv-reader'
 import { saveAs } from 'file-saver';
 import Swal from 'sweetalert2';
@@ -36,6 +36,9 @@ function Scholars ({scholars,setLoadUsers}) {
     const [office , setOffice] = useState ("");
     const [organization , setOrganization] = useState ("saso");
     const [year , setYear] = useState ("1");
+    const [update, setUpdate]= useState(false);
+    const [docID , setDocID] = useState('');
+    const [searchKey, setSearchKey] = useState('');
 
     const [csvData, setCsvData] = useState([]);
     const fileInputRef = useRef(null);
@@ -58,8 +61,12 @@ function Scholars ({scholars,setLoadUsers}) {
     const handleYearChange = (e) => {
       setYear(e.target.value);
     };
+    const handleSearchChange = (e) => {
+      e.preventDefault();
+      setSearchKey(e.target.value);
+    };
     
-
+    console.log(searchKey);
     useEffect(() => {
         let filteredUsersSASO,filteredUsersOthers;
       
@@ -189,8 +196,9 @@ function Scholars ({scholars,setLoadUsers}) {
               const q = query(usersCollection, where('id_no', '==', id_no));
               const querySnapshot = await getDocs(q);
               querySnapshot.forEach((doc) => {
+                setDocID(doc.id);
               });
-              if (!querySnapshot.empty){
+              if (!querySnapshot.empty && update==false){
                 setErrorMessage('*ID number of scholar already registered!');
                 setIsShaking(true);
       
@@ -199,6 +207,47 @@ function Scholars ({scholars,setLoadUsers}) {
                   setErrorMessage('');
                   setIsShaking(false);
                 }, 2000); // Adjust the duration as needed
+              }
+              else if (!querySnapshot.empty && update==true){
+                if (cluster!=''&&year!=''&&organization!=''){
+                  Swal.fire({
+                    title: 'Confirm Update Scholar?',
+                    text: "Confirm updating " +id_no+" - " +name+"?",
+                    icon: 'warning',
+                    iconColor: '#d33',
+                    showCancelButton: true,
+                    confirmButtonColor: '#000080',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Confirm!'
+                  }).then((result) => {
+                    if (result.isConfirmed) {
+                      const userData = {
+                      id_no: id_no,
+                      name: name, 
+                      cluster: cluster, 
+                      office: office,
+                      organization: organization,
+                      year: year,
+                      status: "CURRENTLY ENROLLED"
+                      };
+                      const userDocRef = doc(usersCollection, docID);
+                      updateDoc(userDocRef, userData);
+                      Swal.fire({
+                        title: 'Updating Scholar Success!',
+                        icon: 'success',
+                        confirmButtonColor: '#000080',
+                        iconColor: '#000080',
+                      });
+                      setShowAddScholar(false)
+                      setId_no('');
+                      setCluster('1');
+                      setName('');
+                      setOffice('');
+                      setOrganization('saso');
+                      setYear('1');
+                      setUpdate(false);
+                    }
+                  })
               }
               else{
                 if (cluster!=''&&year!=''&&organization!=''){
@@ -236,6 +285,7 @@ function Scholars ({scholars,setLoadUsers}) {
                       setOffice('');
                       setOrganization('saso');
                       setYear('1');
+                      setUpdate(false);
                     }
                   })
                 }
@@ -246,6 +296,7 @@ function Scholars ({scholars,setLoadUsers}) {
                   }, 2000); // Adjust the duration as needed
                 }
               }
+          }
         } catch (error) {
           console.log(error);
           setErrorMessage('ambot na error');
@@ -263,7 +314,7 @@ function Scholars ({scholars,setLoadUsers}) {
       const exportDataToCSV = () => {
         const enrolledScholars = scholars.filter(scholar => scholar.status === 'CURRENTLY ENROLLED');
         const data = enrolledScholars.map(scholar => {
-          const { id,date_created,access,isSuper, ...rest } = scholar; // Exclude the 'id' property
+          const { id,date_created,access,isSuper,uid, ...rest } = scholar; // Exclude the 'id' property
           return {
             id_no: scholar.id_no,
             name: scholar.name, // Make 'id_no' the first cell
@@ -289,7 +340,7 @@ function Scholars ({scholars,setLoadUsers}) {
       const exportDataToCSVSaso = () => {
   
         const data = exportSaso.map(scholar => {
-          const { id,date_created,access,isSuper, ...rest } = scholar; // Exclude the 'id' property
+          const { id,date_created,access,isSuper,uid, ...rest } = scholar; // Exclude the 'id' property
           return {
             id_no: scholar.id_no,
             name: scholar.name, // Make 'id_no' the first cell
@@ -315,7 +366,7 @@ function Scholars ({scholars,setLoadUsers}) {
       const exportDataToCSVOthers = () => {
   
         const data = exportOthers.map(scholar => {
-          const { id,date_created,access,isSuper, ...rest } = scholar; // Exclude the 'id' property
+          const { id,date_created,access,isSuper,uid, ...rest } = scholar; // Exclude the 'id' property
           return {
             id_no: scholar.id_no,
             name: scholar.name, // Make 'id_no' the first cell
@@ -379,14 +430,12 @@ function Scholars ({scholars,setLoadUsers}) {
                                   <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
                               </svg>
                           </div>
-                          <input type="text" id="searchScholarInput" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-900 focus:border-blue-900 block w-full pl-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-900 dark:focus:border-blue-900" placeholder="Search scholar..." required/>
+                          <input type="text" id="searchScholarInput" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-900 focus:border-blue-900 block w-full pl-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-900 dark:focus:border-blue-900" placeholder="Search scholar..." 
+                          onChange={handleSearchChange}
+                          required
+                          />
                       </div>
-                      <button type="submit" class="p-2.5 ml-2 text-sm font-medium text-white bg-blue-900 rounded-lg border border-blue-900 hover:bg-blue-950 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                          <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
-                          </svg>
-                          <span class="sr-only">Search</span>
-                      </button>
+                      
                   </form>
               </div>
               {/* ADD SCHOLAR */}
@@ -507,9 +556,36 @@ function Scholars ({scholars,setLoadUsers}) {
         </div>
         <div className='h-[380px] w-full'>
           <div className='w-full h-full pt-1'>
-          {selectedFilter === 'All Scholars' && <AllScholars scholars={scholars} />}
-          {selectedFilter === 'SASO' && <SASOScholars scholars={scholars} />}
-          {selectedFilter === 'Others' && <OtherScholars scholars={scholars} />}
+          {selectedFilter === 'All Scholars' && <AllScholars scholars={scholars}
+                                                              setId_no={setId_no}
+                                                              setCluster={setCluster}
+                                                              setName={setName}
+                                                              setOffice={setOffice}
+                                                              setOrganization={setOrganization}
+                                                              setYear={setYear}
+                                                              setShowAddScholar={setShowAddScholar}
+                                                              setUpdate={setUpdate}
+                                                              searchKey={searchKey} />}
+          {selectedFilter === 'SASO' && <SASOScholars scholars={scholars} 
+                                                      setId_no={setId_no}
+                                                      setCluster={setCluster}
+                                                      setName={setName}
+                                                      setOffice={setOffice}
+                                                      setOrganization={setOrganization}
+                                                      setYear={setYear}
+                                                      setShowAddScholar={setShowAddScholar}
+                                                      setUpdate={setUpdate}
+                                                      searchKey={searchKey}/>}
+          {selectedFilter === 'Others' && <OtherScholars scholars={scholars} 
+                                                              setId_no={setId_no}
+                                                              setCluster={setCluster}
+                                                              setName={setName}
+                                                              setOffice={setOffice}
+                                                              setOrganization={setOrganization}
+                                                              setYear={setYear}
+                                                              setShowAddScholar={setShowAddScholar}
+                                                              setUpdate={setUpdate}
+                                                              searchKey={searchKey}/>}
           </div>
         </div>
       </div>
@@ -517,7 +593,7 @@ function Scholars ({scholars,setLoadUsers}) {
     <AddScholarModal isVisible={showAddScholar} onClose={()=> setShowAddScholar(false)}>
     <div className='py-6 px-6 lg:px-8 text-left'>
       <h3 className='mb-4 text-xl font-medium text-blue-900'>
-        Add Scholar Information
+        {update?"Update":"Add"} Scholar Information
       </h3>
       <form className={`space-y-6 text-gray-900 ${isShaking ? 'shake text-red-500' : ''}`} onSubmit={addScholar_Attempt} method='POST'>
         <div className="flex">
@@ -531,6 +607,7 @@ function Scholars ({scholars,setLoadUsers}) {
               id="id_no"
               className="bg-gray-50 border border-gray-300 text-sm rounded-lg focus:ring-blue-900 focus:border-blue-900 p-2.5"
               placeholder="ID Number"
+              value={id_no}
               onChange={handleId_noChange}
               required
             />
@@ -544,6 +621,7 @@ function Scholars ({scholars,setLoadUsers}) {
               id="cluster"
               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-900 focus:border-blue-900 p-2.5"
               onChange={handleClusterChange}
+              value={cluster}
               required
               defaultValue="1"
             >
@@ -567,6 +645,7 @@ function Scholars ({scholars,setLoadUsers}) {
             type='text'
             name='name'
             id="name"
+            value={name}
             className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-900 focus:border-blue-900 block w-full p-2.5'
             placeholder='Full Name'
             onChange={handleNameChange}
@@ -584,6 +663,7 @@ function Scholars ({scholars,setLoadUsers}) {
             type='text'
             name='office'
             id="office"
+            value={office}
             className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-900 focus:border-blue-900 block w-full p-2.5'
             placeholder='Office'
             onChange={handleOfficeChange}
@@ -598,6 +678,7 @@ function Scholars ({scholars,setLoadUsers}) {
             <select
               name="organization"
               id="organization"
+              value={organization}
               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-900 focus:border-blue-900 p-2.5"
               onChange={handleOrganizationChange}
               required
@@ -614,6 +695,7 @@ function Scholars ({scholars,setLoadUsers}) {
             <select
               name="year"
               id="year"
+              value={year}
               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-900 focus:border-blue-900 p-2.5"
               onChange={handleYearChange}
               required
@@ -629,7 +711,7 @@ function Scholars ({scholars,setLoadUsers}) {
         <div className='flex flex-col ps-3'>
             <button
              class=" w-3/6  text-white place-self-end bg-blue-900 hover:bg-blue-950  font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
-              Add Scholar
+              {update?"Update":"Add"} Scholar
               </button>
           </div>
       </form>
@@ -649,10 +731,15 @@ function Scholars ({scholars,setLoadUsers}) {
 
 }
 
-const AllScholars = ({scholars}) => {
-  const [addAccount , setAddAccount] = useState("");
+const AllScholars = ({scholars,setId_no,setCluster,setName,setOffice,setOrganization,setYear,setShowAddScholar,setUpdate,searchKey}) => {
+
+  const searchScholar =scholars.filter((scholar) => {
+    return scholar.id_no.includes(searchKey) || scholar.name.trim().toLowerCase().includes(searchKey.trim().toLowerCase());
+  });
+  console.log("search",searchScholar)
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
+  
   const dropdownRef = useRef(null);
 
   const handleAccount = (id_no) => {
@@ -671,19 +758,16 @@ const AllScholars = ({scholars}) => {
     setShowDropdown(!showDropdown);
   };
   const handleClickOutside = (event) => {
-    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
       setShowDropdown(false);
-    }
   };
-
   useEffect(() => {
     document.addEventListener('mousedown', handleClickOutside);
-
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
-  const sortedScholars = scholars.map(scholar => scholar)
+
+  const sortedScholars = searchScholar.map(scholar => scholar)
   .sort((a, b) => {
     const nameA = a.name.toUpperCase(); // convert to uppercase for case-insensitive sorting
     const nameB = b.name.toUpperCase();
@@ -697,6 +781,17 @@ const AllScholars = ({scholars}) => {
     return 0; // names are equal
   });
 
+  const handleEditScholarClick = (id_no,cluster,name,office,organization,year) =>{
+    setShowAddScholar(true);
+    setUpdate(true);
+    setId_no(id_no);
+    setCluster(cluster);
+    setName(name);
+    setOffice(office);
+    setOrganization(organization);
+    setYear(year);
+  }
+  
     return (
         <div className="w-full h-full flex flex-col relative">
             {scholars.length > 0?
@@ -728,23 +823,31 @@ const AllScholars = ({scholars}) => {
                    {/* Icon */}
                    <div className={`absolute right-0 mr-7 cursor-pointer 
                   ${hoveredIndex === index ? '' : 'hidden'}`}
-                  onClick={()=>handleAccount(scholar.id_no)}>
+                  onClick={() => {
+                    handleEditScholarClick(scholar.id_no,scholar.cluster,scholar.name,scholar.office,scholar.organization,scholar.year);  
+                  }}
+                  >
                     <MdManageAccounts className='text-3xl text-gray-400'/>
                   </div>
                   <div className={`absolute right-0 mr-2 cursor-pointer 
                   ${hoveredIndex === index ? '' : 'hidden'}`}
                   ref={dropdownRef}
-                   onClick={toggleDropdown}>
+                  onClick={() => {
+                    handleEditScholarClick(scholar.id_no,scholar.cluster,scholar.name,scholar.office,scholar.organization,scholar.year);  
+                  }}
+                  >
                     <BiDotsVerticalRounded className='text-3xl text-gray-400'/>
                   </div>
-                  {showDropdown && hoveredIndex === index && (
+                  {/* {showDropdown && hoveredIndex === index && (
                   <div className="absolute right-0 mt-2 mr-2 text-blue-950 bg-white border text-center rounded-lg shadow-md py-4">
-                    {/* Dropdown content */}
-                    <p className='hover:bg-slate-200 w-full px-3'>Edit Scholar</p>
+                    
+                    <button className='hover:bg-slate-200 w-full px-3 cursor-pointer'
+                    >
+                      Edit Scholar</button>
                     <p className='hover:bg-slate-200 w-full px-3'>Delete Scholar</p>
-                    {/* Add more menu items as needed */}
+                   
                   </div>
-                )}
+                )} */}
                 </div>
                 
               ))}
@@ -769,16 +872,65 @@ const AllScholars = ({scholars}) => {
 }
 
 
-const SASOScholars = ({scholars}) => {
+const SASOScholars = ({scholars,setId_no,setCluster,setName,setOffice,setOrganization,setYear,setShowAddScholar,setUpdate,searchKey}) => {
   
   const saso =scholars.filter((scholar) => {
-    return scholar.organization == "saso";
+    return scholar.organization=="saso" && scholar.id_no.includes(searchKey) || scholar.organization=="saso" && scholar.name.trim().toLowerCase().includes(searchKey.trim().toLowerCase());;
   });
+  console.log(saso);
+  const [hoveredIndex, setHoveredIndex] = useState(null);
+  const [showDropdown, setShowDropdown] = useState(false);
+  
+  const dropdownRef = useRef(null);
+
+  const handleMouseEnter = (index) => {
+    if (!showDropdown) {
+      setHoveredIndex(index);
+    }
+  };
+  const toggleDropdown = () => {
+    setShowDropdown(!showDropdown);
+  };
+  const handleClickOutside = (event) => {
+      setShowDropdown(false);
+  };
+  useEffect(() => {
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const sortedScholars = saso.map(scholar => scholar)
+  .sort((a, b) => {
+    const nameA = a.name.toUpperCase(); // convert to uppercase for case-insensitive sorting
+    const nameB = b.name.toUpperCase();
+
+    if (nameA < nameB) {
+      return -1;
+    }
+    if (nameA > nameB) {
+      return 1;
+    }
+    return 0; // names are equal
+  });
+
+  const handleEditScholarClick = (id_no,cluster,name,office,organization,year) =>{
+    setShowAddScholar(true);
+    setUpdate(true);
+    setId_no(id_no);
+    setCluster(cluster);
+    setName(name);
+    setOffice(office);
+    setOrganization(organization);
+    setYear(year);
+  }
+  
     return (
-        <div className="w-full h-full flex flex-col">
-            {saso.length > 0?
+        <div className="w-full h-full flex flex-col relative">
+            {scholars.length > 0?
             <>
-            <div className="flex text-sm  font-bold bg-blue-950 text-center text-white  rounded-t-xl">
+            <div className="flex text-sm font-bold bg-blue-950 text-center text-white  rounded-t-xl">
               <div className="flex-1 p-2 text-left">ID Num.</div>
               <div className="flex-1 p-2 text-left">Name</div>
               <div className="flex-1 p-2">Year Level</div>
@@ -786,11 +938,12 @@ const SASOScholars = ({scholars}) => {
               <div className="flex-1 p-2">Office</div>
               <div className="flex-1 p-2">Organization</div>
             </div>
-            <div className="w-full h-full overflow-y-auto border-s-2 border-e-2 border-b-2">
-              {saso.map((scholar) => (
+            <div className="w-full h-full overflow-y-auto overflow-x-hidden border-s-2 border-e-2 border-b-2 relative group">
+              {sortedScholars.map((scholar,index) => (
                 <div
                   key={scholar.id}
-                  className="flex items-center mb-2 hover:bg-gray-300 hover:bg-opacity-75  text-sm font-semibold p-2"
+                  className={`flex items-center ${!showDropdown && index === hoveredIndex ? 'hover:bg-gray-300 hover:bg-opacity-75' : ''}  mb-2   text-sm font-semibold p-2`}
+                  onMouseEnter={() => handleMouseEnter(index)}
                 >
                   <div className="flex flex-1 items-center truncate">
                   
@@ -801,10 +954,39 @@ const SASOScholars = ({scholars}) => {
                   <div className="flex-1 truncate text-center">{scholar.cluster}</div>
                   <div className="flex-1 text-sm text-center">{scholar.office}</div>
                   <div className="flex-1 truncate text-center uppercase">{scholar.organization}</div>
+                   {/* Icon */}
+                   <div className={`absolute right-0 mr-7 cursor-pointer 
+                  ${hoveredIndex === index ? '' : 'hidden'}`}
+                  onClick={() => {
+                    handleEditScholarClick(scholar.id_no,scholar.cluster,scholar.name,scholar.office,scholar.organization,scholar.year);  
+                  }}
+                  >
+                    <MdManageAccounts className='text-3xl text-gray-400'/>
+                  </div>
+                  <div className={`absolute right-0 mr-2 cursor-pointer 
+                  ${hoveredIndex === index ? '' : 'hidden'}`}
+                  ref={dropdownRef}
+                  onClick={() => {
+                    handleEditScholarClick(scholar.id_no,scholar.cluster,scholar.name,scholar.office,scholar.organization,scholar.year);  
+                  }}
+                  >
+                    <BiDotsVerticalRounded className='text-3xl text-gray-400'/>
+                  </div>
+                  {/* {showDropdown && hoveredIndex === index && (
+                  <div className="absolute right-0 mt-2 mr-2 text-blue-950 bg-white border text-center rounded-lg shadow-md py-4">
+                    
+                    <button className='hover:bg-slate-200 w-full px-3 cursor-pointer'
+                    >
+                      Edit Scholar</button>
+                    <p className='hover:bg-slate-200 w-full px-3'>Delete Scholar</p>
+                   
+                  </div>
+                )} */}
                 </div>
                 
               ))}
-            </div>
+              
+            </div>            
             </>:
             <div className='w-full h-full'>
             <div className="flex text-2xl  font-bold bg-blue-950 text-center text-white  rounded-t-xl">
@@ -818,19 +1000,73 @@ const SASOScholars = ({scholars}) => {
             <div className='w-full h-full  p-40  text-center text-5xl text-blue-950 font-bold'>
             No Data Available<br/>•ω•
             </div>
-        </div>
-            }
+        </div>}
           </div>
     )
 }
 
-const OtherScholars = ({scholars}) => {
+const OtherScholars = ({scholars,setId_no,setCluster,setName,setOffice,setOrganization,setYear,setShowAddScholar,setUpdate,searchKey}) => {
   const others =scholars.filter((scholar) => {
-    return scholar.organization != "saso";
+    return scholar.organization!="saso" && scholar.id_no.includes(searchKey) || scholar.organization!="saso" && scholar.name.trim().toLowerCase().includes(searchKey.trim().toLowerCase());
   });
+  const [hoveredIndex, setHoveredIndex] = useState(null);
+  const [showDropdown, setShowDropdown] = useState(false);
+  
+  const dropdownRef = useRef(null);
+
+  const handleAccount = (id_no) => {
+    const accountAccess =scholars.filter((scholar) => {
+      return scholar.id_no == id_no;
+    });
+    console.log(accountAccess[0].account)
+  }
+
+  const handleMouseEnter = (index) => {
+    if (!showDropdown) {
+      setHoveredIndex(index);
+    }
+  };
+  const toggleDropdown = () => {
+    setShowDropdown(!showDropdown);
+  };
+  const handleClickOutside = (event) => {
+      setShowDropdown(false);
+  };
+  useEffect(() => {
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const sortedScholars = others.map(scholar => scholar)
+  .sort((a, b) => {
+    const nameA = a.name.toUpperCase(); // convert to uppercase for case-insensitive sorting
+    const nameB = b.name.toUpperCase();
+
+    if (nameA < nameB) {
+      return -1;
+    }
+    if (nameA > nameB) {
+      return 1;
+    }
+    return 0; // names are equal
+  });
+
+  const handleEditScholarClick = (id_no,cluster,name,office,organization,year) =>{
+    setShowAddScholar(true);
+    setUpdate(true);
+    setId_no(id_no);
+    setCluster(cluster);
+    setName(name);
+    setOffice(office);
+    setOrganization(organization);
+    setYear(year);
+  }
+  
     return (
-        <div className="w-full h-full flex flex-col">
-            {others.length > 0?
+        <div className="w-full h-full flex flex-col relative">
+            {scholars.length > 0?
             <>
             <div className="flex text-sm font-bold bg-blue-950 text-center text-white  rounded-t-xl">
               <div className="flex-1 p-2 text-left">ID Num.</div>
@@ -840,11 +1076,12 @@ const OtherScholars = ({scholars}) => {
               <div className="flex-1 p-2">Office</div>
               <div className="flex-1 p-2">Organization</div>
             </div>
-            <div className="w-full h-full overflow-y-auto border-s-2 border-e-2 border-b-2">
-              {others.map((scholar) => (
+            <div className="w-full h-full overflow-y-auto overflow-x-hidden border-s-2 border-e-2 border-b-2 relative group">
+              {sortedScholars.map((scholar,index) => (
                 <div
                   key={scholar.id}
-                  className="flex items-center mb-2 hover:bg-gray-300 hover:bg-opacity-75  text-sm font-semibold p-2"
+                  className={`flex items-center ${!showDropdown && index === hoveredIndex ? 'hover:bg-gray-300 hover:bg-opacity-75' : ''}  mb-2   text-sm font-semibold p-2`}
+                  onMouseEnter={() => handleMouseEnter(index)}
                 >
                   <div className="flex flex-1 items-center truncate">
                   
@@ -855,25 +1092,53 @@ const OtherScholars = ({scholars}) => {
                   <div className="flex-1 truncate text-center">{scholar.cluster}</div>
                   <div className="flex-1 text-sm text-center">{scholar.office}</div>
                   <div className="flex-1 truncate text-center uppercase">{scholar.organization}</div>
+                   {/* Icon */}
+                   <div className={`absolute right-0 mr-7 cursor-pointer 
+                  ${hoveredIndex === index ? '' : 'hidden'}`}
+                  onClick={() => {
+                    handleEditScholarClick(scholar.id_no,scholar.cluster,scholar.name,scholar.office,scholar.organization,scholar.year);  
+                  }}
+                  >
+                    <MdManageAccounts className='text-3xl text-gray-400'/>
+                  </div>
+                  <div className={`absolute right-0 mr-2 cursor-pointer 
+                  ${hoveredIndex === index ? '' : 'hidden'}`}
+                  ref={dropdownRef}
+                  onClick={() => {
+                    handleEditScholarClick(scholar.id_no,scholar.cluster,scholar.name,scholar.office,scholar.organization,scholar.year);  
+                  }}
+                  >
+                    <BiDotsVerticalRounded className='text-3xl text-gray-400'/>
+                  </div>
+                  {/* {showDropdown && hoveredIndex === index && (
+                  <div className="absolute right-0 mt-2 mr-2 text-blue-950 bg-white border text-center rounded-lg shadow-md py-4">
+                    
+                    <button className='hover:bg-slate-200 w-full px-3 cursor-pointer'
+                    >
+                      Edit Scholar</button>
+                    <p className='hover:bg-slate-200 w-full px-3'>Delete Scholar</p>
+                   
+                  </div>
+                )} */}
                 </div>
                 
               ))}
-            </div>
+              
+            </div>            
             </>:
             <div className='w-full h-full'>
-                <div className="flex text-2xl  font-bold bg-blue-950 text-center text-white  rounded-t-xl">
-                <div className="flex-1 p-2 text-left">ID Num.</div>
-                <div className="flex-1 p-2 text-left">Name</div>
-                <div className="flex-1 p-2">Year Level</div>
-                <div className="flex-1 p-2">Cluster</div>
-                <div className="flex-1 p-2">Office</div>
-                <div className="flex-1 p-2">Organization</div>
-                </div>
-                <div className='w-full h-full  p-40  text-center text-5xl text-blue-950 font-bold'>
-                No Data Available<br/>•ω•
-                </div>
+            <div className="flex text-2xl  font-bold bg-blue-950 text-center text-white  rounded-t-xl">
+            <div className="flex-1 p-2 text-left">ID Num.</div>
+            <div className="flex-1 p-2 text-left">Name</div>
+            <div className="flex-1 p-2">Year Level</div>
+            <div className="flex-1 p-2">Cluster</div>
+            <div className="flex-1 p-2">Office</div>
+            <div className="flex-1 p-2">Organization</div>
             </div>
-            }
+            <div className='w-full h-full  p-40  text-center text-5xl text-blue-950 font-bold'>
+            No Data Available<br/>•ω•
+            </div>
+        </div>}
           </div>
     )
 }
