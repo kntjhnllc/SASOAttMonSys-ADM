@@ -26,29 +26,12 @@ function Dashboard ({calendarSrc,scholars,setLoadUsers,user}) {
         setLoadUsers(true)
       },[]);
     
-    useEffect(()=>{
-        console.log(user.uid)
-
-        const currentDateWithoutYear = new Date().toISOString().slice(5, 10);
-        const userBirthday = scholars.filter((scholar) => {
-            const scholarDateWithoutYear = scholar.birthdate?.slice(5, 10);
-            return scholar.uid == user.uid && scholarDateWithoutYear === currentDateWithoutYear;
-        });
-        if (userBirthday.length>=1){
-            console.log("happy bday")
-        }
-        else {
-            console.log("no bday")
-        }
-       
-    },[])
-
 
     const currentDateWithoutYear = new Date().toISOString().slice(5, 10); // Get current date without year in "MM-DD" format
     const bdayScholars = scholars.filter((scholar) => {
         const scholarDateWithoutYear = scholar.birthdate?.slice(5, 10);
        
-        return scholarDateWithoutYear === currentDateWithoutYear && scholar.uid == user.uid;
+        return scholarDateWithoutYear === currentDateWithoutYear && scholar.uid == user?.uid;
     });
 
     return (
