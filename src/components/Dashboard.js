@@ -6,13 +6,13 @@ import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import {auth, db } from '@/config/firebase';
 import { useAuthState } from 'react-firebase-hooks/auth'
 import { useEffect, useState,useRef } from "react";
-import { addDoc, collection, onSnapshot, orderBy, query, serverTimestamp,WriteBatch, where, doc,updateDoc, getDocs, writeBatch, or} from 'firebase/firestore';
+import { addDoc, collection, onSnapshot, orderBy, query, serverTimestamp,WriteBatch, where, doc,updateDoc, getDocs, writeBatch, or, QuerySnapshot} from 'firebase/firestore';
 import CSVReader from 'react-csv-reader'
 import { saveAs } from 'file-saver';
 import Swal from 'sweetalert2';
 import AddScholarModal from '../components/AddScholarModal';
 import { BsPersonFillAdd} from "react-icons/bs";
-import { HiSaveAs} from "react-icons/hi";
+import { FaRegEdit} from "react-icons/fa";
 import { BiDotsVerticalRounded} from "react-icons/bi";
 import { MdOutlineBatchPrediction,MdEditDocument,MdManageAccounts} from "react-icons/md";
 
@@ -20,31 +20,70 @@ import { MdOutlineBatchPrediction,MdEditDocument,MdManageAccounts} from "react-i
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&family=Roboto&display=swap" rel="stylesheet"></link>
 
 
-function Dashboard ({calendarSrc,scholars,setLoadUsers,user}) {
+function Dashboard ({announcement,calendarSrc,scholars,setLoadUsers,setLoadAnnouncement,user}) {
+
+    const [openEdit, setOpenEdit] = useState(false);
+    const announceRef = useRef(null);
 
     useEffect(() => {
         setLoadUsers(true)
+        setLoadAnnouncement(true)
       },[]);
-    
+      console.log(announcement[0]?.id)
 
     const currentDateWithoutYear = new Date().toISOString().slice(5, 10); // Get current date without year in "MM-DD" format
     const bdayScholars = scholars.filter((scholar) => {
         const scholarDateWithoutYear = scholar.birthdate?.slice(5, 10);
        
-        return scholarDateWithoutYear === currentDateWithoutYear && scholar.uid == user?.uid;
+        return scholarDateWithoutYear === currentDateWithoutYear;
     });
 
+    const isAccess = scholars.filter((scholar) => {
+       
+        return scholar.uid == user?.uid && scholar.access==true;
+    });
+    
+    const handleOnClickEdit = () =>{
+        setOpenEdit(true);
+        console.log("clicked")
+    }
+
+    
+
     return (
-        <div className="">
+        <div className="flex flex-col ">
             <h1 className='text-2xl font-semibold font-montserrat text-blue-900'>
                     Dashboard
             </h1>
             <hr className="h-1 my-4 bg-gray-200 border-0 dark:bg-gray-700"/>
-            <div className="bg-white p-2 shadow-lg rounded-xl font-montserrat w-full text-blue-900"> 
-                <h1>NOTICE</h1>
-                <div className="text-center p-5">
-                    No Notice
+            <div className="bg-white flex flex-col p-2 shadow-lg rounded-xl font-montserrat w-full text-blue-900"> 
+                <div className='flex w-full'>
+                    <h1 className='font-extrabold'>NOTICE</h1>
+                    <div className={`${isAccess?"block":"hidden"} w-full flex justify-end`}>
+                        <div className='cursor-pointer'>
+                            <FaRegEdit onClick={()=>handleOnClickEdit()}/>
+                        </div>
+                    </div>
                 </div>
+                {openEdit?(
+                    <div className='w-full h-full p-2'>
+                        <form className='w-full h-full' >
+                            <div 
+                                ref={announceRef}
+                                class="p-2 max-w-full overflow-y-hidden break-words border border-solid border-blue-950 text-md mb-2" 
+                                contenteditable="true">
+                            </div>
+                            <button 
+                                onClick={handleAnnouncement}
+                                class="text-white place-self-end bg-blue-900 hover:bg-blue-950  font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 ">
+                                    Announce
+                            </button>
+                        </form>
+                    </div>
+                    ):
+                    <div className="text-center p-5">
+                        {announcement[0]?.announce==""?"No Notice":announcement[0]?.announce}
+                    </div>}
             </div>
             <div className="flex flex-col md:flex-row justify-between w-full font-montserrat mt-3 text-blue-900">
                 <div className="flex flex-col md:w-2/6 p-2 h-96 bg-white shadow-lg rounded-xl">
