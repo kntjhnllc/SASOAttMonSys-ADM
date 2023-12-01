@@ -515,7 +515,7 @@ function Home () {
               </span>
             </div> 
           </div> 
-          <div className={`p-7 pt-20 md:pt-7 w-full max-h-[629px]`}>
+          <div className={`flex flex-col overflow-y-auto  p-7 pt-20 md:pt-7 w-full h-screen`}>
             {getMenu()}
           </div>
         </div>  

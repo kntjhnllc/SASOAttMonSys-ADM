@@ -399,7 +399,7 @@ function Scholars ({scholars,setLoadUsers}) {
     return (
       <Fragment>
     <div>    
-      <div  className="relative md:block hidden flex-col w-full h-full">
+      <div  className="relative md:block hidden w-full">
         <div className="w-full h-full">
           <h1 className='text-2xl font-semibold font-montserrat text-blue-900 '>Scholars</h1>
           <hr className="h-1 my-4 bg-gray-200 border-0 dark:bg-gray-700"/>
@@ -554,7 +554,7 @@ function Scholars ({scholars,setLoadUsers}) {
               </div>
           </div>
         </div>
-        <div className='h-[380px] w-full'>
+        <div className='h-full w-full'>
           <div className='w-full h-full pt-1'>
           {selectedFilter === 'All Scholars' && <AllScholars scholars={scholars}
                                                               setId_no={setId_no}

@@ -401,8 +401,8 @@ function Attendance ({attendance,meeting,scholars,setLoadAttendance,setLoadMeeti
     sortedAttendance.sort((a, b) => b.dateTime - a.dateTime);
     
     return (
-        <div>
-            <div className="w-full h-full hidden md:block">
+        <div className=''>
+            <div className=" flex-col w-full hidden md:block">
                 <h1 className='text-2xl font-semibold font-montserrat text-blue-900'>
                     Attendance
                 </h1>

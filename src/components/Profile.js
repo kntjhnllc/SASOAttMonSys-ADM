@@ -6,7 +6,7 @@ function Profile () {
     return (
         <div>
             
-            <div className=' block'>
+            <div className=' flex flex-col w-full'>
                 <h1 className='text-2xl font-semibold font-montserrat text-blue-900'>
                     Profile - No Data - Text Only - For Approval
                 </h1>

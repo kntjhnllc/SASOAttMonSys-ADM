@@ -23,12 +23,14 @@ import { MdOutlineBatchPrediction,MdEditDocument,MdManageAccounts} from "react-i
 function Dashboard ({announcement,calendarSrc,scholars,setLoadUsers,setLoadAnnouncement,user}) {
 
     const [openEdit, setOpenEdit] = useState(false);
+    const [announceID, setAnnounceID] = useState('');
     const announceRef = useRef(null);
 
     useEffect(() => {
         setLoadUsers(true)
         setLoadAnnouncement(true)
-      },[]);
+        setAnnounceID(announcement[0]?.id)
+      },[announcement]);
 
     const currentDateWithoutYear = new Date().toISOString().slice(5, 10); // Get current date without year in "MM-DD" format
     const bdayScholars = scholars.filter((scholar) => {
@@ -46,11 +48,37 @@ function Dashboard ({announcement,calendarSrc,scholars,setLoadUsers,setLoadAnnou
         setOpenEdit(true);
         console.log("clicked")
     }
-
     
+    const handleAnnouncementSave = async () => {
+        const newAnnouncement = announceRef.current.innerHTML;
+        console.log(announceID)
+        console.log(newAnnouncement)
+        try {
+            const docRef = doc(db, 'announcement', announceID);
+            await updateDoc(docRef, {
+                announce: newAnnouncement
+            });
+            setOpenEdit(false);
+            console.log('Announcement updated successfully!');
+        } catch (error) {
+            console.error('Error updating announcement:', error);
+        }            
+    }
 
+    const handleClearAnnouncement = async () =>{
+        try {
+            const docRef = doc(db,"announcement",announceID);
+            await updateDoc(docRef,{
+                announce:""
+            });
+            setOpenEdit(false);
+        }
+        catch (error){
+            console.error('Error clearing announcement:', error);
+        }
+    }
     return (
-        <div className="flex flex-col ">
+        <div className="h-full w-full">
             <h1 className='text-2xl font-semibold font-montserrat text-blue-900'>
                     Dashboard
             </h1>
@@ -58,7 +86,7 @@ function Dashboard ({announcement,calendarSrc,scholars,setLoadUsers,setLoadAnnou
             <div className="bg-white flex flex-col p-2 shadow-lg rounded-xl font-montserrat w-full text-blue-900"> 
                 <div className='flex w-full'>
                     <h1 className='font-extrabold'>NOTICE</h1>
-                    <div className={`${isAccess?"block":"hidden"} w-full flex justify-end`}>
+                    <div className={`${isAccess && openEdit == false?"block":"hidden"} w-full flex justify-end`}>
                         <div className='cursor-pointer'>
                             <FaRegEdit onClick={()=>handleOnClickEdit()}/>
                         </div>
@@ -66,18 +94,30 @@ function Dashboard ({announcement,calendarSrc,scholars,setLoadUsers,setLoadAnnou
                 </div>
                 {openEdit?(
                     <div className='w-full h-full p-2'>
-                        <form className='w-full h-full' >
+           
                             <div 
                                 ref={announceRef}
                                 class="p-2 max-w-full overflow-y-hidden break-words border border-solid border-blue-950 text-md mb-2" 
                                 contenteditable="true">
                             </div>
-                            <button 
-                                onClick={handleAnnouncement}
-                                class="text-white place-self-end bg-blue-900 hover:bg-blue-950  font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 ">
-                                    Announce
-                            </button>
-                        </form>
+                            <div className='flex w-full content-end justify-end '>
+                                <button 
+                                    onClick={()=>setOpenEdit(false)}
+                                    class="mr-1 text-white place-self-end bg-gray-500 hover:bg-gray-700  font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 ">
+                                        Cancel
+                                </button>
+                                <button 
+                                    onClick={()=>handleClearAnnouncement()}
+                                    class="mr-1 text-white place-self-end bg-red-700 hover:bg-red-900  font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 ">
+                                        Clear
+                                </button>
+                                <button 
+                                    onClick={()=>handleAnnouncementSave()}
+                                    class=" text-white place-self-end bg-blue-900 hover:bg-blue-950  font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 ">
+                                        Announce
+                                </button>
+                            </div>
+                     
                     </div>
                     ):
                     <div className="text-center p-5">
