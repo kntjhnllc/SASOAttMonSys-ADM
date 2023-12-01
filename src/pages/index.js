@@ -230,15 +230,8 @@ const HomePage = () => {
           try {
             const userCredential = await createUserWithEmailAndPassword(authInstance, signUpEmail, signUpPassword);
             const user = userCredential.user;
+            
             if (userCredential){
-              Swal.fire({
-                title: 'Sign Up Success!',
-                text: 'Verification has been sent to your email!',
-                icon: 'success',
-                confirmButtonColor: '#000080',
-                iconColor: '#000080',
-              });
-             
               const userData = {
                 uid:user.uid,
                 id_no: signUpIdNo, // Fix: use user.uid // Fix: use signUpEmail
@@ -257,6 +250,13 @@ const HomePage = () => {
               setSignUpPassword('');
               setSignUpPassword('');
               setBdayAgree(false);
+              Swal.fire({
+                title: 'Sign Up Success!',
+                text: 'Verification has been sent to your email!',
+                icon: 'success',
+                confirmButtonColor: '#000080',
+                iconColor: '#000080',
+              });
             }
             else {
               Swal.fire({
