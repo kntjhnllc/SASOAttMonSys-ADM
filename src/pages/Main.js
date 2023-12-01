@@ -30,7 +30,7 @@ import Not_Found from '../components/404';
 
 function Home () {
     const [user,loading] = useAuthState(auth);
-    const [users,setUsers] = useState([]);
+    const [announcement,setAnnouncement] = useState([]);
     const [scholars,setScholars] = useState([]);
     const [admin, setAdmin] = useState([]);
     const [attendance, setAttendance] = useState([]);
@@ -43,7 +43,7 @@ function Home () {
     const [MenuOptions, setMenuOptions] = useState([]);
     const isMobile = useMediaQuery({ query: '(max-width: 768px)' });
     const [modalSize, setModalSize] = useState('md');
-    const [loadAdminUsers, setLoadAdminUsers] = useState(false);
+    const [loadAnnouncement, setLoadAnnouncement] = useState(false);
     const [loadUsers, setLoadUsers] = useState(false);
     const [loadAttendance, setLoadAttendance] = useState(false);
     const [loadMeeting, setLoadMeeting] = useState(false);
@@ -144,6 +144,43 @@ function Home () {
       }
       
     }, [loadUsers]);  
+
+
+    // announcement collection
+
+    useEffect(() => {
+      if (loadAnnouncement==true ){
+        const que = query(
+          collection(db, "announcement"))
+          
+        const unsubscribe = onSnapshot(que, (querySnapshot) => {
+  
+          querySnapshot.docChanges().forEach((change) => {
+            const data = change.doc.data();
+            const id =change.doc.id;
+  
+            console.log('announcement Test read onchange')
+            
+            if (change.type === "added"){
+              setAnnouncement((prevAnnouncement) => [...prevAnnouncement, {...data, id}]);
+              console.log("added");
+            } else if (change.type === "modified"){
+              setAnnouncement((prevAnnouncement) => prevAnnouncement.map((announce) => announce.id===id? {...data, id} :announce));
+              console.log("modified");
+            }
+            else if (change.type === "removed"){
+              setAnnouncement((prevAnnouncement) => prevAnnouncement.filter((announce) => announce.id !==id));
+              console.log("removed");
+            }
+          });
+        });
+        return () => unsubscribe();
+      }
+      else {
+        console.log("announcement not loaded")
+      }
+     
+    }, [loadAnnouncement]);
 
 
     // attendance collection
@@ -335,9 +372,11 @@ function Home () {
       switch (Menu) {
         // eslint-disable-next-line
         case 'Dashboard': return <Dashboard
+                          announcement={announcement}
                           calendarSrc={calendarSrc}
                           scholars={scholars}
-                          setLoadUsers={setLoadUsers} 
+                          setLoadUsers={setLoadUsers}
+                          setLoadAnnouncement={setLoadAnnouncement} 
                           user={user} />;break;
         // eslint-disable-next-line
         case 'Scholars': return <Scholars 

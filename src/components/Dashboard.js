@@ -29,7 +29,6 @@ function Dashboard ({announcement,calendarSrc,scholars,setLoadUsers,setLoadAnnou
         setLoadUsers(true)
         setLoadAnnouncement(true)
       },[]);
-      console.log(announcement[0]?.id)
 
     const currentDateWithoutYear = new Date().toISOString().slice(5, 10); // Get current date without year in "MM-DD" format
     const bdayScholars = scholars.filter((scholar) => {
