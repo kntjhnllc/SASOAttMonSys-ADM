@@ -86,7 +86,7 @@ function Dashboard ({announcement,calendarSrc,scholars,setLoadUsers,setLoadAnnou
             <div className="bg-white flex flex-col p-2 shadow-lg rounded-xl font-montserrat w-full text-blue-900"> 
                 <div className='flex w-full'>
                     <h1 className='font-extrabold'>NOTICE</h1>
-                    <div className={`${isAccess == true && openEdit == false?"block":"hidden"} w-full flex justify-end`}>
+                    <div className={`${isAccess !=false  && openEdit == false?"block":"hidden"} w-full flex justify-end`}>
                         <div className='cursor-pointer'>
                             <FaRegEdit onClick={()=>handleOnClickEdit()}/>
                         </div>
