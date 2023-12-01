@@ -266,7 +266,7 @@ function Home () {
           { title: 'Profile', icon: <BsFillPersonFill/> },
           { title: 'Users', icon: <FaUsersCog/> },
         ]);
-      } else if(adminSuper==undefined && admin.access==true) {
+      } else if(adminSuper==undefined || adminSuper==false && admin.access!=false) {
         setMenuOptions([
           { title: 'Dashboard' },
           { title: 'Scholars', icon:<SiGooglescholar/> },
