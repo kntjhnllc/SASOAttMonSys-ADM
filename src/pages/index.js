@@ -4,7 +4,7 @@ import { useAuthState } from 'react-firebase-hooks/auth'
 import { auth,db } from '@/config/firebase';
 import { useEffect, useState } from "react";
 <link rel="icon" type="image/png" href="hcdclogo.png"></link>
-import { getAuth, createUserWithEmailAndPassword,signInWithEmailAndPassword ,sendPasswordResetEmail, signOut,GoogleAuthProvider, signInWithPopup, sendEmailVerification } from "firebase/auth";
+import { getAuth, createUserWithEmailAndPassword,signInWithEmailAndPassword,fetchSignInMethodsForEmail  ,sendPasswordResetEmail, signOut,GoogleAuthProvider, signInWithPopup, sendEmailVerification } from "firebase/auth";
 import { updateDoc,addDoc, collection, querySnapshot, onSnapshot, orderBy, query, serverTimestamp, where, doc, getDocs} from 'firebase/firestore'
 import { FaGoogle, FaRegEnvelope } from 'react-icons/fa';
 import {MdLockOutline,MdOutlineDateRange } from 'react-icons/md';
@@ -192,18 +192,7 @@ const HomePage = () => {
   //     }
   //   }
   // };
-  
-  const emailExists = async (authInstance, email) => {
-    try {
-      const methods = await fetchSignInMethodsForEmail(authInstance, email);
-      // If the email already exists, methods will contain an array of sign-in methods
-      return methods.length > 0;
-    } catch (error) {
-      // Handle error, e.g., network issues
-      console.error('Error checking email existence:', error.message);
-      return false; // Assuming false to avoid false positives
-    }
-  };
+  const authInstance = getAuth();
 
   const signUp_Attempt = async (event)=> {
     event.preventDefault();
@@ -238,10 +227,10 @@ const HomePage = () => {
             }, 2000); // Adjust the duration as needed
           }
           else{
-          const authInstance = getAuth();
           try {
-            const emailAlreadyExists = await emailExists(authInstance, signUpEmail);
-            if (emailAlreadyExists){
+            const userCredential = await createUserWithEmailAndPassword(authInstance, signUpEmail, signUpPassword);
+            const user = userCredential.user;
+            if (userCredential){
               Swal.fire({
                 title: 'Sign Up Success!',
                 text: 'Verification has been sent to your email!',
@@ -249,6 +238,7 @@ const HomePage = () => {
                 confirmButtonColor: '#000080',
                 iconColor: '#000080',
               });
+             
               const userData = {
                 uid:user.uid,
                 id_no: signUpIdNo, // Fix: use user.uid // Fix: use signUpEmail
@@ -259,10 +249,14 @@ const HomePage = () => {
               };
               const userDocRef = doc(usersCollection, docID);
               await updateDoc(userDocRef, userData);
-              const userCredential = await createUserWithEmailAndPassword(authInstance, signUpEmail, signUpPassword);
-              const user = userCredential.user;
               await sendEmailVerification(user);
               setIsSignUpVisible(!isSignUpVisible);
+              setSignUpEmail('');
+              setSignUpIdNo('');
+              setSignUpBirthdate('');
+              setSignUpPassword('');
+              setSignUpPassword('');
+              setBdayAgree(false);
             }
             else {
               Swal.fire({
