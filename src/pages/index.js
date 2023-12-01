@@ -193,7 +193,17 @@ const HomePage = () => {
   //   }
   // };
   
-
+  const emailExists = async (authInstance, email) => {
+    try {
+      const methods = await fetchSignInMethodsForEmail(authInstance, email);
+      // If the email already exists, methods will contain an array of sign-in methods
+      return methods.length > 0;
+    } catch (error) {
+      // Handle error, e.g., network issues
+      console.error('Error checking email existence:', error.message);
+      return false; // Assuming false to avoid false positives
+    }
+  };
 
   const signUp_Attempt = async (event)=> {
     event.preventDefault();
@@ -230,6 +240,8 @@ const HomePage = () => {
           else{
           const authInstance = getAuth();
           try {
+            const emailAlreadyExists = await emailExists(authInstance, signUpEmail);
+            if (emailAlreadyExists){
               Swal.fire({
                 title: 'Sign Up Success!',
                 text: 'Verification has been sent to your email!',
@@ -237,14 +249,6 @@ const HomePage = () => {
                 confirmButtonColor: '#000080',
                 iconColor: '#000080',
               });
-              setSignUpEmail('');
-              setSignUpIdNo('');
-              setSignUpBirthdate('');
-              setSignUpPassword('');
-              setSignUpPasswordConfirm('');
-              
-              const userCredential = await createUserWithEmailAndPassword(authInstance, signUpEmail, signUpPassword);
-              const user = userCredential.user;
               const userData = {
                 uid:user.uid,
                 id_no: signUpIdNo, // Fix: use user.uid // Fix: use signUpEmail
@@ -255,10 +259,22 @@ const HomePage = () => {
               };
               const userDocRef = doc(usersCollection, docID);
               await updateDoc(userDocRef, userData);
+              const userCredential = await createUserWithEmailAndPassword(authInstance, signUpEmail, signUpPassword);
+              const user = userCredential.user;
               await sendEmailVerification(user);
               setIsSignUpVisible(!isSignUpVisible);
+            }
+            else {
+              Swal.fire({
+                title: 'Email Already in Use',
+                text: 'The provided email is already registered. Please use a different email or try logging in.',
+                icon: 'error',
+                confirmButtonColor: '#000080',
+                iconColor: '#FF0000',
+              });
+            }
 
-              } catch (error) {
+          } catch (error) {
                 console.error('Error during sign up:', error);
 
                 if (error.code === 'auth/email-already-in-use') {
