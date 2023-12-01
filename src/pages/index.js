@@ -230,67 +230,55 @@ const HomePage = () => {
           else{
           const authInstance = getAuth();
           try {
-            const userCredential = await createUserWithEmailAndPassword(authInstance, signUpEmail, signUpPassword);
+              Swal.fire({
+                title: 'Sign Up Success!',
+                text: 'Verification has been sent to your email!',
+                icon: 'success',
+                confirmButtonColor: '#000080',
+                iconColor: '#000080',
+              });
+              setSignUpEmail('');
+              setSignUpIdNo('');
+              setSignUpBirthdate('');
+              setSignUpPassword('');
+              setSignUpPasswordConfirm('');
+              
+              const userCredential = await createUserWithEmailAndPassword(authInstance, signUpEmail, signUpPassword);
+              const user = userCredential.user;
+              const userData = {
+                uid:user.uid,
+                id_no: signUpIdNo, // Fix: use user.uid // Fix: use signUpEmail
+                email: signUpEmail, // Fix: use signUpEmail
+                birthdate: signUpBirthdate,
+                access:false,
+                date_created: serverTimestamp(),
+              };
+              const userDocRef = doc(usersCollection, docID);
+              await updateDoc(userDocRef, userData);
+              await sendEmailVerification(user);
+              setIsSignUpVisible(!isSignUpVisible);
 
-    // For access grant
-    const user = userCredential.user;
-    const userData = {
-      uid:user.uid,
-      id_no: signUpIdNo, // Fix: use user.uid // Fix: use signUpEmail
-      email: signUpEmail, // Fix: use signUpEmail
-      birthdate: signUpBirthdate,
-      access:false,
-      date_created: serverTimestamp(),
-    };
-    const userDocRef = doc(usersCollection, docID);
+              } catch (error) {
+                console.error('Error during sign up:', error);
 
-    // Check if the email is already in use
-    const existingUserDoc = await getDoc(userDocRef);
-    if (existingUserDoc.exists()) {
-      // Email is already in use
-      throw new Error('auth/email-already-in-use');
-    }
-
-    // If not in use, proceed with updating the document
-    await updateDoc(userDocRef, userData);
-
-    // Send email verification
-    await sendEmailVerification(user);
-    setSignUpEmail('');
-    setSignUpIdNo('');
-    setSignUpBirthdate('');
-    setSignUpPassword('');
-    setSignUpPasswordConfirm('');
-    // Show confirmation message after successful email verification
-    Swal.fire({
-      title: 'Sign Up Success!',
-      text: 'Verification has been sent to your email!',
-      icon: 'success',
-      confirmButtonColor: '#000080',
-      iconColor: '#000080',
-    });
-
-  } catch (error) {
-    console.error('Error during sign up:', error);
-
-    if (error.code === 'auth/email-already-in-use') {
-      
-      // Handle email already in use error
-      Swal.fire({
-        title: 'Email Already in Use',
-        text: 'The provided email is already registered. Please use a different email or try logging in.',
-        icon: 'error',
-        confirmButtonColor: '#000080',
-        iconColor: '#FF0000',
-      });
-    } else {
-      // Handle other errors
-      console.error('Firebase error:', error);
-    }
-  }
+                if (error.code === 'auth/email-already-in-use') {
+                  
+                  // Handle email already in use error
+                  Swal.fire({
+                    title: 'Email Already in Use',
+                    text: 'The provided email is already registered. Please use a different email or try logging in.',
+                    icon: 'error',
+                    confirmButtonColor: '#000080',
+                    iconColor: '#FF0000',
+                  });
+                } else {
+                  // Handle other errors
+                  console.error('Firebase error:', error);
+                }
+              }
+            }
           }
-        }
-        
+                
       } else {
         setErrorMessage('Password does not match!');
         setIsShaking(true);
