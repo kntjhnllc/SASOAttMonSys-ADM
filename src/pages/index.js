@@ -200,8 +200,9 @@ const HomePage = () => {
     const usersCollection = collection(db, 'users');
         const q = query(usersCollection, where('id_no', '==', signUpIdNo));
         const querySnapshot = await getDocs(q);
+        let docuID ;
         querySnapshot.forEach((doc) => {
-          const docuID=doc.id;
+          docuID=doc.id;
           setDocID(docuID);
         });
     try {
@@ -219,7 +220,6 @@ const HomePage = () => {
         else {
         
         console.log(docID)
-
           if (querySnapshot.empty){
             setErrorMessage('No scholar with the ID No.!');
             setIsShaking(true);
@@ -230,7 +230,7 @@ const HomePage = () => {
               setIsShaking(false);
             }, 2000); // Adjust the duration as needed
           }
-          else {
+          else{
             try {
               
               const userCredential = await createUserWithEmailAndPassword(authInstance, signUpEmail, signUpPassword);
