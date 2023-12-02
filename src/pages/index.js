@@ -37,6 +37,7 @@ const HomePage = () => {
   const [isShaking, setIsShaking] = useState(false);
   const [loading, setLoading] = useState(true);
   const [bdayAgree,setBdayAgree] = useState(false);
+  const [signUpButton , setSignUpButton] = useState(true);
 
   useEffect(() => {
     // Set the title of the web page
@@ -196,6 +197,13 @@ const HomePage = () => {
 
   const signUp_Attempt = async (event)=> {
     event.preventDefault();
+    const usersCollection = collection(db, 'users');
+        const q = query(usersCollection, where('id_no', '==', signUpIdNo));
+        const querySnapshot = await getDocs(q);
+        querySnapshot.forEach((doc) => {
+          const docuID=doc.id;
+          setDocID(docuID);
+        });
     try {
       if (signUpPassword === signUpPasswordConfirm) {
         if (signUpPassword.length <6){
@@ -209,13 +217,9 @@ const HomePage = () => {
           }, 2000); // Adjust the duration as needed
         }
         else {
-        const usersCollection = collection(db, 'users');
-        const q = query(usersCollection, where('id_no', '==', signUpIdNo));
-        const querySnapshot = await getDocs(q);
-        querySnapshot.forEach((doc) => {
-          setDocID(doc.id);
-        });
         
+        console.log(docID)
+
           if (querySnapshot.empty){
             setErrorMessage('No scholar with the ID No.!');
             setIsShaking(true);
@@ -226,38 +230,56 @@ const HomePage = () => {
               setIsShaking(false);
             }, 2000); // Adjust the duration as needed
           }
-          else{
-          try {
-            const userCredential = await createUserWithEmailAndPassword(authInstance, signUpEmail, signUpPassword);
-            const user = userCredential.user;
-            
-            if (userCredential){
+          else {
+            try {
+              
+              const userCredential = await createUserWithEmailAndPassword(authInstance, signUpEmail, signUpPassword);
+              setSignUpButton(false);
+              const user = userCredential.user;
+              console.log(user)
               const userData = {
-                uid:user.uid,
-                id_no: signUpIdNo, // Fix: use user.uid // Fix: use signUpEmail
-                email: signUpEmail, // Fix: use signUpEmail
+                uid: user.uid,
+                id_no: signUpIdNo, 
+                email: signUpEmail, 
                 birthdate: signUpBirthdate,
-                access:false,
+                access: false,
                 date_created: serverTimestamp(),
               };
-              const userDocRef = doc(usersCollection, docID);
-              await updateDoc(userDocRef, userData);
-              await sendEmailVerification(user);
-              setIsSignUpVisible(!isSignUpVisible);
-              setSignUpEmail('');
-              setSignUpIdNo('');
-              setSignUpBirthdate('');
-              setSignUpPassword('');
-              setSignUpPassword('');
-              setBdayAgree(false);
-              Swal.fire({
-                title: 'Sign Up Success!',
-                text: 'Verification has been sent to your email!',
-                icon: 'success',
-                confirmButtonColor: '#000080',
-                iconColor: '#000080',
-              });
-            }
+              if (userCredential) {
+
+                const userDocRef = doc(usersCollection, docID);
+                await updateDoc(userDocRef, userData);
+                await sendEmailVerification(user);
+              
+                // Use async/await instead of then() to handle the Swal.fire result
+                const result = await Swal.fire({
+                  title: 'Sign Up Success!',
+                  text: 'Verification has been sent to your email!',
+                  icon: 'success',
+                  confirmButtonColor: '#000080',
+                  iconColor: '#000080',
+                });
+              
+                if (result.isConfirmed) {
+                  setSignUpButton(true);
+                  setIsSignUpVisible(!isSignUpVisible);
+                  setSignUpEmail('');
+                  setSignUpIdNo('');
+                  setSignUpBirthdate('');
+                  setSignUpPassword('');
+                  setSignUpPassword('');
+                  setBdayAgree(false);
+                } else {
+                  setSignUpButton(true);
+                  setIsSignUpVisible(!isSignUpVisible);
+                  setSignUpEmail('');
+                  setSignUpIdNo('');
+                  setSignUpBirthdate('');
+                  setSignUpPassword('');
+                  setSignUpPassword('');
+                  setBdayAgree(false);
+                }
+            }            
             else {
               Swal.fire({
                 title: 'Email Already in Use',
@@ -300,8 +322,8 @@ const HomePage = () => {
         }, 2000); // Adjust the duration as needed
       }
     } catch (error) {
-  
-      setErrorMessage('ambot na error');
+      const errorMessages = error.message
+      setErrorMessage(errorMessages);
       setIsShaking(true);
   
       // Clear the error message and reset the shake animation after a short delay
@@ -529,7 +551,8 @@ const HomePage = () => {
                         />
                       </div>
                       {isShaking?(<p className='text-red-500 text-sm -mt-3'>{errorMessage}</p>):null}
-                      <button className='border-2 border-blue-900 text-blue-900 rounded-full px-12 py-2 inline-block font-semibold hover:bg-blue-950 hover:text-white'>
+                      <button className={`border-2 border-blue-900 text-blue-900 rounded-full px-12 py-2 inline-block font-semibold hover:bg-blue-950 hover:text-white`}
+                      disabled={!signUpButton}>
                         Sign Up
                       </button>
                     </form>

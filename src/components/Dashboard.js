@@ -43,6 +43,8 @@ function Dashboard ({announcement,calendarSrc,scholars,setLoadUsers,setLoadAnnou
        
         return scholar.uid == user?.uid && scholar.access==true;
     });
+
+    console.log(isAccess)
     const isSuper = scholars.filter((scholar) => {
        
         return scholar.uid == user?.uid && scholar.isSuper==true;
@@ -89,7 +91,7 @@ function Dashboard ({announcement,calendarSrc,scholars,setLoadUsers,setLoadAnnou
             <div className="bg-white flex flex-col p-2 shadow-lg rounded-xl font-montserrat w-full text-blue-900"> 
                 <div className='flex w-full'>
                     <h1 className='font-extrabold'>NOTICE</h1>
-                    <div className={`${isAccess !=false  && isSuper !=false||isSuper ==undefined && openEdit == false?"block":"hidden"} w-full flex justify-end`}>
+                    <div className={`${isAccess[0]?.access==true?"block":"hidden"} flex w-full justify-end`}>
                         <div className='cursor-pointer'>
                             <FaRegEdit onClick={()=>handleOnClickEdit()}/>
                         </div>

@@ -90,6 +90,7 @@ function Home () {
         query(
           collection(db, "users"),
           where('access', '==', true)
+          
         ),
         (querySnapshot) => {
           if (querySnapshot.size === 1) {
@@ -266,7 +267,7 @@ function Home () {
           { title: 'Profile', icon: <BsFillPersonFill/> },
           { title: 'Users', icon: <FaUsersCog/> },
         ]);
-      } else if(adminSuper==undefined || adminSuper==false && admin.access!=false) {
+      } else if(admin.access==true) {
         setMenuOptions([
           { title: 'Dashboard' },
           { title: 'Scholars', icon:<SiGooglescholar/> },

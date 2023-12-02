@@ -66,7 +66,7 @@ function Scholars ({scholars,setLoadUsers}) {
       setSearchKey(e.target.value);
     };
     
-    console.log(searchKey);
+
     useEffect(() => {
         let filteredUsersSASO,filteredUsersOthers;
       
@@ -106,7 +106,7 @@ function Scholars ({scholars,setLoadUsers}) {
         event.preventDefault();
         try{
           csvData.forEach(async(user) => {
-            console.log("looptext")
+        
             const scholarsCheck =scholars.filter((scholar) => {
               return scholar.id_no == user.id_no;
             });
@@ -209,7 +209,7 @@ function Scholars ({scholars,setLoadUsers}) {
                 }, 2000); // Adjust the duration as needed
               }
               else if (!querySnapshot.empty && update==true){
-                if (cluster!=''&&year!=''&&organization!=''){
+                if (id_no!=''&&name!=''&&office!=''){
                   Swal.fire({
                     title: 'Confirm Update Scholar?',
                     text: "Confirm updating " +id_no+" - " +name+"?",
@@ -248,9 +248,11 @@ function Scholars ({scholars,setLoadUsers}) {
                       setUpdate(false);
                     }
                   })
+                }
               }
               else{
-                if (cluster!=''&&year!=''&&organization!=''){
+               
+                if (id_no!=''&&name!=''&&office!=''){
                   Swal.fire({
                     title: 'Confirm Add Scholar?',
                     text: "Confirm adding " +id_no+" - " +name+"?",
@@ -296,19 +298,21 @@ function Scholars ({scholars,setLoadUsers}) {
                   }, 2000); // Adjust the duration as needed
                 }
               }
+            
           }
-        } catch (error) {
-          console.log(error);
-          setErrorMessage('ambot na error');
-          setIsShaking(true);
-      
-          // Clear the error message and reset the shake animation after a short delay
-          setTimeout(() => {
-            setErrorMessage('');
-            setIsShaking(false);
-          }, 2000); // Adjust the duration as needed
-        }
+          catch(error) {
+            console.log(error);
+            setErrorMessage('ambot na error');
+            setIsShaking(true);
+        
+            // Clear the error message and reset the shake animation after a short delay
+            setTimeout(() => {
+              setErrorMessage('');
+              setIsShaking(false);
+            }, 2000); // Adjust the duration as needed
+          }
       }
+      
 
       //EXPORT ALL
       const exportDataToCSV = () => {
@@ -590,7 +594,7 @@ function Scholars ({scholars,setLoadUsers}) {
         </div>
       </div>
     {/* ADD SCHOLAR CONTENT */}
-    <AddScholarModal isVisible={showAddScholar} onClose={()=> setShowAddScholar(false)}>
+    <AddScholarModal isVisible={showAddScholar} onClose={()=> {setShowAddScholar(false); setUpdate(false);}}>
     <div className='py-6 px-6 lg:px-8 text-left'>
       <h3 className='mb-4 text-xl font-medium text-blue-900'>
         {update?"Update":"Add"} Scholar Information
@@ -736,18 +740,13 @@ const AllScholars = ({scholars,setId_no,setCluster,setName,setOffice,setOrganiza
   const searchScholar =scholars.filter((scholar) => {
     return scholar.id_no.includes(searchKey) || scholar.name.trim().toLowerCase().includes(searchKey.trim().toLowerCase());
   });
-  console.log("search",searchScholar)
+
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
   
   const dropdownRef = useRef(null);
 
-  const handleAccount = (id_no) => {
-    const accountAccess =scholars.filter((scholar) => {
-      return scholar.id_no == id_no;
-    });
-    console.log(accountAccess[0].account)
-  }
+  
 
   const handleMouseEnter = (index) => {
     if (!showDropdown) {
@@ -877,7 +876,7 @@ const SASOScholars = ({scholars,setId_no,setCluster,setName,setOffice,setOrganiz
   const saso =scholars.filter((scholar) => {
     return scholar.organization=="saso" && scholar.id_no.includes(searchKey) || scholar.organization=="saso" && scholar.name.trim().toLowerCase().includes(searchKey.trim().toLowerCase());;
   });
-  console.log(saso);
+
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
   
@@ -1014,12 +1013,7 @@ const OtherScholars = ({scholars,setId_no,setCluster,setName,setOffice,setOrgani
   
   const dropdownRef = useRef(null);
 
-  const handleAccount = (id_no) => {
-    const accountAccess =scholars.filter((scholar) => {
-      return scholar.id_no == id_no;
-    });
-    console.log(accountAccess[0].account)
-  }
+
 
   const handleMouseEnter = (index) => {
     if (!showDropdown) {
