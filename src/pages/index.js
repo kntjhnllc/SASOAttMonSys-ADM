@@ -564,7 +564,7 @@ const HomePage = () => {
               <p className='mb-10'>
                 Fill up personal information and start journey with us.
               </p>
-              <button className='border-2 border-white rounded-full px-12 py-2 inline-block font-semibold hover:bg-white hover:text-blue-950'
+              <button className='border-2 border-white rounded-full px-6 md:px-12 py-2 inline-block font-semibold hover:bg-white hover:text-blue-950'
               onClick={handleSignUpClick}>
                 Sign Up
               </button>
@@ -575,7 +575,7 @@ const HomePage = () => {
               <p className='mb-10'>
                 Already have your account?
               </p>
-              <button className='border-2 border-white rounded-full px-12 py-2 inline-block font-semibold hover:bg-white hover:text-blue-950'
+              <button className='border-2 border-white rounded-full px-6 md:px-12 py-2 inline-block font-semibold hover:bg-white hover:text-blue-950'
               onClick={handleSignUpClick}>
                 Sign In
               </button>
