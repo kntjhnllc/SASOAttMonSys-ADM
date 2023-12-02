@@ -227,9 +227,8 @@ const HomePage = () => {
           }
           else{
             try {
-              
-              const userCredential = await createUserWithEmailAndPassword(authInstance, signUpEmail, signUpPassword);
               setSignUpButton(false);
+              const userCredential = await createUserWithEmailAndPassword(authInstance, signUpEmail, signUpPassword);
               const user = userCredential.user;
               const userData = {
                 uid: user.uid,
