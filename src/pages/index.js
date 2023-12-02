@@ -38,9 +38,7 @@ const HomePage = () => {
   const [loading, setLoading] = useState(true);
   const [bdayAgree,setBdayAgree] = useState(false);
   const [signUpButton , setSignUpButton] = useState(true);
-  const [userSignUp, setUserSignUp] = useState([]);
-  const [querySnapshot1 , setQuerySnapshot1] = useState([]);
- 
+
   useEffect(() => {
     // Set the title of the web page
     document.title = "HCDC Scholar"; // Replace "Your Page Title" with your desired title
@@ -195,53 +193,15 @@ const HomePage = () => {
   //     }
   //   }
   // };
-
-  
- 
-
-  useEffect(() => {
-    if (signUpIdNo.length==8){
-      const que = query(
-        collection(db, "users"),
-        where('id_no', '==', signUpIdNo));
-        
-      const unsubscribe = onSnapshot(que, (querySnapshot) => {
-
-        querySnapshot.docChanges().forEach((change) => {
-          const data = change.doc.data();
-          const id =change.doc.id;
-          
-          if (change.type === "added"){
-            setUserSignUp((prevUsers) => [...prevUsers, {...data, id}]);
-            console.log("added");
-          } else if (change.type === "modified"){
-            setUserSignUp((prevUsers) => prevUsers.map((user) => user.id===id? {...data, id} :user));
-            console.log("modified");
-          }
-          else if (change.type === "removed"){
-            setUserSignUp((prevUsers) => prevUsers.filter((user) => user.id !==id));
-            console.log("removed");
-          }
-        });
-      });
-      const docuID=userSignUp[0]?.id;
-      setDocID(docuID)
-      console.log("docu")
-      return () => unsubscribe();
-    }
-    else {
-      console.log("users not loaded")
-    }
-    
-  }, [signUpIdNo]);  
-  console.log(docID)
   const authInstance = getAuth();
 
   const signUp_Attempt = async (event)=> {
     event.preventDefault();
-   
-   const usersCollection = collection(db, 'users');
-    
+    const usersCollection = collection(db, 'users');
+        const q = query(usersCollection, where('id_no', '==', signUpIdNo));
+        const querySnapshot = await getDocs(q);
+        let docuID ;
+        
     try {
       if (signUpPassword === signUpPasswordConfirm) {
         if (signUpPassword.length <6){
@@ -255,7 +215,7 @@ const HomePage = () => {
           }, 2000); // Adjust the duration as needed
         }
         else {
-          if (docID==undefined){
+          if (querySnapshot.empty){
             setErrorMessage('No scholar with the ID No.!');
             setIsShaking(true);
   
@@ -269,7 +229,7 @@ const HomePage = () => {
             try {
               
               const userCredential = await createUserWithEmailAndPassword(authInstance, signUpEmail, signUpPassword);
-              setSignUpButton(false);
+              
               const user = userCredential.user;
               const userData = {
                 uid: user.uid,
@@ -280,7 +240,12 @@ const HomePage = () => {
                 date_created: serverTimestamp(),
               };
               if (userCredential) {
-                const userDocRef = doc(usersCollection, docID);
+                for (const doc of querySnapshot.docs) {
+                  docuID = doc.id;
+                  console.log("docu",docuID);
+                  
+                }
+                const userDocRef = doc(usersCollection, docuID);
                 await updateDoc(userDocRef, userData);
                 await sendEmailVerification(user);
               

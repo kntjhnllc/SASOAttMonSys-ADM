@@ -43,7 +43,7 @@ function Birthday({bdayName,onClose}){
                     <div className="text-red-800 pt-2 text-sm">{formattedDate}</div>
                     <div className="font-bold pt-1">{bdayName}, {randomBirthdayMessage}</div>
                 </div>
-                <audio autoplay muted>
+                <audio autoPlay >
                     <source src="birthdaySong.mp3" type="audio/mp3" />
                 </audio>
             </div>
